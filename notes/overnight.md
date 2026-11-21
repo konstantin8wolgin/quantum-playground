@@ -21,6 +21,6 @@ Rules for the night:
 9. [x] Integrate rooms 7–8 (16/16 tests pass, 19 rooms load at 375 px, links ok): index cards, glossary, README, PROMPT, decisions; all tests; commit and push (private).
 
 ## Backlog round 3 (added 00:30, optional, same rules)
-10. [ ] New room "Paths that wind around a ring": particle on a ring with a flux θ; paths fall into winding sectors n; Z(β) = Σ_n e^{iθn} e^{−S_n}; energy levels E_k(θ) = (k − θ/2π)²/2I from the winding sum (Poisson) vs exact; links Aharonov–Bohm, instantons, U(1). File `demos/winding-ring.html`.
+10. [x] (11b1826) New room "Paths that wind around a ring": particle on a ring with a flux θ; paths fall into winding sectors n; Z(β) = Σ_n e^{iθn} e^{−S_n}; energy levels E_k(θ) = (k − θ/2π)²/2I from the winding sum (Poisson) vs exact; links Aharonov–Bohm, instantons, U(1). File `demos/winding-ring.html`.
 11. [ ] New room "A phase from the shape of the path" (Berry phase): a spin-½ follows a slowly turning magnetic field; after one loop it gains the phase −Ω/2 (Ω = solid angle); adiabatic Schrödinger run vs formula; the 2π-loop gives −1 like the spinor flag. File `demos/berry-phase.html`.
 12. [ ] Integrate rooms 10–11 (index, glossary, docs), all tests, push (private).
