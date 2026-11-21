@@ -44,3 +44,6 @@ scope, because visuals can teach them better than the usual formalism.
 - Demo 2: double slit — built 2026-11-21 (`demos/double-slit.html`; Visscher scheme with 4th-order Laplacian, because the FFT version was too slow).
 - Demo 1: spinor flag and 720° — built 2026-11-21 (`demos/spinor-flag.html`).
 - Landing page `index.html`.
+- Rooms built 2026-11-21 in one run: broken symmetry (`xy-vortices.html`), three colours (`su3-colours.html`), phases around a loop (`wilson-loops.html`), order matters (`order-matters.html`), a phase without a force (`aharonov-bohm.html`). Each has node tests in `tests/` or checked numbers on the page.
+- Still proposed: vacuum chain / Casimir (field fluctuations), Wick morph and instantons, Abelian Higgs (vortices with a gauge field), string breaking.
+- Review gate: the user reviews every room before the repo goes public.

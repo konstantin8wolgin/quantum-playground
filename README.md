@@ -11,6 +11,11 @@ Not research. The aim: change parameters, watch what happens, understand it.
 | [`demos/path-integral.html`](demos/path-integral.html) | Real-time sum over paths (arrows, Cornu spiral, classical limit) and imaginary-time Monte Carlo (harmonic oscillator, double well, tunneling) |
 | [`demos/spinor-flag.html`](demos/spinor-flag.html) | SU(2) and the 720° rotation: belt trick (with untangle slider), Bloch sphere with Penrose flag, the two spinor arrows, neutron-interferometer brightness |
 | [`demos/double-slit.html`](demos/double-slit.html) | Schrödinger wave through two slits (phase colours), Bohm flow lines, single arrival dots, path-sum prediction |
+| [`demos/xy-vortices.html`](demos/xy-vortices.html) | Broken symmetry: ball on a Mexican hat (Higgs mode 2μ, Goldstone mode 0), XY model of 128×128 compasses, vortices, quench (Kibble–Zurek) |
+| [`demos/su3-colours.html`](demos/su3-colours.html) | SU(3) colour: three quark arrows, the eight Gell-Mann directions, weight diagrams, 3⊗3̄ = 8⊕1 |
+| [`demos/wilson-loops.html`](demos/wilson-loops.html) | Compact U(1) lattice gauge field in 2D: phases on links, Wilson loops, area law, gauge invariance |
+| [`demos/order-matters.html`](demos/order-matters.html) | Observables and commutators: Stern–Gerlach sequence, [x,p] = iħ, Wigner function (Fock, cat, coherent, squeezed) |
+| [`demos/aharonov-bohm.html`](demos/aharonov-bohm.html) | Aharonov–Bohm effect: stripes shift with a hidden flux, Peierls phases, the cut line as a gauge choice |
 
 Start at [`index.html`](index.html). Open any file in a browser. No install, no server.
 
@@ -22,6 +27,14 @@ harmonic oscillator at β = 8, ħ = 1. Double slit at λ = 8, d = 40: stripe
 distance 73.5 (simulation) vs. 72.0 (path sum) vs. 71.2 (λL/d). Spinor:
 interference I(360°) = 0.000, I(720°) = 1.000; the belt untangles at 720° with
 the box still (0.0°), but at 360° the box must turn (180° at the midpoint).
+Broken symmetry: XY energy per site −1.949 vs. −1.95 (low-T formula) at T = 0.1;
+Higgs frequency 1.999 vs. 2μ = 2.000. Wilson loops: plaquette 0.6972 vs. exact
+I₁/I₀ = 0.6978. Order matters: ⟨[x,p]⟩ = 0.9999i, W(0,0) of the first excited
+state = −1/π. Aharonov–Bohm: stripe shift 0.500 at Φ/Φ₀ = 0.5, gauge-cut
+invariance 3e-11.
+
+Node tests: `node tests/<name>.test.mjs` runs the physics core of a page
+without a browser.
 
 ## Rebuild it yourself
 

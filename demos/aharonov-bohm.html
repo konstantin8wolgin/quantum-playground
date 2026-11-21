@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A Phase Without a Force</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d;}
+}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+.stage{display:grid;grid-template-columns:4fr 1fr;gap:10px}
+@media (max-width:700px){.stage{grid-template-columns:3fr 1fr}}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+.arrows{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:14px}
+.arrows canvas{width:260px;max-width:100%;height:110px}
+.arrows .cap{flex:1 1 240px;font-size:12.5px;color:var(--muted)}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>A Phase Without a Force</h1>
+<p class="sub">A thin magnet hides behind the wall, between the two slits. Its magnetic field stays inside it. The electron wave never touches the field. Yet the stripes on the screen move when you change the field. The field does not push the electron. It turns the arrow of each path.</p>
+
+<section>
+<div class="stage">
+  <canvas id="sim"></canvas>
+  <canvas id="screen"></canvas>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>wave: Schrödinger equation on a 600×360 grid, with a magnetic phase on every hop</div>
+  <div><span class="chip c-exact">exact</span>orange curve: sum over paths through both slits; paths through the top slit get the extra phase α. Grey dashes: the same sum with no flux.</div>
+  <div><span class="chip c-cartoon">cartoon</span>small circles: the arrow of each path</div>
+</div>
+<div class="arrows">
+  <canvas id="arr" height="110"></canvas>
+  <div class="cap">Each path ends with an arrow. The top path has one extra turn α = 2π·Φ/Φ₀. At the screen the two arrows add. When α changes, the stripes move. At one full flux unit (α = 360°) the arrow is back where it started.</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="run" class="primary">Pause</button><button id="restart">Restart</button></div>
+  <label>flux Φ/Φ₀ <b id="fV"></b><input id="flux" type="range" min="0" max="2" step="0.05" value="0.5"></label>
+  <label>wavelength λ <b id="lamV"></b><input id="lam" type="range" min="7" max="14" step="0.1" value="8"></label>
+  <label><input type="checkbox" id="cut"> move the cut line (right → up)</label>
+  <label>view <select id="view"><option value="phase">phase colours</option><option value="prob">probability only</option></select></label>
+</div>
+<div class="read" id="read"></div>
+<div class="predict"><b>Predict, then test:</b> set the flux to 0.5. Where does the middle stripe go? Then set the flux to 1.0. Do the stripes come back? Last, tick "move the cut line" during a run. The colours change. Do the stripes on the screen change too?</div>
+<details><summary>What the numbers mean</summary>
+<p>Units: ħ = m = e = 1. The wave obeys <span class="eq">i ∂ψ/∂t = ½(−i∇ − A)²ψ + Vψ</span>. Outside the thin magnet the field is zero: <span class="eq">B = ∇×A = 0</span>. But A is not zero. Its line integral around the magnet is the flux: <span class="eq">∮A·dl = Φ</span>. A wave that goes around the magnet gets the phase <span class="eq">α = 2πΦ/Φ₀</span>. Here Φ₀ is one flux quantum (<span class="eq">h/e</span>).</p>
+<p><span class="chip c-sim">simulation</span> The grid hops carry the phase (the Peierls rule). Choose a cut line from the magnet to the border. Every hop that crosses the cut gets the factor <span class="eq">e<sup>±iα</sup></span>. This includes the hops of length 2, because the 4th-order Laplacian uses them. The Hamiltonian is now complex, so the real-and-imaginary scheme of the double-slit room does not work. This room uses the leapfrog step <span class="eq">ψ(t+Δt) = ψ(t−Δt) − 2iΔt·Hψ(t)</span>, with Δt = 0.15. The total probability stays within 1 % until the wave reaches the absorbing border.</p>
+<p><span class="chip c-exact">exact</span> The orange curve adds one arrow for every straight path from a slit point to a screen point. The arrow turns by <span class="eq">k·r</span>. Paths through the top slit turn by α more. The stripes move by <span class="eq">−Φ/Φ₀</span> of one stripe distance (the sign shows the direction). The shift repeats with period 1. So Φ/Φ₀ = 0.5 puts a dark stripe in the middle, and Φ/Φ₀ = 1 gives the pattern of Φ = 0.</p>
+<p><b>Gauge.</b> The cut line has no physical meaning. Move it, and the wave changes by the factor <span class="eq">e<sup>iα</sup></span> in the region between the old and the new cut. The colours change. The probability, and so the screen pattern, does not. This is a U(1) gauge change. The check "other cut line" compares two runs: the relative difference is about 10<sup>−12</sup>, which is rounding.</p>
+<p><b>Story.</b> Nature adds up phases. Every path has an arrow. A magnetic potential gives each path one extra turn of its arrow. The size of the turn depends only on how the path winds around the flux. The group of such turns is U(1), the circle. No force acts on the electron: the electron never feels a push, but the sum of its arrows changes. The effect was predicted by Ehrenberg and Siday (1949) and by Aharonov and Bohm (1959). Tonomura's group saw it in 1986.</p>
+<p><b>Limits.</b> The magnet here is a hard disc of radius 4 cells with ψ = 0. It scatters a little wave, so the simulated stripes are not exactly the orange curve. The shift is still the same to about ±0.05 stripe distance. The screen is not in the far field, so stripe distances change slowly with height.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+/* Aharonov-Bohm on a grid. Units hbar = m = e = 1. No DOM. All sizes are parameters.
+   H psi = 2.5 psi - (2/3) sum_nn e^{ia} psi_j + (1/24) sum_nnn e^{ia} psi_j  (4th-order Laplacian, 5 points per axis)
+   a(j->i) = alpha * (signed number of times the hop j->i crosses the cut ray), a(i->j) = -a(j->i), so H is Hermitian.
+   Time step: leapfrog psi(t+dt) = psi(t-dt) - 2i dt H psi(t). Stable for dt * 5.33 < 1. */
+function abParams(o){
+  const P=Object.assign({NX:600,NY:360,DT:0.15,lam:8,alpha:0,cut:"right",X0:90,SX:14,SY:34,WX:200,WT:4,XS:560,B:24,d:40,w:8,solR:4,solDX:8,T:760},o||{});
+  P.cx=Math.round(P.WX+P.WT+P.solDX);P.cy=Math.round(P.NY/2);P.k0=2*Math.PI/P.lam;
+  P.Xc=P.cx+0.5;P.Yc=P.cy-0.5; /* solenoid centre in index space; the cut rays lie on half-integer lines, never on a cell */
+  return P;
+}
+/* signed crossings of the hop j->i with the cut ray. Winding is counted as increasing atan2(y-Yc, x-Xc). */
+function abCross(P,xj,yj,xi,yi){
+  const Xc=P.Xc,Yc=P.Yc;
+  if(P.cut==="right"){if(xi===xj&&xj>Xc){if(yj<Yc&&yi>Yc)return 1;if(yj>Yc&&yi<Yc)return -1}return 0}
+  if(P.cut==="down"){if(yi===yj&&yj>Yc){if(xj>Xc&&xi<Xc)return 1;if(xj<Xc&&xi>Xc)return -1}return 0}
+  if(yi===yj&&yj<Yc){if(xj<Xc&&xi>Xc)return 1;if(xj>Xc&&xi<Xc)return -1}return 0; /* "up" */
+}
+function abBuildCut(S){
+  const P=S.P,NX=P.NX,NY=P.NY,I=[],J=[],C=[],CO=[],SI=[];
+  if(P.alpha!==0)for(let y=2;y<NY-2;y++)for(let x=2;x<NX-2;x++){const i=y*NX+x;if(!S.m[i])continue;
+    for(let dir=0;dir<4;dir++)for(let h=1;h<=2;h++){
+      const dx=dir===0?h:dir===1?-h:0,dy=dir===2?h:dir===3?-h:0,xj=x+dx,yj=y+dy;
+      const n=abCross(P,xj,yj,x,y);if(n===0)continue;const j=yj*NX+xj;if(!S.m[j])continue;
+      const a=n*P.alpha;I.push(i);J.push(j);C.push(h===1?-2/3:1/24);CO.push(Math.cos(a)-1);SI.push(Math.sin(a))}}
+  S.cutI=Int32Array.from(I);S.cutJ=Int32Array.from(J);S.cutC=Float64Array.from(C);S.cutCo=Float64Array.from(CO);S.cutSi=Float64Array.from(SI);
+}
+/* H applied to (R,I) -> (oR,oI), cut corrections included, wall and border cells zero */
+function abApplyH(S,R,I,oR,oI){
+  const P=S.P,NX=P.NX,NY=P.NY,N2=2*NX,m=S.m;oR.fill(0);oI.fill(0);
+  for(let y=2;y<NY-2;y++){const o=y*NX;for(let x=2;x<NX-2;x++){const i=o+x;if(!m[i])continue;
+    oR[i]=2.5*R[i]-(16*(R[i-1]+R[i+1]+R[i-NX]+R[i+NX])-(R[i-2]+R[i+2]+R[i-N2]+R[i+N2]))/24;
+    oI[i]=2.5*I[i]-(16*(I[i-1]+I[i+1]+I[i-NX]+I[i+NX])-(I[i-2]+I[i+2]+I[i-N2]+I[i+N2]))/24}}
+  for(let q=0;q<S.cutI.length;q++){const i=S.cutI[q],j=S.cutJ[q],c=S.cutC[q],co=S.cutCo[q],si=S.cutSi[q];
+    oR[i]+=c*(co*R[j]-si*I[j]);oI[i]+=c*(co*I[j]+si*R[j])}
+}
+function abInit(P){
+  const NX=P.NX,NY=P.NY,N=NX*NY,S={P,t:0,steps:0};
+  S.m=new Uint8Array(N);S.f=new Float64Array(N);S.acc=new Float64Array(NY);
+  const g=0.03*P.DT/0.25,band=[];
+  const slits=[[P.cy-P.d/2-P.w/2,P.cy-P.d/2+P.w/2],[P.cy+P.d/2-P.w/2,P.cy+P.d/2+P.w/2]];
+  for(let y=0;y<NY;y++)for(let x=0;x<NX;x++){
+    const i=y*NX+x;let w=x>=P.WX&&x<P.WX+P.WT;
+    if(w)for(const [a,b] of slits)if(y>=a&&y<b)w=false;
+    if(x<2||y<2||x>NX-3||y>NY-3)w=true;
+    if((x-P.Xc)**2+(y-P.Yc)**2<P.solR*P.solR)w=true; /* the solenoid: psi = 0 inside */
+    S.m[i]=w?0:1;
+    const dd=Math.min(x,NX-1-x,y,NY-1-y),a=dd<P.B?1-g*Math.pow((P.B-dd)/P.B,2):1;
+    S.f[i]=w?0:a;if(!w&&a<1)band.push(i)}
+  S.band=Int32Array.from(band);
+  abBuildCut(S);
+  const R0=new Float64Array(N),I0=new Float64Array(N);let nrm=0;
+  for(let y=0;y<NY;y++)for(let x=0;x<NX;x++){const i=y*NX+x;let a=S.m[i]?Math.exp(-((x-P.X0)**2)/(4*P.SX*P.SX)-((y-P.Yc)**2)/(4*P.SY*P.SY)):0;if(a<1e-12)a=0; /* no tiny numbers: they make the CPU slow */
+   
+    R0[i]=a*Math.cos(P.k0*x);I0[i]=a*Math.sin(P.k0*x);nrm+=a*a}
+  const nf=1/Math.sqrt(nrm);for(let i=0;i<N;i++){R0[i]*=nf;I0[i]*=nf}
+  /* start of leapfrog: psi(-dt) = psi0 + i dt H psi0 - dt^2/2 H^2 psi0 */
+  const H1R=new Float64Array(N),H1I=new Float64Array(N),H2R=new Float64Array(N),H2I=new Float64Array(N),dt=P.DT;
+  abApplyH(S,R0,I0,H1R,H1I);abApplyH(S,H1R,H1I,H2R,H2I);
+  const Rp=new Float64Array(N),Ip=new Float64Array(N);
+  for(let i=0;i<N;i++){Rp[i]=R0[i]-dt*H1I[i]-0.5*dt*dt*H2R[i];Ip[i]=I0[i]+dt*H1R[i]-0.5*dt*dt*H2I[i]}
+  S.Rp=Rp;S.Ip=Ip;S.Rc=R0;S.Ic=I0;S.Rn=new Float64Array(N);S.In=new Float64Array(N);
+  return S;
+}
+function abStep(S){
+  const P=S.P,NX=P.NX,NY=P.NY,N2=2*NX,dt2=2*P.DT,f=S.f,Rc=S.Rc,Ic=S.Ic,Rp=S.Rp,Ip=S.Ip,Rn=S.Rn,In=S.In;
+  for(let y=2;y<NY-2;y++){const o=y*NX;for(let x=2;x<NX-2;x++){const i=o+x;
+    const hr=2.5*Rc[i]-(16*(Rc[i-1]+Rc[i+1]+Rc[i-NX]+Rc[i+NX])-(Rc[i-2]+Rc[i+2]+Rc[i-N2]+Rc[i+N2]))/24;
+    const hi=2.5*Ic[i]-(16*(Ic[i-1]+Ic[i+1]+Ic[i-NX]+Ic[i+NX])-(Ic[i-2]+Ic[i+2]+Ic[i-N2]+Ic[i+N2]))/24;
+    Rn[i]=f[i]*(Rp[i]+dt2*hi);In[i]=f[i]*(Ip[i]-dt2*hr)}}
+  for(let q=0;q<S.cutI.length;q++){const i=S.cutI[q],j=S.cutJ[q],c=S.cutC[q],co=S.cutCo[q],si=S.cutSi[q];
+    const dR=c*(co*Rc[j]-si*Ic[j]),dI=c*(co*Ic[j]+si*Rc[j]),s=f[i]*dt2;Rn[i]+=s*dI;In[i]-=s*dR}
+  for(let q=0;q<S.band.length;q++){const i=S.band[q];Rc[i]*=f[i];Ic[i]*=f[i]} /* damp both time levels in the border */
+  /* rotate: prev <- cur <- next */
+  S.Rp=Rc;S.Ip=Ic;S.Rc=Rn;S.Ic=In;S.Rn=Rp;S.In=Ip;
+  S.steps++;S.t+=P.DT;
+  const c=P.XS;for(let y=0;y<NY;y++){const i=y*NX+c;S.acc[y]+=(S.Rc[i]*S.Rc[i]+S.Ic[i]*S.Ic[i])*P.DT}
+}
+function abNorm(S){let n=0;const R=S.Rc,I=S.Ic;for(let i=0;i<R.length;i++)n+=R[i]*R[i]+I[i]*I[i];return n}
+/* gauge change: move the cut line. psi -> exp(i*sigma*alpha*(th_new-th_old)/2pi) psi, with th the angle measured from the cut ray. */
+const AB_GAUGE_SIGMA=1;
+function abBranch(cut,th){const t0=cut==="right"?0:cut==="up"?-Math.PI/2:Math.PI/2,TP=2*Math.PI;return t0+((th-t0)%TP+TP)%TP}
+function abGaugeFactor(S,newCut,i,sigma){
+  const P=S.P,x=i%P.NX,y=(i-x)/P.NX,th=Math.atan2(y-P.Yc,x-P.Xc);
+  return sigma*P.alpha*(abBranch(newCut,th)-abBranch(P.cut,th))/(2*Math.PI);
+}
+function abSwitchCut(S,newCut){
+  const P=S.P;if(newCut===P.cut)return;
+  const N=P.NX*P.NY;
+  for(let i=0;i<N;i++){if(!S.m[i])continue;const L=abGaugeFactor(S,newCut,i,AB_GAUGE_SIGMA);if(L===0)continue;
+    const c=Math.cos(L),s=Math.sin(L);
+    let r=S.Rc[i],m=S.Ic[i];S.Rc[i]=r*c-m*s;S.Ic[i]=r*s+m*c;
+    r=S.Rp[i];m=S.Ip[i];S.Rp[i]=r*c-m*s;S.Ip[i]=r*s+m*c}
+  P.cut=newCut;abBuildCut(S);
+}
+/* exact path sum on the screen column. Paths through the top slit get the phase sign*alpha (sign fixed by the test). */
+const AB_PATH_SIGN=1;
+function abPathSum(P,alpha,out){
+  const NY=P.NY,x0=P.WX+P.WT,L=P.XS-x0;let mx=0;
+  const slits=[[P.cy-P.d/2-P.w/2,P.cy-P.d/2+P.w/2,AB_PATH_SIGN*alpha],[P.cy+P.d/2-P.w/2,P.cy+P.d/2+P.w/2,0]];
+  for(let y=0;y<NY;y++){let ar=0,ai=0;
+    for(const [a,b,ph] of slits)for(let s=a-0.25;s<b-0.5;s+=0.5){
+      const env=Math.exp(-((s-P.Yc)**2)/(4*P.SY*P.SY)),r=Math.hypot(L,y-s),amp=env/Math.sqrt(r);
+      ar+=amp*Math.cos(P.k0*r+ph);ai+=amp*Math.sin(P.k0*r+ph)}
+    out[y]=ar*ar+ai*ai;if(out[y]>mx)mx=out[y]}
+  return mx;
+}
+/* fringe shift of pattern cur relative to ref, in units of the fringe spacing, in (-0.5,0.5].
+   Fit a + b cos u + c sin u, u = 2 pi (y - Yc)/s, in a window around the centre; s is found from ref. Positive = toward larger y. */
+function abFit(arr,y0,y1,s,Yc){
+  let n=0,sc=0,ss=0,scc=0,sss=0,scs=0,v0=0,v1=0,v2=0;
+  for(let y=y0;y<=y1;y++){const u=2*Math.PI*(y-Yc)/s,c=Math.cos(u),q=Math.sin(u),v=arr[y];
+    n++;sc+=c;ss+=q;scc+=c*c;sss+=q*q;scs+=c*q;v0+=v;v1+=v*c;v2+=v*q}
+  /* solve 3x3 normal equations by Cramer */
+  const A=[[n,sc,ss],[sc,scc,scs],[ss,scs,sss]],b=[v0,v1,v2];
+  const det=M=>M[0][0]*(M[1][1]*M[2][2]-M[1][2]*M[2][1])-M[0][1]*(M[1][0]*M[2][2]-M[1][2]*M[2][0])+M[0][2]*(M[1][0]*M[2][1]-M[1][1]*M[2][0]);
+  const D=det(A),sol=[0,1,2].map(k=>{const M=A.map((r,i)=>r.map((e,j)=>j===k?b[i]:e));return det(M)/D});
+  let res=0;for(let y=y0;y<=y1;y++){const u=2*Math.PI*(y-Yc)/s,e=arr[y]-(sol[0]+sol[1]*Math.cos(u)+sol[2]*Math.sin(u));res+=e*e}
+  return{a:sol[0],b:sol[1],c:sol[2],res};
+}
+function abFringeShift(P,ref,cur){
+  const s0=P.lam*(P.XS-P.WX-P.WT)/P.d,lo=P.B+2,hi=P.NY-P.B-3;
+  const win=Math.min(1.5*s0,Math.min(P.Yc-lo,hi-P.Yc));
+  const y0=Math.ceil(P.Yc-win),y1=Math.floor(P.Yc+win);
+  let best=null,bs=s0;
+  for(let s=0.7*s0;s<=1.3*s0;s+=0.01*s0){const r=abFit(ref,y0,y1,s,P.Yc);if(!best||r.res<best.res){best=r;bs=s}}
+  const cf=abFit(cur,y0,y1,bs,P.Yc);
+  let d=(Math.atan2(cf.c,cf.b)-Math.atan2(best.c,best.b))/(2*Math.PI);
+  d-=Math.round(d);if(d<=-0.5)d+=1;
+  return{shift:d,spacing:bs};
+}
+function abRelDiff(a,b){let n=0,m=0;for(let i=0;i<a.length;i++){n+=(a[i]-b[i])**2;m+=b[i]**2}return Math.sqrt(n/(m||1))}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+let P=null,S=null,running=true,runs=[],pathSum=null,pathRef=null,pathMax=1,finished=false,savedRun=false;
+const reduced=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NX=600,NY=360,N=NX*NY;
+
+function cutName(){return $("cut").checked?"up":"right"}
+function setup(){
+  const alpha=2*Math.PI*(+$("flux").value);
+  P=abParams({lam:+$("lam").value,alpha,cut:cutName()});
+  S=abInit(P);
+  pathSum=new Float64Array(NY);pathRef=new Float64Array(NY);
+  const m0=abPathSum(P,0,pathRef);abPathSum(P,alpha,pathSum);pathMax=m0;
+  finished=false;savedRun=false;
+}
+const off=document.createElement("canvas");off.width=NX;off.height=NY;
+const octx=off.getContext("2d"),img=octx.createImageData(NX,NY);
+const pal=new Uint8Array(256*3);
+for(let h=0;h<256;h++){const H=h/256*6,Xc=1-Math.abs(H%2-1);let r=0,g=0,b=0;
+  if(H<1){r=1;g=Xc}else if(H<2){r=Xc;g=1}else if(H<3){g=1;b=Xc}else if(H<4){g=Xc;b=1}else if(H<5){r=Xc;b=1}else{r=1;b=Xc}
+  pal[h*3]=r*255;pal[h*3+1]=g*255;pal[h*3+2]=b*255}
+function fit(c,H0){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,h=H0||Math.round(w*NY/NX);
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}c.style.height=h+"px";
+  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h}}
+function draw(){
+  const D=img.data,phase=$("view").value==="phase",R=S.Rc,I=S.Ic,wm=S.m;
+  let pm=1e-30;for(let i=0;i<N;i++){const q=R[i]*R[i]+I[i]*I[i];if(q>pm)pm=q}
+  const rho0=1/(2*Math.PI*P.SX*P.SY),inv=1/Math.max(pm,0.01*rho0);
+  for(let i=0;i<N;i++){const o=i*4;
+    if(!wm[i]){D[o]=D[o+1]=D[o+2]=120;D[o+3]=255;continue}
+    const r=R[i],m=I[i],b=Math.min(1,Math.pow((r*r+m*m)*inv,0.3));
+    if(phase){const h=((Math.atan2(m,r)*0.15915494+1)%1*256)|0;D[o]=pal[h*3]*b;D[o+1]=pal[h*3+1]*b;D[o+2]=pal[h*3+2]*b}
+    else{D[o]=255*Math.min(1,b*b*1.3);D[o+1]=255*Math.min(1,b*1.05);D[o+2]=255*Math.min(1,0.3*Math.sqrt(b)+b)}
+    D[o+3]=255}
+  octx.putImageData(img,0,0);
+  const {x:g,w:W,h:H}=fit($("sim")),sx=W/NX,sy=H/NY;
+  g.imageSmoothingEnabled=true;g.drawImage(off,0,0,W,H);
+  g.strokeStyle="rgba(255,255,255,.5)";g.setLineDash([4,4]);g.beginPath();g.moveTo((P.XS+.5)*sx,0);g.lineTo((P.XS+.5)*sx,H);g.stroke();g.setLineDash([]);
+  /* cut line and solenoid */
+  const cx=(P.Xc+.5)*sx,cy=(P.Yc+.5)*sy;
+  g.strokeStyle="#22d3ee";g.lineWidth=1.5;g.setLineDash([5,4]);g.beginPath();g.moveTo(cx,cy);
+  if(P.cut==="right")g.lineTo(W,cy);else if(P.cut==="up")g.lineTo(cx,0);else g.lineTo(cx,H);g.stroke();g.setLineDash([]);
+  g.fillStyle="#22d3ee";g.font="12px system-ui";
+  if(P.cut==="right")g.fillText("cut line",cx+14,cy-5);else g.fillText("cut line",cx+5,22);
+  g.fillStyle="#07080c";g.strokeStyle="#fbbf24";g.lineWidth=2;g.beginPath();g.arc(cx,cy,P.solR*sx,0,7);g.fill();g.stroke();
+  g.fillStyle="#fbbf24";g.fillText("Φ",cx-4,cy+4);
+  g.fillStyle="rgba(255,255,255,.7)";g.fillText("screen",(P.XS+.5)*sx-44,14);
+  /* screen */
+  const sc=$("screen");const s=fit(sc,H),q=s.x,SW=s.w,SH=s.h;
+  q.fillStyle="#07080c";q.fillRect(0,0,SW,SH);
+  let sa=0,sp=0;for(let y=0;y<NY;y++){sa+=S.acc[y];sp+=pathSum[y]}
+  const k=sa>0?sp/sa:0;/* same area for bars and curve */
+  q.fillStyle="rgba(125,170,255,.45)";
+  for(let y=0;y<NY;y++){const v=Math.min(1.2,S.acc[y]*k/pathMax);q.fillRect(0,y*SH/NY,v*SW*0.8,SH/NY+0.5)}
+  q.strokeStyle="rgba(200,200,200,.7)";q.lineWidth=1.2;q.setLineDash([4,3]);q.beginPath();
+  for(let y=0;y<NY;y++)q.lineTo(pathRef[y]/pathMax*SW*0.8,(y+.5)*SH/NY);q.stroke();q.setLineDash([]);
+  q.strokeStyle="#ff9d3c";q.lineWidth=2;q.beginPath();
+  for(let y=0;y<NY;y++)q.lineTo(pathSum[y]/pathMax*SW*0.8,(y+.5)*SH/NY);q.stroke();
+  drawArrows();
+  readout();
+}
+function drawArrows(){
+  const c=$("arr"),s=fit(c,110),g=s.x,W=s.w,alpha=P.alpha;
+  g.fillStyle="#07080c";g.fillRect(0,0,W,110);
+  const r=34,cy=55,xs=[W*0.2,W*0.5,W*0.8],lab=["bottom path","top path","sum"];
+  const a0=-0.6,a1=a0-AB_PATH_SIGN*alpha;
+  const arr=(x,ang,len,col)=>{g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2;const ex=x+len*Math.cos(ang),ey=cy+len*Math.sin(ang);
+    g.beginPath();g.moveTo(x,cy);g.lineTo(ex,ey);g.stroke();g.beginPath();g.arc(ex,ey,3,0,7);g.fill()};
+  for(let k=0;k<3;k++){g.strokeStyle="rgba(255,255,255,.25)";g.lineWidth=1;g.beginPath();g.arc(xs[k],cy,r,0,7);g.stroke();
+    g.fillStyle="rgba(255,255,255,.7)";g.font="11px system-ui";g.textAlign="center";g.fillText(lab[k],xs[k],104);}
+  arr(xs[0],a0,r*0.9,"#93c5fd");arr(xs[1],a1,r*0.9,"#fbbf24");
+  const sr=Math.cos(a0)+Math.cos(a1),si=Math.sin(a0)+Math.sin(a1),sl=Math.hypot(sr,si);
+  arr(xs[2],Math.atan2(si,sr),sl*r*0.45,"#ff9d3c");
+  g.textAlign="left";g.fillStyle="rgba(255,255,255,.8)";g.fillText("α = "+(alpha*180/Math.PI).toFixed(0)+"°",4,14);
+}
+function wrap(d){d-=Math.round(d);if(d<=-0.5)d+=1;return d}
+function readout(){
+  const phi=+$("flux").value,n=abNorm(S),lamOK=true;
+  let shiftTxt="…",pathTxt="…";
+  const ps=abFringeShift(P,pathRef,pathSum);
+  pathTxt=ps.shift.toFixed(2);
+  if(finished){const acc=Array.from(S.acc),sh=abFringeShift(P,pathRef,S.acc);shiftTxt=sh.shift.toFixed(2)}
+  let cmp="";
+  if(finished){
+    const o=runs.find(r=>r!==runs[runs.length-1]&&r.lam===P.lam&&r.phi===phi&&r.cut!==P.cut);
+    const z=runs.find(r=>r.lam===P.lam&&r.phi===0&&phi!==0);
+    const cur=runs[runs.length-1];
+    if(o)cmp+=`<div><span>other cut line, same flux: relative difference of the screen pattern </span><b>${abRelDiff(cur.acc,o.acc).toExponential(1)}</b></div>`;
+    if(z&&Math.abs(phi-Math.round(phi))<1e-9)cmp+=`<div><span>difference to the Φ = 0 run </span><b>${(abRelDiff(cur.acc,z.acc)*100).toFixed(2)} %</b></div>`;
+  }
+  $("fV").textContent=phi.toFixed(2);
+  $("read").innerHTML=`<div><span>time </span><b>${S.t.toFixed(0)} / ${P.T}</b></div>
+   <div><span>total probability on grid </span><b>${n.toFixed(4)}</b> <span>(stays within 1 % until the reflected wave reaches the border, at time about 320)</span></div>
+   <div><span>stripe shift in stripe distances: simulation </span><b>${shiftTxt}</b> <span>· path sum </span><b>${pathTxt}</b> <span>· −Φ/Φ₀ mod 1 </span><b>${wrap(-phi).toFixed(2)}</b></div>
+   <div><span>stripe distance </span><b>${ps.spacing.toFixed(1)}</b> <span>· cut line </span><b>${P.cut}</b></div>${cmp}`;
+}
+let last=0;
+function loop(ts){
+  if(running&&S.t<P.T){const t0=performance.now();
+    while(performance.now()-t0<(reduced?10:28)&&S.t<P.T)for(let i=0;i<8;i++)abStep(S)}
+  if(S.t>=P.T&&!finished){finished=true;
+    runs.push({lam:P.lam,phi:+$("flux").value,cut:P.cut,acc:Float64Array.from(S.acc)});if(runs.length>12)runs.shift()}
+  draw();requestAnimationFrame(loop);
+}
+$("flux").addEventListener("input",()=>{$("fV").textContent=(+$("flux").value).toFixed(2);setup()});
+$("lam").addEventListener("input",()=>{$("lamV").textContent=(+$("lam").value).toFixed(1);setup()});
+$("cut").addEventListener("change",()=>{abSwitchCut(S,cutName());if(finished){/* gauge change after the run: only the label and phase colours change */}});
+$("run").onclick=()=>{running=!running;$("run").textContent=running?"Pause":"Run"};
+$("restart").onclick=()=>{setup();running=true;$("run").textContent="Pause"};
+$("lamV").textContent=(+$("lam").value).toFixed(1);
+if(reduced){running=false;$("run").textContent="Run"}
+setup();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
