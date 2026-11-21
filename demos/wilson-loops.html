@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phases Around a Loop</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px;touch-action:none}
+#heat{aspect-ratio:1;cursor:grab}
+#plot{aspect-ratio:4/3}
+#inset{aspect-ratio:1;max-width:260px}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:2fr 2fr auto;gap:10px 22px;margin-top:14px;align-items:end}
+@media (max-width:700px){.controls{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button{font:inherit;background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+button.ghost{background:var(--bg);color:var(--ink);border-color:var(--line)}
+.status{margin-top:10px;font-size:14px;min-height:22px}
+.status .warn{color:var(--warn);font-weight:600}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:8px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.legend{display:grid;gap:4px;margin-top:12px;font-size:13px;color:var(--muted)}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Phases Around a Loop</h1>
+<p class="sub">A phase sits on every link of a grid. The phase around a closed loop is the field inside it. Pull two charges apart, and the cost grows with the distance, like a string.</p>
+
+<section>
+<h3>The field on a grid <span class="chip c-sim">simulation</span></h3>
+<div class="grid">
+  <div>
+    <canvas id="heat" tabindex="0" aria-label="Heat map of the field strength with a loop you can drag. Arrow keys move the loop. Shift and arrow keys resize it."></canvas>
+    <div class="cap">Each small square shows the phase around its four links: the field strength. Bright light colour: zero. Dark: half a turn. Orange: positive. Blue: negative. Drag the white loop to move it. Drag its corner to resize it.</div>
+  </div>
+  <div>
+    <canvas id="plot"></canvas>
+    <div class="cap">Average loop value ⟨W⟩ (log scale) against loop area. Dots: measured, with error bars. Line: the exact result.</div>
+    <h3 style="margin-top:12px">The links <span class="chip c-cartoon">cartoon</span></h3>
+    <canvas id="inset"></canvas>
+    <div class="cap">Zoom on 8×8 sites near the loop corner. Each link carries a dial. The dial shows the phase of that link.</div>
+  </div>
+</div>
+
+<div class="controls">
+  <label>coupling β (high β: smooth field) <b id="bV"></b><input id="beta" type="range" min="0.3" max="6" step="0.05" value="2"></label>
+  <label>sweeps per frame <b id="sV"></b><input id="spf" type="range" min="1" max="10" step="1" value="2"></label>
+  <div class="btns"><button id="play">Pause</button><button class="ghost" id="gauge">gauge transformation</button><button class="ghost" id="hot">restart</button></div>
+</div>
+<div class="status" id="status"></div>
+<div class="predict"><b>Predict, then test:</b> set β near 1. Make the loop bigger. Does the average ⟨W⟩ fall with the edge length or with the area? Then look at the plot. Next, press "gauge transformation". The dials change a lot. What happens to the colours?</div>
+
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>colours and dots: Monte Carlo (Metropolis updates) on a 96×96 grid with wrap-around edges</div>
+  <div><span class="chip c-exact">exact</span>line, and the numbers marked "exact": formulas with Bessel functions I<sub>0</sub> and I<sub>1</sub></div>
+  <div><span class="chip c-int">interpretation</span>the string picture: the energy to pull a charge pair apart grows with the distance</div>
+</div>
+<div class="read" id="read"></div>
+
+<details><summary>What the numbers mean</summary>
+<p>Each link carries a phase θ. This is a U(1) number: an angle on a circle. The field strength in one small square is <span class="eq">θ<sub>P</sub> = θ<sub>1</sub>(x) + θ<sub>2</sub>(x+1̂) − θ<sub>1</sub>(x+2̂) − θ<sub>2</sub>(x)</span>. The action is <span class="eq">S = β Σ(1 − cos θ<sub>P</sub>)</span>. A high β keeps the phases around each square near zero. A low β lets them wander.</p>
+<p>The Wilson loop is <span class="eq">W = cos(sum of the link phases around the loop)</span>. That sum equals the sum of the squares' θ<sub>P</sub> inside the loop. So W measures the total field inside.</p>
+<p>In 2D, every square is independent. Each square gives the factor <span class="eq">I<sub>1</sub>(β)/I<sub>0</sub>(β)</span>. This is also ⟨cos θ<sub>P</sub>⟩. For β = 2 it is 0.6978. A loop with area A has <span class="eq">⟨W⟩ = (I<sub>1</sub>/I<sub>0</sub>)<sup>A</sup> = e<sup>−σA</sup></span>, with string tension <span class="eq">σ = −ln(I<sub>1</sub>/I<sub>0</sub>)</span>. This is the area law. The loop value falls with the area, not with the edge.</p>
+<p>The area law means confinement. Take a charge and an opposite charge, a distance R apart, held for a time T. Their loop has area R·T. The weight e<sup>−σRT</sup> means an energy σR. The energy grows in proportion to the distance, like a string. You can never pull the charges free.</p>
+<p>The topological charge Q = Σθ<sub>P</sub> / 2π counts how many whole turns of field the grid holds. It is always an integer.</p>
+<p>The gauge transformation adds α(x) − α(x+μ̂) to every link, with a random α at every site. The terms cancel around any closed loop. So all θ<sub>P</sub> and all Wilson loops stay the same. Only the link phases change. Only loops carry physical meaning. This is the same U(1) phase as in the Aharonov–Bohm room. There, the phase around a loop around a solenoid was the effect. Here, the phase lives on a grid. It is the museum story again: nature adds up phases.</p>
+<p>In QCD, the links carry SU(3) matrices instead of phases. The loop value is a trace of their product. Computers simulate this on a 4D lattice. They find the same area law for the loops of heavy quarks. In 4D it is a numerical result, not an exact formula. The exact result here holds only in 2D.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+function mulberry32(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+const TWO_PI=2*Math.PI;
+/* wrap an angle into (-pi, pi] */
+function wrapAngle(a){return a-TWO_PI*Math.ceil((a-Math.PI)/TWO_PI)}
+/* modified Bessel function I_n(x), power series */
+function besselI(n,x){const h=x/2;let term=1;for(let k=1;k<=n;k++)term*=h/k;let sum=term;
+  for(let k=1;k<200;k++){term*=h*h/(k*(k+n));sum+=term;if(term<1e-17*sum)break}return sum}
+function ratioI(beta){return besselI(1,beta)/besselI(0,beta)}
+function sigmaExact(beta){return -Math.log(ratioI(beta))}
+function makeLattice(L,seed,hot){const rng=mulberry32(seed),th=new Float64Array(2*L*L);
+  if(hot)for(let i=0;i<th.length;i++)th[i]=(rng()*2-1)*Math.PI;
+  return{L,th,rng}}
+/* link index: mu 0 = x direction, mu 1 = y direction */
+function li(L,mu,x,y){return mu*L*L+((y%L+L)%L)*L+((x%L+L)%L)}
+function plaqAngle(lat,x,y){const L=lat.L,t=lat.th;
+  return wrapAngle(t[li(L,0,x,y)]+t[li(L,1,x+1,y)]-t[li(L,0,x,y+1)]-t[li(L,1,x,y)])}
+function plaqField(lat,out){const L=lat.L;out=out||new Float64Array(L*L);
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++)out[y*L+x]=plaqAngle(lat,x,y);return out}
+/* Metropolis sweep: several hits per link */
+function sweep(lat,beta,hits){const L=lat.L,t=lat.th,rng=lat.rng,N=L*L;
+  const w=Math.min(Math.PI,Math.max(0.35,2.6/Math.sqrt(beta+0.5)));
+  for(let y=0;y<L;y++){const ym=y?y-1:L-1,yp=y+1<L?y+1:0;
+    for(let x=0;x<L;x++){const xm=x?x-1:L-1,xp=x+1<L?x+1:0;
+      const s=y*L+x,sE=y*L+xp,sN=yp*L+x,sS=ym*L+x,sW=y*L+xm,sSE=ym*L+xp,sNW=yp*L+xm;
+      for(let mu=0;mu<2;mu++){
+        let Zr,Zi;
+        if(mu===0){
+          const A=t[N+sE]-t[sN]-t[N+s];
+          const B=t[sS]+t[N+sSE]-t[N+sS];
+          Zr=Math.cos(A)+Math.cos(B);Zi=Math.sin(A)-Math.sin(B);
+        }else{
+          const C=t[s]+t[N+sE]-t[sN];
+          const D=t[sW]-t[sNW]-t[N+sW];
+          Zr=Math.cos(C)+Math.cos(D);Zi=-Math.sin(C)+Math.sin(D);
+        }
+        const k=mu*N+s;let th=t[k],c0=Math.cos(th),s0=Math.sin(th);
+        for(let h=0;h<hits;h++){
+          const tn=th+(rng()*2-1)*w,c1=Math.cos(tn),s1=Math.sin(tn);
+          const dS=-beta*(Zr*(c1-c0)-Zi*(s1-s0));
+          if(dS<=0||rng()<Math.exp(-dS)){th=tn;c0=c1;s0=s1}
+        }
+        t[k]=wrapAngle(th);
+      }}}}
+function avgCosPlaq(pf){let s=0;for(let i=0;i<pf.length;i++)s+=Math.cos(pf[i]);return s/pf.length}
+/* angle around an R x T loop with corner (x,y), summed over the links */
+function wilsonAngle(lat,x,y,R,T){const L=lat.L,t=lat.th;let s=0;
+  for(let i=0;i<R;i++){s+=t[li(L,0,x+i,y)]-t[li(L,0,x+i,y+T)]}
+  for(let j=0;j<T;j++){s+=t[li(L,1,x+R,y+j)]-t[li(L,1,x,y+j)]}
+  return s}
+/* average of cos(loop angle) over all positions, from the plaquette field */
+function wilsonAvg(pf,L,R,T){const row=new Float64Array(L*L);
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){let s=0;for(let i=0;i<R;i++)s+=pf[y*L+(x+i)%L];row[y*L+x]=s}
+  let tot=0;
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){let s=0;for(let j=0;j<T;j++)s+=row[((y+j)%L)*L+x];tot+=Math.cos(s)}
+  return tot/(L*L)}
+function topoCharge(pf){let s=0;for(let i=0;i<pf.length;i++)s+=pf[i];const raw=s/TWO_PI;return{Q:Math.round(raw),raw}}
+/* gauge transformation: theta_mu(x) += alpha(x) - alpha(x+mu) */
+function gaugeTransform(lat){const L=lat.L,t=lat.th,al=new Float64Array(L*L);
+  for(let i=0;i<al.length;i++)al[i]=(lat.rng()*2-1)*Math.PI;
+  const A=(x,y)=>al[((y%L+L)%L)*L+((x%L+L)%L)];
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){
+    t[li(L,0,x,y)]=wrapAngle(t[li(L,0,x,y)]+A(x,y)-A(x+1,y));
+    t[li(L,1,x,y)]=wrapAngle(t[li(L,1,x,y)]+A(x,y)-A(x,y+1));}}
+function maxAngleDiff(a,b){let m=0;for(let i=0;i<a.length;i++){const d=Math.abs(wrapAngle(a[i]-b[i]));if(d>m)m=d}return m}
+/* binned average with error bar from block means */
+function makeAcc(binSize){return{binSize,cur:0,n:0,blocks:[],
+  add(v){this.cur+=v;this.n++;if(this.n===this.binSize){this.blocks.push(this.cur/this.binSize);this.cur=0;this.n=0}},
+  mean(){const b=this.blocks;if(!b.length)return NaN;return b.reduce((p,q)=>p+q,0)/b.length},
+  err(){const b=this.blocks,m=b.length;if(m<2)return NaN;const mu=this.mean();let v=0;for(const q of b)v+=(q-mu)*(q-mu);return Math.sqrt(v/(m-1)/m)},
+  reset(){this.cur=0;this.n=0;this.blocks=[]}}}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const L=96,NMAX=6,HITS=2;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let lat=makeLattice(L,20240611,false);
+let beta=2,spf=2,playing=!reduce,warm=0,gaugeDiff=null;
+let loop={x:30,y:30,R:2,T:2};
+const pf=new Float64Array(L*L);
+const accP=makeAcc(8),accW=[];for(let n=0;n<=NMAX;n++)accW.push(makeAcc(8));
+let liveSum=0,liveN=0,liveW=1,Qinfo={Q:0,raw:0};
+function resetStats(){accP.reset();accW.forEach(a=>a.reset());warm=0}
+function resetLive(){liveSum=0;liveN=0}
+
+/* cyclic colour map: light = 0, dark = +-pi, orange = +, blue = - */
+const LUT=new Uint8ClampedArray(256*3);
+for(let i=0;i<256;i++){const p=(i/256)*TWO_PI-Math.PI,c=Math.cos(p),s=Math.sin(p),Lm=0.52+0.32*c;
+  LUT[i*3]=255*Math.max(0,Math.min(1,Lm+0.32*s+0.04));
+  LUT[i*3+1]=255*Math.max(0,Math.min(1,Lm-0.06*Math.abs(s)+0.02*c));
+  LUT[i*3+2]=255*Math.max(0,Math.min(1,Lm-0.32*s+0.06));}
+function colour(a){let i=Math.floor((a+Math.PI)/TWO_PI*256);i=((i%256)+256)%256;return[LUT[i*3],LUT[i*3+1],LUT[i*3+2]]}
+const off=document.createElement("canvas");off.width=L;off.height=L;
+const offCtx=off.getContext("2d"),img=offCtx.createImageData(L,L);
+
+function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=c.clientHeight;
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);return{g,w,h}}
+
+function drawHeat(){
+  for(let i=0;i<L*L;i++){const [r,g,b]=colour(pf[i]);img.data[i*4]=r;img.data[i*4+1]=g;img.data[i*4+2]=b;img.data[i*4+3]=255}
+  offCtx.putImageData(img,0,0);
+  const {g,w,h}=fit($("heat")),cs=w/L;
+  g.fillStyle="#07080c";g.fillRect(0,0,w,h);g.imageSmoothingEnabled=false;g.drawImage(off,0,0,w,h);
+  // loop rectangle (may wrap: draw 4 shifted copies)
+  g.lineWidth=2;g.strokeStyle="#fff";g.fillStyle="#fff";
+  for(const dx of[-L,0,L])for(const dy of[-L,0,L]){
+    const rx=(loop.x+dx)*cs,ry=(loop.y+dy)*cs,rw=loop.R*cs,rh=loop.T*cs;
+    if(rx>w||ry>h||rx+rw<0||ry+rh<0)continue;
+    g.setLineDash([]);g.shadowColor="#000";g.shadowBlur=3;g.strokeRect(rx,ry,rw,rh);g.shadowBlur=0;
+    g.fillRect(rx+rw-5,ry+rh-5,10,10);
+  }
+}
+function handlePos(){const w=$("heat").clientWidth,cs=w/L;return[(loop.x+loop.R)*cs,(loop.y+loop.T)*cs]}
+
+function drawInset(){
+  const {g,w,h}=fit($("inset"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const N=8,x0=loop.x-1,y0=loop.y-1,cs=w/N,t=lat.th,r=cs*0.2;
+  g.lineWidth=1;g.strokeStyle="rgba(170,180,200,.35)";
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+    const px=(i+0.5)*cs,py=(j+0.5)*cs;
+    g.beginPath();g.moveTo(px,py);g.lineTo(px+cs,py);g.moveTo(px,py);g.lineTo(px,py+cs);g.stroke();
+    g.fillStyle="rgba(170,180,200,.7)";g.beginPath();g.arc(px,py,1.8,0,7);g.fill();
+    for(let mu=0;mu<2;mu++){
+      const a=t[li(L,mu,x0+i,y0+j)],mx=px+(mu?0:cs/2),my=py+(mu?cs/2:0),[cr,cg,cb]=colour(a);
+      g.fillStyle="#07080c";g.beginPath();g.arc(mx,my,r+1.5,0,7);g.fill();
+      g.strokeStyle="rgba(170,180,200,.5)";g.beginPath();g.arc(mx,my,r,0,7);g.stroke();
+      g.strokeStyle=`rgb(${cr|0},${cg|0},${cb|0})`;g.lineWidth=2;g.beginPath();g.moveTo(mx,my);g.lineTo(mx+r*Math.cos(a),my-r*Math.sin(a));g.stroke();g.lineWidth=1;
+    }
+  }
+  // loop corner marker
+  g.strokeStyle="#fff";g.lineWidth=1.5;g.strokeRect(1.5*cs,1.5*cs,Math.min(loop.R,6)*cs,Math.min(loop.T,6)*cs);g.lineWidth=1;
+}
+
+function drawPlot(){
+  const {g,w,h}=fit($("plot"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const Lm=44,Rm=w-12,Tm=14,Bm=h-34,AMAX=NMAX*NMAX,sig=sigmaExact(beta);
+  const ymin=-Math.max(3,Math.min(14,Math.ceil(sig*AMAX)));
+  const X=a=>Lm+(Rm-Lm)*a/AMAX,Y=v=>Tm+(Bm-Tm)*(0-v)/(0-ymin);
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.strokeStyle="rgba(170,180,200,.22)";g.lineWidth=1;
+  const step=Math.ceil(-ymin/5);
+  g.textAlign="right";for(let v=0;v>=ymin;v-=step){g.beginPath();g.moveTo(Lm,Y(v));g.lineTo(Rm,Y(v));g.stroke();g.fillText(String(v),Lm-5,Y(v)+4)}
+  g.textAlign="center";for(let a=0;a<=AMAX;a+=12){g.beginPath();g.moveTo(X(a),Tm);g.lineTo(X(a),Bm);g.stroke();g.fillText(String(a),X(a),Bm+14)}
+  g.fillText("loop area R·T",(Lm+Rm)/2,h-4);
+  g.save();g.translate(12,(Tm+Bm)/2);g.rotate(-Math.PI/2);g.fillText("ln ⟨W⟩",0,0);g.restore();
+  g.save();g.beginPath();g.rect(Lm,Tm,Rm-Lm,Bm-Tm);g.clip();
+  g.strokeStyle="#5eead4";g.lineWidth=2;g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(AMAX),Y(-sig*AMAX));g.stroke();
+  g.restore();
+  for(let n=1;n<=NMAX;n++){
+    const m=accW[n].mean(),e=accW[n].err();if(!isFinite(m))continue;
+    const A=n*n,x=X(A);
+    if(m-(isFinite(e)?e:0)<=0||Math.log(m)<ymin){ // below the noise floor
+      g.fillStyle="#93c5fd";g.beginPath();g.moveTo(x-4,Bm-9);g.lineTo(x+4,Bm-9);g.lineTo(x,Bm-2);g.fill();continue}
+    const y=Y(Math.log(m));
+    if(isFinite(e)){const hi=Y(Math.log(m+e)),lo=e<m?Y(Math.log(m-e)):Bm;g.strokeStyle="#93c5fd";g.lineWidth=1.5;g.beginPath();g.moveTo(x,Math.max(Tm,hi));g.lineTo(x,Math.min(Bm,lo));g.stroke()}
+    g.fillStyle="#93c5fd";g.beginPath();g.arc(x,y,3.5,0,7);g.fill();
+  }
+  g.textAlign="right";g.fillStyle="#5eead4";g.fillText("exact: A·ln(I1/I0)",Rm-6,Tm+12);
+  g.fillStyle="#93c5fd";g.fillText("measured, 1×1 … 6×6",Rm-6,Tm+26);g.textAlign="start";
+}
+
+const f4=v=>isFinite(v)?v.toFixed(4):"…";
+function readouts(){
+  const r=ratioI(beta),pm=accP.mean(),pe=accP.err(),w2=accW[2].mean(),w2e=accW[2].err();
+  const sg=sigmaExact(beta);
+  const sm=isFinite(accW[1].mean())&&accW[1].mean()>0?-Math.log(accW[1].mean()):NaN;
+  const live=liveN?liveSum/liveN:NaN;
+  $("read").innerHTML=
+   `<div><span>⟨plaquette⟩ measured </span><b>${f4(pm)}${isFinite(pe)?" ± "+pe.toFixed(4):""}</b> <span>· exact I1/I0 = </span><b>${r.toFixed(4)}</b></div>
+    <div><span>⟨W(2×2)⟩ measured </span><b>${f4(w2)}${isFinite(w2e)?" ± "+w2e.toFixed(4):""}</b> <span>· exact (I1/I0)⁴ = </span><b>${(r**4).toFixed(4)}</b></div>
+    <div><span>string tension σ = −ln(I1/I0) = </span><b>${sg.toFixed(4)}</b> <span>· from ⟨plaquette⟩: </span><b>${isFinite(sm)?sm.toFixed(4):"…"}</b></div>
+    <div><span>topological charge Q = </span><b>${Qinfo.Q}</b> <span>(Σθ<sub>P</sub>/2π = ${Qinfo.raw.toFixed(6)})</span></div>
+    <div><span>your loop ${loop.R}×${loop.T}: live W = </span><b>${liveW.toFixed(3)}</b> <span>· running average </span><b>${f4(live)}</b> <span>· exact </span><b>${(r**(loop.R*loop.T)).toFixed(4)}</b></div>
+    <div><span>after the last gauge transformation: max change of any θ<sub>P</sub> = </span><b>${gaugeDiff===null?"(not pressed yet)":gaugeDiff.toExponential(1)+" rad"}</b></div>`;
+  $("bV").textContent=beta.toFixed(2);$("sV").textContent=spf;
+}
+
+function measure(){
+  plaqField(lat,pf);
+  Qinfo=topoCharge(pf);
+  liveW=Math.cos(wilsonAngle(lat,loop.x,loop.y,loop.R,loop.T));
+  liveSum+=liveW;liveN++;
+  if(warm>=20){accP.add(avgCosPlaq(pf));for(let n=1;n<=NMAX;n++)accW[n].add(wilsonAvg(pf,L,n,n))}
+}
+function step(n){const t0=performance.now();for(let s=0;s<n;s++){sweep(lat,beta,HITS);warm++;if(performance.now()-t0>60)break}measure()}
+function redraw(){drawHeat();drawInset();drawPlot();readouts();
+  $("status").innerHTML=warm<20?"Settling after a change…":"";}
+function frame(){if(playing){step(spf);redraw()}requestAnimationFrame(frame)}
+
+/* controls */
+$("beta").addEventListener("input",e=>{beta=+e.target.value;resetStats();resetLive();gaugeDiff=null;step(0);redraw()});
+$("spf").addEventListener("input",e=>{spf=+e.target.value;readouts()});
+$("play").onclick=()=>{
+  if(reduce){step(20);redraw();return}
+  playing=!playing;$("play").textContent=playing?"Pause":"Play"};
+$("hot").onclick=()=>{lat=makeLattice(L,Math.floor(Math.random()*1e9),true);resetStats();resetLive();gaugeDiff=null;step(0);redraw()};
+$("gauge").onclick=()=>{
+  const before=plaqField(lat);gaugeTransform(lat);
+  gaugeDiff=maxAngleDiff(before,plaqField(lat));
+  measure();redraw();
+  $("status").innerHTML="Every link phase changed. The colours did not. Check the change of θ<sub>P</sub> below.";
+};
+/* dragging the loop */
+(()=>{const c=$("heat");let mode=null,off0=[0,0];
+  const pos=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.clientWidth/r.width,(e.clientY-r.top)*c.clientHeight/r.height]};
+  const clampLoop=()=>{loop.R=Math.max(1,Math.min(12,loop.R));loop.T=Math.max(1,Math.min(12,loop.T));loop.x=((loop.x%L)+L)%L;loop.y=((loop.y%L)+L)%L};
+  c.addEventListener("pointerdown",e=>{const [px,py]=pos(e),cs=c.clientWidth/L,[hx,hy]=handlePos();
+    if(Math.hypot(px-hx,py-hy)<16)mode="size";
+    else{mode="move";const inside=px>=loop.x*cs&&px<=(loop.x+loop.R)*cs&&py>=loop.y*cs&&py<=(loop.y+loop.T)*cs;
+      off0=inside?[px/cs-loop.x,py/cs-loop.y]:[loop.R/2,loop.T/2];
+      loop.x=Math.round(px/cs-off0[0]);loop.y=Math.round(py/cs-off0[1]);}
+    c.setPointerCapture(e.pointerId);c.style.cursor="grabbing";clampLoop();resetLive();measure();redraw()});
+  c.addEventListener("pointermove",e=>{if(!mode)return;const [px,py]=pos(e),cs=c.clientWidth/L;
+    if(mode==="size"){loop.R=Math.round(px/cs-loop.x);loop.T=Math.round(py/cs-loop.y)}
+    else{loop.x=Math.round(px/cs-off0[0]);loop.y=Math.round(py/cs-off0[1])}
+    clampLoop();resetLive();measure();redraw()});
+  const up=()=>{mode=null;c.style.cursor="grab"};c.addEventListener("pointerup",up);c.addEventListener("pointercancel",up);
+  c.addEventListener("keydown",e=>{const k=e.key,d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];if(!d)return;
+    e.preventDefault();if(e.shiftKey){loop.R+=d[0];loop.T+=d[1]}else{loop.x+=d[0];loop.y+=d[1]}
+    clampLoop();resetLive();measure();redraw()});
+})();
+addEventListener("resize",redraw);
+
+/* start: thermalise at once, then run */
+for(let i=0;i<40;i++){sweep(lat,beta,HITS);warm++}
+measure();redraw();
+if(reduce){$("play").textContent="Run 20 sweeps"}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

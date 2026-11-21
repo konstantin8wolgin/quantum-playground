@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Three Colours</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-cartoon:#a16207;--chip-sim:#1d4ed8;--chip-int:#9333ea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-cartoon:#fcd34d;--chip-sim:#93c5fd;--chip-int:#d8b4fe}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-cartoon:#fcd34d;--chip-sim:#93c5fd;--chip-int:#d8b4fe}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px;touch-action:none}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:0 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-cartoon{color:var(--chip-cartoon)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button{font:inherit;background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+button.ghost{background:var(--bg);color:var(--ink);border-color:var(--line)}
+button.on{outline:2px solid var(--ink)}
+.btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.status{margin-top:10px;font-size:14px;min-height:22px}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:8px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+.note{border-left:3px solid var(--warn);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+a{color:var(--accent)}
+.top{display:grid;grid-template-columns:2fr 1fr;gap:14px;align-items:start}
+@media (max-width:760px){.top{grid-template-columns:1fr}}
+.swatch{height:96px;border-radius:8px;border:1px solid var(--line)}
+.groups{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+@media (max-width:900px){.groups{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.groups{grid-template-columns:1fr}}
+.grp{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.grp h4{margin:0 0 2px;font-size:13px}
+.grp .d{font-size:12px;color:var(--muted);margin-bottom:6px}
+.gen{display:flex;align-items:center;gap:6px;margin:4px 0}
+.gen .n{width:2.2em;font-weight:600}
+.gen button{padding:6px 14px;min-width:44px;min-height:36px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+@media (max-width:820px){.row3{grid-template-columns:1fr}}
+.two{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-top:10px;align-items:start}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.pick{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Three Colours</h1>
+<p class="sub">A quark has three colour amplitudes. SU(3) turns them into each other. Here you can turn them by hand, see that the order of turns matters, and see the patterns the same maths makes for the light quarks u, d and s.</p>
+
+<p><b>How big is SU(3)?</b> A 3×3 complex matrix has 9 free numbers. That group is called U(3), and it has 9 dimensions. SU(3) is the part with determinant 1. That one rule removes one dimension, so SU(3) has <b>8 dimensions</b>. Each dimension has one generator: the eight Gell-Mann matrices λ1 … λ8.</p>
+<div class="note"><b>One maths, two uses.</b> The same SU(3) maths appears twice in nature. <b>Colour SU(3)</b> is an exact gauge symmetry of the strong force. Its 8 generators are the 8 gluons. <b>Flavour SU(3)</b> of the quarks u, d, s is only an approximate symmetry (the "eightfold way"). The s quark is heavier than u and d, so the patterns are slightly bent. <b>Panels 1 and 2 are colour. Panel 3 is flavour.</b> Do not mix them up: a "red" quark and an "up" quark are different labels.</div>
+
+<section>
+<h3>1 · The colour state <span class="chip c-exact">exact</span><span class="chip c-cartoon">cartoon</span></h3>
+<div class="top">
+  <div><canvas id="wheels" height="190"></canvas>
+    <div class="cap"><span class="chip c-exact">exact</span>Three phasor wheels: red, green, blue. Arrow length = size of the amplitude. Arrow angle = phase. The dashed circle has length 1. The three squared lengths always add to 1.</div></div>
+  <div><div class="swatch" id="swatch"></div>
+    <div class="cap"><span class="chip c-cartoon">cartoon</span>This swatch mixes red, green and blue by the squared lengths |r|², |g|², |b|² (scaled so the largest channel is full). Real colour charge is not visible colour. The swatch is only a picture.</div></div>
+</div>
+<div class="btns" style="margin-top:10px"><span style="font-size:13px;color:var(--muted)">Start state:</span>
+  <button class="ghost" id="s-red">pure red</button><button class="ghost" id="s-mix">mix of all three</button><button class="ghost" id="s-rand">random</button></div>
+
+<div class="groups" id="groups"></div>
+<div class="cap">Hold a button to turn: "+" turns forward, "−" turns back. Each turn applies <span class="eq">U = exp(i·t·λk/2)</span>. With the keyboard, focus a button and hold Enter or Space.</div>
+<div class="read" id="read1"></div>
+
+<div class="predict"><b>Predict, then test:</b> start from pure red. Hold λ1 "+" until the state is pure green. Then hold λ4. Does blue appear? Now hold λ3 or λ8. Do the sizes of the arrows change, or only the angles?</div>
+
+<h3 style="margin-top:16px">Three pairs, three spins <span class="chip c-exact">exact</span></h3>
+<div class="row3">
+  <div><canvas id="p-rg" height="150"></canvas><div class="cap">red–green pair (λ1, λ2, λ3)</div></div>
+  <div><canvas id="p-rb" height="150"></canvas><div class="cap">red–blue pair (λ4, λ5, and a mix of λ3, λ8)</div></div>
+  <div><canvas id="p-gb" height="150"></canvas><div class="cap">green–blue pair (λ6, λ7, and a mix of λ3, λ8)</div></div>
+</div>
+<div class="cap">Each pair of colours is a copy of SU(2): it behaves like a spin ½. The dot is the "spin direction" of that pair (x across, z up; a bright dot points toward you in y). Its distance from the centre is how much of the state sits in the pair. Turn λ1 and watch the red–green dot move. A full 360° turn of a pair flips the sign of its two arrows: see <a href="spinor-flag.html">The Spinor Flag</a>.</div>
+
+<details><summary>What the numbers mean</summary>
+<p><b>Generators.</b> The eight Gell-Mann matrices λ1 … λ8 are 3×3 matrices. They are Hermitian (equal to their own conjugate transpose) and have trace 0. They are the SU(3) version of the three Pauli matrices. λ1, λ2, λ3 are the Pauli matrices placed in the red–green corner. λ4, λ5 do the same for red–blue. λ6, λ7 do the same for green–blue. λ8 = diag(1, 1, −2)/√3 is the one new matrix.</p>
+<p><b>Exponential map.</b> A generator makes a turn. The matrix <span class="eq">U = exp(i·t·λk/2)</span> is the turn by amount t. It is unitary (it keeps Σ|c|² = 1) and has determinant 1, because λk has trace 0. In this page the exponential comes from a Taylor series with scaling and squaring. The half angle t/2 is the same half angle as in the spinor room: for λ1 the state returns to itself only after t = 4π, and after t = 2π it carries a minus sign.</p>
+<p><b>Why 8 gluons.</b> Gluons are the "force arrows" of colour. There is one for each generator. 3×3 = 9 numbers, minus 1 for the determinant rule, gives 8. Six gluons change colour (red-to-green and so on). Two do not change colour, and correspond to λ3 and λ8. (The 9th combination, the colour singlet, would be a ninth gluon that does not exist in nature.)</p>
+<p><b>The torus.</b> λ3 and λ8 commute. They only turn phases. Together they make a 2-dimensional "torus" inside SU(3): two independent phases, with the third fixed by determinant 1. The other six generators mix colours.</p>
+<p><b>Link to the story "nature adds up phases".</b> In U(1) the arrow is one phase. In SU(2) it is a 2×2 rotation of two arrows. In SU(3) it is a 3×3 rotation of three arrows. A colour charge moving through a gluon field picks up such a 3×3 turn along its path. Turns in SU(3) do not commute, so the order of the path steps matters. Panel 2 shows this.</p>
+</details>
+</section>
+
+<section>
+<h3>2 · Order matters <span class="chip c-exact">exact</span></h3>
+<p>Apply λ1 by the amount t, then λ4 by the same amount. Compare with λ4 first, then λ1. The start state is the state from Panel 1.</p>
+<label>amount t <b id="tV"></b><input id="t2" type="range" min="0" max="360" step="1" value="90"></label>
+<canvas id="order" height="330" style="margin-top:8px"></canvas>
+<div class="cap">Top: λ1 then λ4. Middle: λ4 then λ1. Bottom: the difference between the two final states, drawn to the same scale. If the order did not matter, the bottom row would be empty.</div>
+<div class="read" id="read2"></div>
+<div class="predict"><b>Predict, then test:</b> set t to a very small value. Is the difference big or small? Now double t. By how much does the difference grow? (Hint: for small t it grows as t².)</div>
+<details><summary>What the numbers mean</summary>
+<p>For two generators A and B, the turns commute only if the generators commute. The commutator <span class="eq">[λ1/2, λ2/2] = i·λ3/2</span> means that a λ1 turn then a λ2 turn differs from the reverse by a small λ3 turn. The number in front, the <i>structure constant</i> f<sub>123</sub>, equals 1. The structure constants f<sub>abc</sub> define the group completely. The check f<sub>458</sub> = √3/2 shows where λ8 enters.</p>
+<p>The unitarity check applies 1000 random turns (random generator, random angle) to a random state. The sum Σ|c|² must stay 1. Rounding errors stay below 10⁻¹².</p>
+</details>
+</section>
+
+<section>
+<h3>3 · Weight diagram of the light quarks <span class="chip c-exact">exact</span><span class="chip c-int">flavour, approximate in nature</span></h3>
+<p>Now the labels are flavour: u, d, s. The two commuting generators give two numbers for each state: I3 = λ3/2 (isospin) and Y = λ8/√3 (hypercharge). The point (I3, Y) is the <i>weight</i>. Quarks: u (½, ⅓), d (−½, ⅓), s (0, −⅔). An antiquark has the opposite weight.</p>
+<div class="two">
+  <div>
+    <h3>Pick a quark</h3><div class="pick" id="pq"></div>
+    <h3>Pick an antiquark</h3><div class="pick" id="pa"></div>
+    <h3>Ladder (root arrows)</h3><div class="pick" id="pr"></div>
+    <div class="btns"><button class="ghost" id="rstate">back to the sum</button></div>
+    <div class="status" id="status3"></div>
+  </div>
+  <div><canvas id="weights" height="340"></canvas>
+    <div class="cap">Blue arrows: the quark weight, then the antiquark weight, added tip to tail. Orange ring: the highlighted state. Green arrows: the six root vectors, drawn from the highlighted state. Click a green arrow (or a ladder button) to move the state by that root. A grey dashed arrow means: no state there.</div></div>
+</div>
+<div class="read" id="read3"></div>
+<div class="predict"><b>Predict, then test:</b> pick u and anti-u. Where does the sum land? Now pick u and anti-s. Which corner of the hexagon is it? How many quark–antiquark pairs land on the centre?</div>
+<details><summary>What the numbers mean</summary>
+<p><b>Nine pairs, eight plus one.</b> A quark and an antiquark give 3 × 3 = 9 combinations. Their weights add. Seven different points appear: six corners of a hexagon (each hit once) and the centre (hit three times: u ū, d d̄, s s̄). Counting states, 3 ⊗ 3̄ = 8 ⊕ 1. The octet is the hexagon with two states at the centre. The singlet is the third centre state. In nature these three centre states are the π⁰, the η and the η′ (the η and η′ are mixtures of the "octet" and "singlet" states). The six corners are π⁺, π⁻, K⁺, K⁰, K̄⁰, K⁻. Together the nine mesons are the <i>nonet</i>.</p>
+<p><b>Root vectors.</b> A root is the difference of two quark weights, for example u − d = (1, 0). There are six. Each one belongs to a ladder operator that turns one quark flavour into another (for example d → u). Applied to a state, it moves the weight by the root, or gives zero if no state exists at the target. The pairs u–d, u–s and d–s belong to λ1, λ2 and λ4, λ5 and λ6, λ7. These are the flavour twins of the colour moves in Panel 1.</p>
+<p><b>Limits.</b> This is flavour SU(3). It is only approximate, because the quark masses differ. The real π⁰, η, η′ mix. The ladder here moves one highlighted weight: it does not track the full state vector. A decuplet triangle of baryons (3 ⊗ 3 ⊗ 3) is not drawn in this room.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+// complex number = [re, im]; 3x3 matrix = array of 3 rows of 3 complex numbers
+const cadd=(a,b)=>[a[0]+b[0],a[1]+b[1]];
+const cmul=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];
+const cconj=a=>[a[0],-a[1]];
+const cabs2=a=>a[0]*a[0]+a[1]*a[1];
+const mZero=()=>[0,1,2].map(()=>[0,1,2].map(()=>[0,0]));
+const mId=()=>{const m=mZero();for(let i=0;i<3;i++)m[i][i]=[1,0];return m};
+const mAdd=(a,b)=>a.map((r,i)=>r.map((x,j)=>cadd(x,b[i][j])));
+const mSub=(a,b)=>a.map((r,i)=>r.map((x,j)=>[x[0]-b[i][j][0],x[1]-b[i][j][1]]));
+const mScale=(a,s)=>a.map(r=>r.map(x=>cmul(x,s)));
+const mMul=(a,b)=>{const m=mZero();for(let i=0;i<3;i++)for(let j=0;j<3;j++){let s=[0,0];for(let k=0;k<3;k++)s=cadd(s,cmul(a[i][k],b[k][j]));m[i][j]=s}return m};
+const mDag=a=>[0,1,2].map(i=>[0,1,2].map(j=>cconj(a[j][i])));
+const mVec=(m,v)=>[0,1,2].map(i=>{let s=[0,0];for(let k=0;k<3;k++)s=cadd(s,cmul(m[i][k],v[k]));return s});
+const mTrace=a=>cadd(cadd(a[0][0],a[1][1]),a[2][2]);
+const mNorm=a=>Math.sqrt(a.reduce((s,r)=>s+r.reduce((t,x)=>t+cabs2(x),0),0));
+const mDet=a=>{const t=(i,j,k,l)=>{const x=cmul(a[i][j],a[k][l]),y=cmul(a[i][l],a[k][j]);return[x[0]-y[0],x[1]-y[1]]};
+  const c0=cmul(a[0][0],t(1,1,2,2)),c1=cmul(a[0][1],t(1,0,2,2)),c2=cmul(a[0][2],t(1,0,2,1));
+  return[c0[0]-c1[0]+c2[0],c0[1]-c1[1]+c2[1]]};
+const mComm=(a,b)=>mSub(mMul(a,b),mMul(b,a));
+const mFromEntries=es=>{const m=mZero();for(const [i,j,re,im] of es)m[i][j]=[re,im];return m};
+const S3=Math.sqrt(3);
+// Gell-Mann matrices lambda1 ... lambda8 (index 0..7)
+const GELL=[
+  mFromEntries([[0,1,1,0],[1,0,1,0]]),
+  mFromEntries([[0,1,0,-1],[1,0,0,1]]),
+  mFromEntries([[0,0,1,0],[1,1,-1,0]]),
+  mFromEntries([[0,2,1,0],[2,0,1,0]]),
+  mFromEntries([[0,2,0,-1],[2,0,0,1]]),
+  mFromEntries([[1,2,1,0],[2,1,1,0]]),
+  mFromEntries([[1,2,0,-1],[2,1,0,1]]),
+  mFromEntries([[0,0,1/S3,0],[1,1,1/S3,0],[2,2,-2/S3,0]])
+];
+// matrix exponential: scaling and squaring with a Taylor series
+function expm(A){
+  const nrm=mNorm(A);
+  const s=nrm>0.5?Math.max(0,Math.ceil(Math.log2(nrm/0.5))):0;
+  const B=mScale(A,[1/Math.pow(2,s),0]);
+  let R=mId(),T=mId();
+  for(let n=1;n<=24;n++){T=mScale(mMul(T,B),[1/n,0]);R=mAdd(R,T)}
+  for(let i=0;i<s;i++)R=mMul(R,R);
+  return R;
+}
+// U = exp(i t lambda_k / 2)
+const genU=(k,t)=>expm(mScale(GELL[k],[0,t/2]));
+const normSq=v=>v.reduce((s,c)=>s+cabs2(c),0);
+// structure constants: [l_a/2, l_b/2] = i f_abc l_c/2  ->  f_abc = Im tr([l_a,l_b] l_c) / 4
+const fStruct=(a,b,c)=>mTrace(mMul(mComm(GELL[a],GELL[b]),GELL[c]))[1]/4;
+// small seeded random generator
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+function randomState(r){const v=[0,1,2].map(()=>[r()*2-1,r()*2-1]);const n=Math.sqrt(normSq(v));return v.map(c=>[c[0]/n,c[1]/n])}
+// 1000 random turns; returns the largest |sum|c|^2 - 1| seen
+function randomWalkDrift(steps,seed){
+  const r=rng(seed);let v=randomState(r),worst=0;
+  for(let i=0;i<steps;i++){const k=Math.floor(r()*8),t=(r()*2-1)*Math.PI*2;v=mVec(genU(k,t),v);worst=Math.max(worst,Math.abs(normSq(v)-1))}
+  return worst;
+}
+// weights: I3 = lambda3/2, Y = lambda8/sqrt(3), read from the diagonals (quarks u,d,s = basis 1,2,3)
+const QUARK_W=[0,1,2].map(i=>[GELL[2][i][i][0]/2,GELL[7][i][i][0]/S3]);
+const QUARK_NAMES=["u","d","s"];
+const wKey=w=>Math.round(w[0]*2)+","+Math.round(w[1]*3);
+// roots: differences of quark weights (6 of them): move from quark j to quark i
+const ROOTS=[];
+for(let i=0;i<3;i++)for(let j=0;j<3;j++)if(i!==j)ROOTS.push({from:j,to:i,w:[QUARK_W[i][0]-QUARK_W[j][0],QUARK_W[i][1]-QUARK_W[j][1]]});
+// all 9 quark-antiquark sums, grouped by weight
+function mesonSums(){
+  const map={};
+  for(let q=0;q<3;q++)for(let a=0;a<3;a++){
+    const w=[QUARK_W[q][0]-QUARK_W[a][0],QUARK_W[q][1]-QUARK_W[a][1]],k=wKey(w);
+    if(!map[k])map[k]={w,count:0,pairs:[]};
+    map[k].count++;map[k].pairs.push([q,a]);
+  }
+  return map;
+}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=+(c.dataset.h0||(c.dataset.h0=c.getAttribute("height")));
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}c.style.height=h+"px";
+  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);x.fillStyle="#07080c";x.fillRect(0,0,w,h);return{x,w,h}}
+const COL=["#ff5a4d","#4ade80","#60a5fa"],CN=["red","green","blue"];
+const f3=v=>(v<0?"−":"")+Math.abs(v).toFixed(3);
+
+/* ---------- state ---------- */
+let state=[[1,0],[0,0],[0,0]];
+const INV=1/Math.sqrt(3);
+$("s-red").onclick=()=>{state=[[1,0],[0,0],[0,0]];render()};
+$("s-mix").onclick=()=>{state=[[INV,0],[INV*Math.cos(2.1),INV*Math.sin(2.1)],[INV*Math.cos(-1.3),INV*Math.sin(-1.3)]];render()};
+$("s-rand").onclick=()=>{state=randomState(Math.random);render()};
+
+/* ---------- generator buttons ---------- */
+const GROUPS=[
+  {t:"Red ↔ green",d:"λ1, λ2 mix red and green.",g:[0,1]},
+  {t:"Red ↔ blue",d:"λ4, λ5 mix red and blue.",g:[3,4]},
+  {t:"Green ↔ blue",d:"λ6, λ7 mix green and blue.",g:[5,6]},
+  {t:"Phases only (torus)",d:"λ3 turns red and green phases in opposite ways (it is also the third red–green generator). λ8 turns red and green one way, blue the other.",g:[2,7]}];
+let hold=null,last=0,acc=0;
+const RATE=1.6;
+GROUPS.forEach(G=>{
+  const d=document.createElement("div");d.className="grp";
+  d.innerHTML=`<h4>${G.t}</h4><div class="d">${G.d}</div>`;
+  G.g.forEach(k=>{
+    const row=document.createElement("div");row.className="gen";
+    row.innerHTML=`<span class="n">λ${k+1}</span>`;
+    [-1,1].forEach(sg=>{
+      const b=document.createElement("button");b.textContent=sg<0?"−":"+";
+      b.setAttribute("aria-label",`hold to turn with λ${k+1}, ${sg<0?"backward":"forward"}`);
+      const start=e=>{if(e.cancelable)e.preventDefault();hold={k,sg};last=performance.now();acc=0;b.classList.add("on");loop()};
+      const stop=()=>{hold=null;b.classList.remove("on")};
+      b.addEventListener("pointerdown",e=>{b.setPointerCapture&&b.setPointerCapture(e.pointerId);start(e)});
+      ["pointerup","pointercancel","lostpointercapture"].forEach(n=>b.addEventListener(n,stop));
+      b.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&!e.repeat)start(e)});
+      b.addEventListener("keyup",e=>{if(e.key==="Enter"||e.key===" ")stop()});
+      b.addEventListener("blur",stop);
+      row.appendChild(b);
+    });
+    d.appendChild(row);
+  });
+  $("groups").appendChild(d);
+});
+function loop(){
+  const tick=now=>{
+    if(!hold)return;
+    const dt=Math.min(0.05,(now-last)/1000);last=now;
+    if(reduce){acc+=dt;if(acc>=0.25){acc=0;state=mVec(genU(hold.k,hold.sg*0.2),state)}}  // fixed steps, no smooth motion
+    else state=mVec(genU(hold.k,hold.sg*RATE*dt),state);
+    render();requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* ---------- drawing helpers ---------- */
+function arrow(g,x0,y0,x1,y1,col,w){g.strokeStyle=col;g.fillStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+  const L=Math.hypot(x1-x0,y1-y0);if(L<3)return;const a=Math.atan2(y1-y0,x1-x0),h=Math.min(8,L*0.6);
+  g.beginPath();g.moveTo(x1,y1);g.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));g.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));g.fill()}
+function wheelRow(g,W,cy,R,cs,label){
+  g.font="12px system-ui";
+  for(let i=0;i<3;i++){
+    const cx=W*(i+0.5)/3;
+    g.strokeStyle="rgba(170,180,200,.4)";g.lineWidth=1;g.setLineDash([3,3]);g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();g.setLineDash([]);
+    g.strokeStyle="rgba(170,180,200,.18)";g.beginPath();g.moveTo(cx-R,cy);g.lineTo(cx+R,cy);g.moveTo(cx,cy-R);g.lineTo(cx,cy+R);g.stroke();
+    arrow(g,cx,cy,cx+cs[i][0]*R,cy-cs[i][1]*R,COL[i],2.5);
+    g.fillStyle="rgba(255,255,255,.7)";g.textAlign="center";
+    g.fillText(`${CN[i]}  |c|=${Math.hypot(cs[i][0],cs[i][1]).toFixed(2)}`,cx,cy+R+15);
+  }
+  if(label){g.textAlign="left";g.fillStyle="rgba(255,255,255,.55)";g.fillText(label,6,14)}
+  g.textAlign="start";
+}
+
+/* ---------- panel 1 ---------- */
+function bloch(a,b){const ab=cmul(cconj(a),b);return[2*ab[0],2*ab[1],cabs2(a)-cabs2(b)]}
+function drawPair(id,i,j,ci,cj){
+  const {x:g,w:W,h:H}=fit($(id)),R=Math.min(W,H)*0.38,cx=W/2,cy=H/2-4;
+  g.strokeStyle="rgba(170,180,200,.4)";g.lineWidth=1;g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+  g.strokeStyle="rgba(170,180,200,.18)";g.beginPath();g.moveTo(cx-R,cy);g.lineTo(cx+R,cy);g.moveTo(cx,cy-R);g.lineTo(cx,cy+R);g.stroke();
+  const b=bloch(state[i],state[j]),px=cx+b[0]*R,py=cy-b[2]*R;
+  g.strokeStyle="rgba(255,255,255,.7)";g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(px,py);g.stroke();
+  const br=Math.round(130+125*(b[1]+1)/2);
+  g.fillStyle=`rgb(${br},${br},${br})`;g.beginPath();g.arc(px,py,5,0,7);g.fill();
+  g.font="11px system-ui";g.fillStyle=ci;g.textAlign="center";g.fillText(CN[i]+" up",cx,cy-R-3);
+  g.fillStyle=cj;g.fillText(CN[j]+" down",cx,cy+R+12);g.textAlign="start";
+}
+function render1(){
+  const {x:g,w:W}=fit($("wheels"));
+  wheelRow(g,W,88,Math.min(W/7,62),state,"");
+  const p=state.map(cabs2),m=Math.max(...p,1e-9);
+  $("swatch").style.background=`rgb(${p.map(v=>Math.round(255*v/m)).join(",")})`;
+  drawPair("p-rg",0,1,COL[0],COL[1]);drawPair("p-rb",0,2,COL[0],COL[2]);drawPair("p-gb",1,2,COL[1],COL[2]);
+  const n=normSq(state);
+  $("read1").innerHTML=`<div><span>Σ|c|² = </span><b>${n.toFixed(12)}</b></div>
+   <div><span>|r|², |g|², |b|² = </span><b>${p.map(v=>v.toFixed(3)).join(", ")}</b></div>`;
+}
+
+/* ---------- panel 2 ---------- */
+const DRIFT=randomWalkDrift(1000,12345);
+function render2(){
+  const td=+$("t2").value,t=td*Math.PI/180;$("tV").textContent=td+"°  ("+t.toFixed(3)+" rad)";
+  const U1=genU(0,t),U4=genU(3,t);
+  const A=mVec(U4,mVec(U1,state)),B=mVec(U1,mVec(U4,state));
+  const D=A.map((c,i)=>[c[0]-B[i][0],c[1]-B[i][1]]);
+  const {x:g,w:W}=fit($("order")),R=Math.min(W/7,46);
+  wheelRow(g,W,62,R,A,"λ1 then λ4");wheelRow(g,W,172,R,B,"λ4 then λ1");wheelRow(g,W,282,R,D,"difference (A − B)");
+  const dn=Math.sqrt(normSq(D));
+  const gc=mNorm(mComm(U1,U4));
+  const lhs=mComm(mScale(GELL[0],[0.5,0]),mScale(GELL[1],[0.5,0])),rhs=mScale(GELL[2],[0,0.5]);
+  $("read2").innerHTML=`<div><span>|A − B| = </span><b>${dn.toFixed(4)}</b></div>
+   <div><span>‖U₁U₄ − U₄U₁‖ = </span><b>${gc.toFixed(4)}</b></div>
+   <div><span>‖[λ1/2, λ2/2] − iλ3/2‖ = </span><b>${mNorm(mSub(lhs,rhs)).toExponential(1)}</b> <span>(f₁₂₃ = </span><b>${fStruct(0,1,2).toFixed(6)}</b><span>)</span></div>
+   <div><span>f₄₅₈ = </span><b>${fStruct(3,4,7).toFixed(6)}</b> <span>(√3/2 = ${(S3/2).toFixed(6)})</span></div>
+   <div><span>drift after 1000 random turns: </span><b id="drift">${DRIFT.toExponential(1)}</b> <span>(must be &lt; 1e-12)</span></div>`;
+}
+$("t2").addEventListener("input",render2);
+
+/* ---------- panel 3 ---------- */
+const MES=mesonSums();
+const MESON_NAME={"2,0":"π⁺","-2,0":"π⁻","1,3":"K⁺","-1,3":"K⁰","-1,-3":"K⁻","1,-3":"K̄⁰","0,0":"π⁰, η, η′"};
+const ANTI=n=>n+"̄";   // letter + combining overline
+let selQ=0,selA=0,cur=null,viaSum=true;
+function mkPick(id,fn,anti){
+  const el=$(id);
+  QUARK_NAMES.forEach((n,i)=>{const b=document.createElement("button");b.className="ghost";b.textContent=anti?ANTI(n):n;b.dataset.i=i;
+    b.setAttribute("aria-label",(anti?"antiquark ":"quark ")+n);b.onclick=()=>fn(i);el.appendChild(b)});
+}
+function sumW(){return[QUARK_W[selQ][0]-QUARK_W[selA][0],QUARK_W[selQ][1]-QUARK_W[selA][1]]}
+function setSel(q,a){if(q!==null)selQ=q;if(a!==null)selA=a;cur=sumW();viaSum=true;render3()}
+mkPick("pq",i=>setSel(i,null),false);mkPick("pa",i=>setSel(null,i),true);
+ROOTS.forEach((r,idx)=>{const b=document.createElement("button");b.className="ghost";
+  b.textContent=`${QUARK_NAMES[r.from]}→${QUARK_NAMES[r.to]}`;b.setAttribute("aria-label","ladder step, quark "+QUARK_NAMES[r.from]+" to "+QUARK_NAMES[r.to]);
+  b.onclick=()=>moveRoot(idx);$("pr").appendChild(b)});
+$("rstate").onclick=()=>{cur=sumW();viaSum=true;render3()};
+cur=sumW();
+let lastMsg="";
+function moveRoot(idx){
+  const r=ROOTS[idx],t=[cur[0]+r.w[0],cur[1]+r.w[1]];
+  if(MES[wKey(t)]){cur=t;viaSum=false;lastMsg=`Moved by the root ${QUARK_NAMES[r.from]}→${QUARK_NAMES[r.to]} = (${fmtW(r.w[0])}, ${fmtW(r.w[1])}).`}
+  else lastMsg=`The root ${QUARK_NAMES[r.from]}→${QUARK_NAMES[r.to]} would land at (${fmtW(t[0])}, ${fmtW(t[1])}). No state is there. The ladder gives zero.`;
+  render3();
+}
+const fmtW=v=>{const r=Math.round(v*6);if(r===0)return"0";const n=Math.abs(r),sg=r<0?"−":"";
+  const fr={1:"⅙",2:"⅓",3:"½",4:"⅔",5:"⅚",6:"1",9:"3/2",12:"2"}[n];return sg+(fr||(n/6).toFixed(2))};
+let hit=[];
+function render3(){
+  const {x:g,w:W,h:H}=fit($("weights")),S=Math.min(W/3.9,H/3.5),cx=W/2,cy=H/2+4;
+  const P=w=>[cx+w[0]*S,cy-w[1]*S];
+  // axes
+  g.strokeStyle="rgba(170,180,200,.25)";g.lineWidth=1;g.beginPath();g.moveTo(8,cy);g.lineTo(W-8,cy);g.moveTo(cx,6);g.lineTo(cx,H-6);g.stroke();
+  g.fillStyle="rgba(255,255,255,.55)";g.font="11px system-ui";g.fillText("I3",W-24,cy-5);g.fillText("Y",cx+5,14);
+  // hexagon
+  const cornerKeys=["2,0","1,3","-1,3","-2,0","-1,-3","1,-3"];
+  g.strokeStyle="rgba(255,255,255,.28)";g.beginPath();cornerKeys.forEach((k,i)=>{const p=P(MES[k].w);i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])});g.closePath();g.stroke();
+  // meson points
+  for(const k in MES){const m=MES[k],p=P(m.w);
+    g.fillStyle="rgba(255,255,255,.12)";g.beginPath();g.arc(p[0],p[1],m.count>1?15:5,0,7);g.fill();
+    g.fillStyle="rgba(255,255,255,.75)";g.beginPath();g.arc(p[0],p[1],3,0,7);g.fill();
+    g.fillStyle="rgba(255,255,255,.65)";g.textAlign="center";
+    const dy=m.w[1]>0.1?-12:(m.w[1]<-0.1?18:(m.count>1?-20:-9));
+    g.fillText(MESON_NAME[k]+(m.count>1?"  (×3)":""),p[0],p[1]+dy);g.textAlign="start";
+  }
+  // quark and antiquark weights (small markers)
+  QUARK_W.forEach((w,i)=>{
+    const p=P(w),q=P([-w[0],-w[1]]);
+    g.strokeStyle="#60a5fa";g.lineWidth=1.5;g.beginPath();g.arc(p[0],p[1],6,0,7);g.stroke();
+    g.fillStyle="#60a5fa";g.fillText(QUARK_NAMES[i],p[0]+8,p[1]+4);
+    g.setLineDash([2,2]);g.beginPath();g.arc(q[0],q[1],6,0,7);g.stroke();g.setLineDash([]);
+    g.fillText(ANTI(QUARK_NAMES[i]),q[0]+8,q[1]+4);
+  });
+  // quark + antiquark arrows
+  const wq=QUARK_W[selQ],wa=[-QUARK_W[selA][0],-QUARK_W[selA][1]];
+  if(viaSum){const o=P([0,0]),a=P(wq),b=P([wq[0]+wa[0],wq[1]+wa[1]]);
+    arrow(g,o[0],o[1],a[0],a[1],"#60a5fa",2);arrow(g,a[0],a[1],b[0],b[1],"#93c5fd",2)}
+  // roots from current
+  hit=[];
+  ROOTS.forEach((r,idx)=>{
+    const t=[cur[0]+r.w[0],cur[1]+r.w[1]],ok=!!MES[wKey(t)],a=P(cur),b=P(t);
+    g.setLineDash(ok?[]:[4,4]);arrow(g,a[0],a[1],b[0],b[1],ok?"#4ade80":"rgba(170,170,170,.45)",ok?2:1.2);g.setLineDash([]);
+    hit.push({idx,a,b});
+  });
+  // highlighted state
+  const c=P(cur);g.strokeStyle="#fb923c";g.lineWidth=3;g.beginPath();g.arc(c[0],c[1],11,0,7);g.stroke();
+  // readouts
+  const m=MES[wKey(cur)],key=wKey(cur);
+  const Q=cur[0]+cur[1]/2;
+  const sorted=Object.values(MES).map(v=>v.count).sort((a,b)=>a-b);
+  $("read3").innerHTML=`<div><span>(I3, Y) = </span><b>(${fmtW(cur[0])}, ${fmtW(cur[1])})</b></div>
+   <div><span>charge Q = I3 + Y/2 = </span><b>${fmtW(Q)}</b></div>
+   <div><span>state here: </span><b>${MESON_NAME[key]}</b></div>
+   <div><span>all 9 sums → </span><b>${sorted.length} points, multiplicities ${sorted.join(",")}</b> <span>(= 8 + 1)</span></div>`;
+  const pq=`${QUARK_NAMES[selQ]} ${ANTI(QUARK_NAMES[selA])}`;
+  $("status3").textContent=(viaSum?`${pq}: weight (${fmtW(cur[0])}, ${fmtW(cur[1])}) = ${MESON_NAME[key]}.`:`Highlighted state moved off the sum ${pq}. `+lastMsg)+(viaSum&&selQ===selA?" Same flavour: this is one of the 3 centre states.":"");
+  [...$("pq").children].forEach((b,i)=>b.classList.toggle("on",i===selQ));
+  [...$("pa").children].forEach((b,i)=>b.classList.toggle("on",i===selA));
+}
+$("weights").addEventListener("pointerdown",e=>{
+  const r=e.currentTarget.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  let best=null,bd=16;
+  for(const h of hit){ // distance to segment
+    const dx=h.b[0]-h.a[0],dy=h.b[1]-h.a[1],L2=dx*dx+dy*dy||1;
+    let t=((x-h.a[0])*dx+(y-h.a[1])*dy)/L2;t=Math.max(0,Math.min(1,t));
+    const d=Math.hypot(x-(h.a[0]+t*dx),y-(h.a[1]+t*dy));
+    if(d<bd){bd=d;best=h.idx}
+  }
+  if(best!==null)moveRoot(best);
+});
+
+function render(){render1();render2();render3()}
+addEventListener("resize",render);
+render();
+</script>
+</body>
+</html>

@@ -103,8 +103,8 @@ function proj(p,W,H,scale,cx,cy){
 }
 function viewNormal(n){const cy_=Math.cos(cam.yaw),sy=Math.sin(cam.yaw),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch);
   const y1=n[0]*sy+n[1]*cy_;return y1*cp-n[2]*sp}
-function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=+c.getAttribute("height");
-  if(c.width!==Math.round(w*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=+(c.dataset.h0||(c.dataset.h0=c.getAttribute("height")));
+  if(c.width!==Math.round(w*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}c.style.height=h+"px";
   const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h}}
 function shade(rgb,f){return`rgb(${rgb.map(v=>Math.round(v*f)).join(",")})`}
 
