@@ -56,3 +56,11 @@ scope, because visuals can teach them better than the usual formalism.
 - Done: a "How to use" box and a full guide in every room (template in `notes/guide-template.css`, reference `demos/double-slit.html`); `glossary.html` (67 terms); landing page as four routes with audience tags; two Feynman rooms.
 - Fixes found while writing the guides: spinor 360° message at the slider end, path-integral captions (force direction, best arch vs classical path, thermal density), SU(3) hint (t³ for pure red), flux plot divided by n, XY friction text, string-breaking "must agree" label only for heavy fermions.
 - Next: MVP = make the repo public and put the rooms on GitHub Pages, after the user says yes.
+
+## Overnight run (2026-11-21 → 22)
+- The user asked to work through the night. Plan and rules in `notes/overnight.md`. Repo stays private.
+- New rooms, all with guide, node test and glossary links: "Watching the slits" (`which-path.html`, 74b6117), "Feynman diagrams for a real particle" (`born-series.html`, a7d1b4f), "Paths that meet again" (`quantum-carpet.html`, 0477485).
+- QA pass (e1b5c03): every room at 375 px and in both themes. Dark accent buttons had 2.2:1 contrast; now `--on-accent` gives at least 4.7:1.
+- Carpet room: the whole-T_rev carpet with a narrow packet looks like noise on a screen, so the default view is the 1/4 window. The jump buttons move the window when needed.
+- Glossary: 79 terms (added entanglement, decoherence, complementarity, quantum eraser, scattering, Born approximation, bound state, resonance, eigenstate, harmonic oscillator, Gouy phase, revival).
+- Still open: the MVP launch (public repo + GitHub Pages) waits for the user's yes.
