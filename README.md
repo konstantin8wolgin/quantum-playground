@@ -25,8 +25,10 @@ Not research. The aim: change parameters, watch what happens, understand it.
 | [`demos/which-path.html`](demos/which-path.html) | Watching the slits: a which-path marker of adjustable strength; stripe visibility = \|⟨χ₁\|χ₂⟩\| = cos(θ/2), V² + D² = 1, and the quantum eraser (P± = ¼\|ψ₁ ± ψ₂\|²) |
 | [`demos/born-series.html`](demos/born-series.html) | Feynman diagrams for a real particle: 1D scattering, the Born/Dyson series (term n = diagram with n kicks), partial sums vs the exact transfer matrix, divergence when \|g\|/k > 1 |
 | [`demos/quantum-carpet.html`](demos/quantum-carpet.html) | Paths that meet again: harmonic trap (all paths focus at T/2, Mehler kernel, Gouy phase −i) and the quantum carpet in a box (Talbot revivals at T_rev = 4L²/π, fractional copies) |
+| [`demos/time-slicing.html`](demos/time-slicing.html) | From paths to Schrödinger: the path integral as a product of N short-time steps; a sliced path you can drag, split-step evolution, error vs N (plain split order 1, symmetric order 2, free particle exact for every N), imaginary time to the ground state |
+| [`demos/checkerboard.html`](demos/checkerboard.html) | Feynman's checkerboard: zig-zag paths at light speed with a factor −iεm per turn sum to the 1+1D Dirac propagator (Bessel functions); unitary quantum-walk version, packet speed k/√(k²+m²), Zitterbewegung |
 
-Start at [`index.html`](index.html). It groups the rooms into four routes and marks each room as "for everybody", "some physics" or "for students". Every room has a short "How to use" box at the top and a full guide at the bottom (idea in one minute, what you see, things to try with answers, the physics, the math, honest limits, further reading). [`glossary.html`](glossary.html) explains 79 terms and links each one to the rooms that show it. Open any file in a browser. No install, no server.
+Start at [`index.html`](index.html). It groups the rooms into four routes and marks each room as "for everybody", "some physics" or "for students". Every room has a short "How to use" box at the top and a full guide at the bottom (idea in one minute, what you see, things to try with answers, the physics, the math, honest limits, further reading). [`glossary.html`](glossary.html) explains 85 terms and links each one to the rooms that show it. Open any file in a browser. No install, no server.
 
 ## Checks
 
@@ -48,7 +50,11 @@ w = 0 equals J q² to 1e-14; q = 1 breaks, q = 0.5 does not. Watching the
 slits: visibility cos(θ/2) to 6e-4, eraser piles P+ + P− equal the no-stripe
 pattern to 1e-18. Born series: delta-spike sum of 60 diagrams = 1/(1 + ig/k) to
 6e-17; the series diverges at the rate |g|/k = 1.5. Paths that meet again:
-|⟨ψ₀(−x)|ψ(T/2)⟩| = 1.0000000000, and |⟨ψ(0)|ψ(T_rev)⟩|² = 1.0000000000.
+|⟨ψ₀(−x)|ψ(T/2)⟩| = 1.0000000000, and |⟨ψ(0)|ψ(T_rev)⟩|² = 1.0000000000. From paths to
+Schrödinger: fitted order of the symmetric split 2.000 (exact 2), ground-state
+energy 0.49995 (exact 0.5). Checkerboard: recursion = brute force over all 2^N
+paths (difference 0), order of convergence to the Dirac propagator 1.03 (exact 1),
+no Zitterbewegung for a positive-energy packet (below 1e-8).
 
 Node tests: `node tests/<name>.test.mjs` runs the physics core of a page
 without a browser.

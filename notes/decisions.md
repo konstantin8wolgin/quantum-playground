@@ -64,3 +64,6 @@ scope, because visuals can teach them better than the usual formalism.
 - Carpet room: the whole-T_rev carpet with a narrow packet looks like noise on a screen, so the default view is the 1/4 window. The jump buttons move the window when needed.
 - Glossary: 79 terms (added entanglement, decoherence, complementarity, quantum eraser, scattering, Born approximation, bound state, resonance, eigenstate, harmonic oscillator, Gouy phase, revival).
 - Still open: the MVP launch (public repo + GitHub Pages) waits for the user's yes.
+- Round 2 of the night: "From paths to Schrödinger" (`time-slicing.html`, 5da0a84) and "Feynman's checkerboard" (`checkerboard.html`, 2e909d7). Both built by worker agents, then checked by hand.
+- Review find in the checkerboard: the "positive energy only" packet still trembled (wiggle 0.006, with the plot auto-zoom making it look like real Zitterbewegung). Cause: the start state was projected with one k only. Fix: project every k onto the lattice eigenvector in Fourier space; wiggle now 1e-14, and the plot has a minimum scale. A test guards it.
+- Glossary now 85 terms (added time slicing, Trotter splitting, Dirac equation, light cone, quantum walk, Zitterbewegung).
