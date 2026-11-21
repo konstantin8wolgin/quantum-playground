@@ -44,6 +44,8 @@ Every room: a "How to use this room" box (3 steps) at the top, and a guide at th
 
 8. Two more path rooms. "From paths to Schrödinger": K = ∫ Π K_ε with ε = T/N; a draggable polygon path and its action S_N; split-step (FFT) evolution for free, harmonic, double-well and step potentials; log-log error vs N with fitted orders (plain 1, symmetric 2; free particle exact for any N); imaginary-time version finds E₀ = ½. "Feynman's checkerboard": paths that move one cell left or right per tick, factor −iεm per reversal; dynamic programming = brute force; N(R) by binomial counting; limit = 1+1D Dirac propagator with J₀ and J₁; unitary variant (cos mε, −i sin mε) as a quantum walk; packet speed and Zitterbewegung (absent for a positive-energy packet built per k in Fourier space).
 
+9. Topology and geometry of paths. "Paths that wind around a ring": closed imaginary-time paths on a ring sorted by winding n, phase e^{iθn} from a flux, Z = Σ_n e^{iθn} z_n = Σ_k e^{−β(k−θ/2π)²/2I} (Poisson), level crossing at θ = π, persistent current, Metropolis with winding-changing moves. "A phase from the shape of the path": spin ½ in a field that turns around a loop (cone, tilted circle, wobbly loop; steady, start-stop, backwards), Magnus integrator vs the exact rotating-frame solution, Berry phase −Ω/2 (anti-aligned +Ω/2), 1/T approach, discrete Berry phase gauge test, monopole flux picture.
+
 Landing page `index.html`: the story "nature adds up phases" and one card per room.
 
 Rules: label every panel as exact, simulation, interpretation or cartoon; sliders for the physics parameters (ħ, constant force, β, potential, flux, temperature); every demo

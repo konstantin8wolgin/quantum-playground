@@ -27,8 +27,10 @@ Not research. The aim: change parameters, watch what happens, understand it.
 | [`demos/quantum-carpet.html`](demos/quantum-carpet.html) | Paths that meet again: harmonic trap (all paths focus at T/2, Mehler kernel, Gouy phase −i) and the quantum carpet in a box (Talbot revivals at T_rev = 4L²/π, fractional copies) |
 | [`demos/time-slicing.html`](demos/time-slicing.html) | From paths to Schrödinger: the path integral as a product of N short-time steps; a sliced path you can drag, split-step evolution, error vs N (plain split order 1, symmetric order 2, free particle exact for every N), imaginary time to the ground state |
 | [`demos/checkerboard.html`](demos/checkerboard.html) | Feynman's checkerboard: zig-zag paths at light speed with a factor −iεm per turn sum to the 1+1D Dirac propagator (Bessel functions); unitary quantum-walk version, packet speed k/√(k²+m²), Zitterbewegung |
+| [`demos/winding-ring.html`](demos/winding-ring.html) | Paths that wind around a ring: winding sectors n with phase e^{iθn}, Z as a sum over windings = sum over levels (Poisson), level crossing at θ = π, persistent current, Monte Carlo of winding paths |
+| [`demos/berry-phase.html`](demos/berry-phase.html) | A phase from the shape of the path: a spin follows a slowly turning field; Berry phase −Ω/2 from the Schrödinger run vs the exact rotating-frame solution; independent of speed; monopole flux picture |
 
-Start at [`index.html`](index.html). It groups the rooms into four routes and marks each room as "for everybody", "some physics" or "for students". Every room has a short "How to use" box at the top and a full guide at the bottom (idea in one minute, what you see, things to try with answers, the physics, the math, honest limits, further reading). [`glossary.html`](glossary.html) explains 85 terms and links each one to the rooms that show it. Open any file in a browser. No install, no server.
+Start at [`index.html`](index.html). It groups the rooms into four routes and marks each room as "for everybody", "some physics" or "for students". Every room has a short "How to use" box at the top and a full guide at the bottom (idea in one minute, what you see, things to try with answers, the physics, the math, honest limits, further reading). [`glossary.html`](glossary.html) explains 90 terms and links each one to the rooms that show it. Open any file in a browser. No install, no server.
 
 ## Checks
 
@@ -54,7 +56,10 @@ pattern to 1e-18. Born series: delta-spike sum of 60 diagrams = 1/(1 + ig/k) to
 Schrödinger: fitted order of the symmetric split 2.000 (exact 2), ground-state
 energy 0.49995 (exact 0.5). Checkerboard: recursion = brute force over all 2^N
 paths (difference 0), order of convergence to the Dirac propagator 1.03 (exact 1),
-no Zitterbewegung for a positive-energy packet (below 1e-8).
+no Zitterbewegung for a positive-energy packet (below 1e-8). Ring: Z from
+winding sectors = Z from energy levels to 1e-16; Monte Carlo ⟨n²⟩ within 0.4σ.
+Berry phase: −1.57006 from a slow run vs −Ω/2 = −1.57080 at α = 60°; the
+difference 7.4e-4 is the known 1/T term.
 
 Node tests: `node tests/<name>.test.mjs` runs the physics core of a page
 without a browser.
