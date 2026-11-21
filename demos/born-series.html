@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feynman Diagrams for a Real Particle</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+h2.sec{font-size:18px;margin:0 0 6px}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 22px;margin-top:12px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.ok{color:var(--chip-exact);font-weight:600}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:12px}
+.card{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12.5px;background:var(--bg)}
+.card.hit{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.card b{font-size:13px}
+.bar{height:8px;border-radius:4px;background:var(--line);position:relative;margin:3px 0 1px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--chip-sim);opacity:.85}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--chip-exact);text-decoration:none}
+table.tb{border-collapse:collapse;font-size:13px;margin-top:8px;font-variant-numeric:tabular-nums;display:block;overflow-x:auto}
+table.tb th,table.tb td{border-bottom:1px solid var(--line);padding:3px 10px;text-align:right;white-space:nowrap}
+table.tb th:first-child,table.tb td:first-child{text-align:left}
+.qed{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:10px}
+.qed figure{margin:0;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg)}
+.qed svg{width:100%;height:auto;display:block;color:var(--ink)}
+.qed figcaption{font-size:12.5px;color:var(--muted)}
+svg .fe{fill:none;stroke:var(--ink);stroke-width:2}
+svg .ph{fill:none;stroke:var(--chip-cartoon);stroke-width:2}
+svg .ar{fill:var(--ink)}
+svg .vx{fill:var(--accent)}
+svg text{fill:var(--ink);font:12px system-ui,sans-serif}
+svg text.m{fill:var(--muted)}
+a{color:var(--accent)}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--on-accent:#0b1020}}
+:root[data-theme="dark"]{--on-accent:#0b1020}
+
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:14px}
+.big div{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg)}
+.big span{display:block;font-size:12.5px;color:var(--muted)}
+.big b{font-size:22px;font-variant-numeric:tabular-nums}
+.big b.bad{color:var(--warn)}
+.big b.good{color:var(--chip-exact)}
+.sticky{position:static}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Feynman Diagrams for a Real Particle</h1>
+<p class="sub">One quantum particle on a line meets a bump in the potential. The exact answer is known. The same answer also comes as a sum of diagrams: no kick, one kick, two kicks, and so on. Add the diagrams and watch the sum close in on the exact value, or run away from it.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Pick a potential and move <i>strength</i> and <i>wave number k</i>. The big numbers show the exact |t|² and the sum of the first N diagrams.</li>
+<li>Move <i>orders N</i>. In part 1 the arrows (one per diagram) are added head to tail. They should end on the green ring. In part 2 see how fast the error falls, or grows.</li>
+<li>Make the strength large or k small. The series stops working. In part 3 see this at all energies. In part 4 check the one case that has a closed formula.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>. This room is the sister of <a href="feynman-diagrams.html">Feynman Diagrams From a Path Integral</a> (a toy with one number) and of <a href="feynman-mirror.html">Light takes every path</a>.</div>
+
+<section id="s0">
+<h2 class="sec">The set-up <span class="chip c-exact">exact</span><span class="chip c-sim">simulation</span></h2>
+<p>A particle with ħ = m = 1 and energy <span class="eq">E = k²/2</span> comes from the left as a plane wave <span class="eq">e<sup>ikx</sup></span>. It meets a potential <span class="eq">V(x)</span>. Far to the right the wave is <span class="eq">t·e<sup>ikx</sup></span> and far to the left it is <span class="eq">e<sup>ikx</sup> + r·e<sup>−ikx</sup></span>. The numbers <span class="eq">t</span> and <span class="eq">r</span> are complex amplitudes. The chance to pass is <span class="eq">T = |t|²</span>, and <span class="eq">|t|² + |r|² = 1</span>.</p>
+<div class="controls">
+  <label>potential <select id="pot">
+    <option value="barrier">square barrier / well (width 1)</option>
+    <option value="gauss">Gaussian bump (σ = 0.4)</option>
+    <option value="double">pair of delta spikes (distance 1)</option>
+    <option value="delta">single delta spike</option></select></label>
+  <label><span id="sLab">strength V₀</span> <b id="sV"></b><input id="s" type="range" min="-6" max="6" step="0.05" value="1"></label>
+  <label>wave number k <b id="kV"></b><input id="k" type="range" min="0.2" max="6" step="0.01" value="2"></label>
+  <label>orders N <b id="NV"></b><input id="N" type="range" min="0" max="30" step="1" value="6"></label>
+  <label>show amplitude <select id="amp"><option value="t">transmission t</option><option value="r">reflection r</option></select></label>
+</div>
+<div class="big">
+  <div><span>exact |t|² (transfer matrix)</span><b id="bEx"></b></div>
+  <div><span id="bNlab">sum of N orders |t<sub>N</sub>|²</span><b id="bN"></b></div>
+  <div><span>difference</span><b id="bD"></b></div>
+  <div><span>does the series converge?</span><b id="bS"></b></div>
+</div>
+<div class="read" id="r0"></div>
+<div class="cap">The exact value comes from matching the wave through the potential with a transfer matrix. It does not use the series. Negative strength means an attractive potential (a well). For smooth potentials the potential is cut into a row of thin kicks: this makes an error of about 5·10⁻⁸ (barrier) or 10⁻⁶ (Gaussian) for the series. <span class="chip c-sim">simulation</span></div>
+</section>
+
+<section id="s1">
+<h2 class="sec">1. Each diagram is one term <span class="chip c-exact">exact</span><span class="chip c-cartoon">cartoon</span></h2>
+<p>The wave function obeys <span class="eq">ψ = e<sup>ikx</sup> + ∫ G₀(x,x′) V(x′) ψ(x′) dx′</span>, with the free propagator <span class="eq">G₀(x,x′) = e<sup>ik|x−x′|</sup>/(ik)</span>. Put the whole right side back into the integral again and again. You get one term per number of kicks. The term of order n has n factors of V and n factors of G₀. That is a Feynman diagram: a line, n vertices.</p>
+<canvas id="strip" data-h0="150" role="img" aria-label="Diagrams of order 0 to 3: a straight line with n dots"></canvas>
+<div class="cap"><span class="chip c-cartoon">cartoon</span> Order 0 to 3. A line is free propagation (G₀). A blue dot is one kick by V. The numbers under each picture are the real amplitude of the term, computed on the grid. <span class="chip c-exact">exact</span></div>
+<h3 style="margin-top:14px">Adding the arrows <span class="chip c-exact">exact</span></h3>
+<canvas id="chain" data-h0="320" role="img" aria-label="Complex plane with one arrow per order added head to tail, and a green ring at the exact amplitude"></canvas>
+<div class="cap">The amplitude of every order is an arrow in the complex plane. The first arrow is the free wave (t₀ = 1). The arrows are added head to tail. The orange dot is the sum after N orders. The green ring is the exact amplitude. If the path leaves the picture, the series runs away.</div>
+<div class="read" id="r1"></div>
+<div class="predict"><b>Predict, then test:</b> keep the barrier at V₀ = 1 and k = 2. Move N from 0 to 10. Does each new arrow get shorter or longer? By what factor? Then set the strength to 5 and look at the arrows again.</div>
+</section>
+
+<section id="s2">
+<h2 class="sec">2. Closing in, or running away <span class="chip c-exact">exact</span><span class="chip c-sim">simulation</span></h2>
+<p>The series is a geometric-type series. Each kick multiplies the wave by the operator <span class="eq">K = G₀V</span>. The terms fall like ρⁿ, where ρ is the largest size of an eigenvalue of K. The series converges if and only if <b>ρ &lt; 1</b>. The code finds ρ by applying K many times (it is the growth rate per order). For a single delta spike it is exactly <span class="eq">|g|/k</span>.</p>
+<div class="grid2">
+  <div><canvas id="plotB" data-h0="260" role="img" aria-label="Size of the partial sum against the number of orders, with the exact value as a dashed line"></canvas>
+  <div class="cap">Size of the sum after N orders, <span class="eq">|S<sub>N</sub>|</span>, for the amplitude you chose. Dashed green line: the exact size. The box shows ±0.5 around the exact size. Points outside are triangles at the top or bottom edge.</div></div>
+  <div><canvas id="plotC" data-h0="260" role="img" aria-label="Error of the partial sum and size of each term, on a log scale, against the order"></canvas>
+  <div class="cap">Log scale. Blue circles: error <span class="eq">|S<sub>N</sub> − exact|</span>. Pink squares: size of the term of order N. Orange dashed line: the straight line <span class="eq">ρⁿ</span> (the predicted trend).</div></div>
+</div>
+<div class="read" id="r2"></div>
+<div class="predict"><b>Predict, then test:</b> choose the single delta spike with g = 1 and k = 2. What is ρ? Now lower k step by step. At which k does the series stop working? Then set g = −1: does an attractive spike behave differently?</div>
+</section>
+
+<section id="s3">
+<h2 class="sec">3. All energies <span class="chip c-exact">exact</span><span class="chip c-sim">simulation</span><span class="chip c-int">interpretation</span></h2>
+<p>The plot shows the chance to pass, <span class="eq">T(k) = |t|²</span>, for the potential and strength you chose. White: exact. Orange: first Born approximation, <span class="eq">T ≈ 1 − |r₁|²</span>, where r₁ is the Fourier transform of V at 2k. Blue: the sum of N orders, <span class="eq">|t<sub>N</sub>|²</span>. The dashed vertical line is your k.</p>
+<canvas id="sweep" data-h0="300" role="img" aria-label="Transmission probability against k: exact, first Born, and N-th order"></canvas>
+<div class="cap">The first Born approximation is good at large k, where the particle is fast and the kick is short. At small k it fails. The N-th order sum fails where ρ ≥ 1. Values above 1.4 are cut at the top edge. Resonances (peaks to T = 1) appear for the well and the pair of spikes. <span class="chip c-int">interpretation</span> A resonance is the wave bouncing back and forth inside the potential. Born terms of high order describe exactly this bouncing, so the series needs many orders there.</div>
+<div class="read" id="r3"></div>
+<div class="predict"><b>Predict, then test:</b> choose the square well (strength −3). At which k is the transmission exactly 1? Is the series for N = 30 good at this k? Move to k = 4 and compare.</div>
+</section>
+
+<section id="s4">
+<h2 class="sec">4. The one case with a closed formula <span class="chip c-exact">exact</span></h2>
+<p>For one delta spike <span class="eq">V = g δ(x)</span> the kick integral has no integration left: every order is the same number times the one before. With <span class="eq">γ = g/(ik) = −ig/k</span> the terms are <span class="eq">tₙ = γⁿ</span> and <span class="eq">rₙ = γⁿ</span> (n ≥ 1). The series is geometric with ratio γ. It sums to <span class="eq">t = 1/(1 − γ) = 1/(1 + ig/k)</span>, and it converges only if <span class="eq">|γ| = |g|/k &lt; 1</span>. The table uses the strength and k from the sliders above, always for a single spike, and compares the grid code with the formula.</p>
+<div id="dtab"></div>
+<div class="read" id="r4"></div>
+<div class="predict"><b>Predict, then test:</b> an attractive spike (g &lt; 0) has one bound state, with energy −g²/2. The series for scattering at energy E converges when |g| &lt; k, that is when E is larger than g²/2. What does it mean that the limit is the size of the binding energy? Set g = −2 and move k across 2.</div>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>A particle meets a potential. The exact answer is a wave with an amplitude t for passing and r for bouncing back. You can also build this answer in steps. First the particle does not feel the potential at all (order 0). Then it is kicked once by the potential, and between the kick and the detector it moves freely (order 1). Then it is kicked twice (order 2), and so on. Each step is one <a class="term" href="../glossary.html#feynman-diagram">Feynman diagram</a>: a line for free motion, and a dot (a <a class="term" href="../glossary.html#vertex">vertex</a>) for each kick. Add all diagrams and you get the exact amplitude. This is <a class="term" href="../glossary.html#perturbation-theory">perturbation theory</a>.</p>
+<p>The room lets you check this with numbers. You also see that the series can fail: if the potential is strong or the particle is slow, more kicks make the answer worse, not better.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Big numbers</dt><dd>Exact |t|² from the transfer matrix, the sum after N orders, and their difference. The last box tells you if the series converges (ρ &lt; 1).</dd>
+<dt>Diagram strip (part 1)</dt><dd>A line with n blue dots for order n. For the pair of spikes the letters A and B show which spike gets the kick, and the text says how many such choices exist.</dd>
+<dt>Arrow plot (part 1)</dt><dd>One arrow per order in the complex plane. Head to tail, they sum to the orange dot. The green ring is the exact amplitude.</dd>
+<dt>Plot of |S<sub>N</sub>| (part 2)</dt><dd>Size of the partial sum against the order. Dashed line: the exact size.</dd>
+<dt>Error plot (part 2)</dt><dd>Log scale: the error of the sum (circles), the size of each term (squares), and the trend ρⁿ.</dd>
+<dt>Energy plot (part 3)</dt><dd>The chance to pass against k: exact, first Born, and the N-th order sum.</dd>
+<dt>Table (part 4)</dt><dd>Single delta spike: series terms against the closed formula γⁿ, term by term.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Square barrier, V₀ = 1, k = 2. Move N from 0 up to 30. <details><summary>What happens and why</summary>The exact |t|² is 0.8913. The sum starts at 1 (no potential), jumps to 1.25 after one kick, and then settles. The error of t is 0.56, 0.21, 0.083, 0.0073 and 0.00012 after 0, 1, 2, 5 and 10 orders. Each order gains a factor of about ρ = 0.44. The arrows in part 1 spiral in on the green ring. Note that after one kick |t₀ + t₁|² = 1.25 is larger than 1: a probability above 1 is impossible, so a low-order sum is not a physical state. It only becomes one when enough orders are added.</details></li>
+<li>Single delta spike, g = 3, k = 2. <details><summary>What happens and why</summary>Here ρ = |g|/k = 1.5. The exact |t|² is 0.3077. The terms grow like 1.5ⁿ. The sum gives |t<sub>N</sub>|² = 3.25 for N = 1, 47 for N = 5, 2300 for N = 10 and 2.5·10¹⁰ for N = 30. Each new diagram makes the answer worse. The exact amplitude 1/(1 + ig/k) is perfectly fine; only its expansion in g fails. This is a series in g/k, and it has radius of convergence 1 (the pole of 1/(1 − γ) sits at |γ| = 1).</details></li>
+<li>Single delta spike, g = −2. Move k from 3 down to 1. <details><summary>What happens and why</summary>The spike holds one <a class="term" href="../glossary.html#bound-state">bound state</a> with energy −g²/2 = −2. At k = 3 the ratio is ρ = 2/3 and the series converges (error 3·10⁻⁶ at N = 30). At k = 1 it is ρ = 2 and the series diverges. The limit is k = |g|, that is E = g²/2: the series works when the <a class="term" href="../glossary.html#scattering">scattering</a> energy is larger than the binding energy. For a general well, a potential that can bind a particle also makes the series fail at low energy.</details></li>
+<li>Pair of delta spikes, g = 1. Compare k = 2 and k = 1. <details><summary>What happens and why</summary>For one spike, g = 1 would give ρ = 0.5 at k = 2. For two spikes at distance 1 the rate is <span class="eq">ρ = (|g|/k)·2·max(|cos(ka/2)|, |sin(ka/2)|)</span>, so ρ = 0.84 at k = 2 and ρ = 1.76 at k = 1. The wave bounces between the spikes, so there are more diagrams (2ⁿ ways to choose the spikes), and the convergence is slower. At k = 2 the exact |t|² is 0.9985 (almost a <a class="term" href="../glossary.html#resonance">resonance</a>), but the error is still 0.0025 after 30 orders. At k = 1 the series fails.</details></li>
+<li>Square well V₀ = −3. In part 3, find the peak where T = 1. <details><summary>What happens and why</summary>Inside the well the wave number is q = √(k² + 6). The wave passes with no reflection when q·w = nπ. For n = 1 and width 1 this gives k = √(π² − 6) = 1.967. The exact T there is 1.0000, but ρ = 1.34, so the <a class="term" href="../glossary.html#born-approximation">Born series</a> diverges at the resonance. At k = 4 the transmission is 0.975 and ρ = 0.46: the sum converges, and the error is 1.4·10⁻⁷ at N = 30. Resonances are exactly where multiple scattering is strong, and that is where Born sums fail first.</details></li>
+<li>In part 3, compare the orange line (first Born) and the exact line for the barrier V₀ = 1. <details><summary>What happens and why</summary>At k = 2 the first Born value is T ≈ 1 − |r₁|² = 0.948, the exact value is 0.891. At k = 4 the two lines are close. First Born is the lowest-order answer in V and it is good when V·w/k is small. It uses the Fourier transform of V at 2k: <span class="eq">r₁ = (1/ik) ∫ V(x) e<sup>2ikx</sup> dx</span>. The simple guess |1 + t₁|² is worse (1.25 here), because t₁ is purely imaginary and the guess breaks the rule |t|² + |r|² = 1. Using 1 − |r₁|² keeps probability in order.</details></li>
+<li>Choose the Gaussian bump and move the strength to −6 with k = 3. <details><summary>What happens and why</summary>A smooth well has a bound state too. You see that ρ is larger than 1 and the arrow path leaves the plot. Try k = 6: the series converges again. At large k the factor G₀ = e<sup>ik|x−x′|</sup>/(ik) is small (it falls like 1/k), so a fast particle needs only a few kicks. For any potential that is limited in size and range, ρ goes to zero when k goes to infinity.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>The <a class="term" href="../glossary.html#schrodinger">Schrödinger equation</a> for a particle in a potential is <span class="eq">(E − H₀)ψ = Vψ</span>, where H₀ is the free part. The free part has a <a class="term" href="../glossary.html#propagator">propagator</a> G₀, which is the response of the free particle to a point source at x′. In one dimension G₀(x,x′) = e<sup>ik|x−x′|</sup>/(ik): a wave that leaves x′ in both directions. In units ħ = m = 1 the energy is E = k²/2 and the factor is 1/(ik), not 1/k². This gives the Lippmann–Schwinger equation ψ = ψ₀ + G₀Vψ. Put ψ on the right again and again, and you get the Born series ψ = ψ₀ + G₀Vψ₀ + G₀VG₀Vψ₀ + …</p>
+<p>This is the same bookkeeping as in <a href="feynman-diagrams.html">the toy room</a>, where the "field" had a single number. Each term is a diagram: the line is free propagation, the dot is one interaction with V. In <a class="term" href="../glossary.html#path-integral">path-integral</a> language, G₀ is the sum over all free paths from x′ to x (see <a href="path-integral.html">Every path is an arrow</a>; see <a href="double-slit.html">Double Slit Flow</a> for a path sum with a wall). The sum over diagrams is then the sum over paths that are kicked n times. For a smooth potential each vertex position is integrated over the potential. For delta spikes the integral is replaced by a choice of spike. <a href="feynman-mirror.html">Light takes every path</a> shows the free sum for light.</p>
+<p>The <b>order</b> of a diagram is the number of vertices. A <b>vertex</b> carries one factor V. A <b>line</b> carries one factor G₀. The transmission amplitude is <span class="eq">t = 1 + Σ tₙ</span>, with <span class="eq">tₙ = (1/ik) ∫ e<sup>−ikx</sup> V ψₙ₋₁ dx</span>. Reflection is the same with e<sup>+ikx</sup>. The first-order term of r is the Fourier transform of V at 2k: the potential acts like a grating, and the reflected wave is the part of V with the right spatial period. This is the first Born approximation.</p>
+<p>The series converges if and only if all eigenvalues of K = G₀V are smaller than 1 in size. For a delta spike it is |g|/k. For a weak or short potential or a fast particle it holds. For a strong potential, a slow particle, or a potential that supports a bound or resonant state it fails. The failure is a property of the expansion, not of the physics: the exact amplitude is smooth in the potential strength. This is the same kind of failure as for the φ⁴ series in the toy room, but here it has a clear cause (a bound state at the edge). Compare: in the toy the terms grow like n! for any g; here they grow only like ρⁿ, and a small enough coupling always works.</p>
+<p>Honest reading: a Feynman diagram is a term in an expansion. It does not show a particle that "really" jumps from kick to kick. A particle in a potential has one wave, not many paths of a ball.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">−½ ψ″ + V ψ = E ψ, &nbsp; E = k²/2, &nbsp; ħ = m = 1</span>
+<span>The equation. Delta spike: ψ′ jumps by 2gψ across the spike.</span>
+<span class="eq">G₀(x,x′) = e<sup>ik|x−x′|</sup> / (ik), &nbsp; G₀″ + k²G₀ = 2δ(x−x′)</span>
+<span>Free propagator. The jump of G₀′ at x = x′ is 2ikA = 2, so A = 1/(ik).</span>
+<span class="eq">ψ = e<sup>ikx</sup> + ∫ G₀(x,x′) V(x′) ψ(x′) dx′</span>
+<span>The Lippmann–Schwinger equation.</span>
+<span class="eq">ψₙ = G₀ V ψₙ₋₁, &nbsp; ψ₀ = e<sup>ikx</sup></span>
+<span>The Born series: ψ = Σ ψₙ.</span>
+<span class="eq">tₙ = (1/ik) ∫ e<sup>−ikx</sup> V(x) ψₙ₋₁(x) dx, &nbsp; rₙ = (1/ik) ∫ e<sup>+ikx</sup> V(x) ψₙ₋₁(x) dx</span>
+<span>The amplitudes: t = 1 + Σ tₙ and r = Σ rₙ (n ≥ 1).</span>
+<span class="eq">t₁ = (1/ik) ∫ V dx, &nbsp; r₁ = (1/ik) ∫ V(x) e<sup>2ikx</sup> dx</span>
+<span>First Born approximation. Examples: barrier r₁ = V₀ sin(kw)/(ik·k); Gaussian r₁ = V₀σ√(2π) e<sup>−2k²σ²</sup>/(ik).</span>
+<span class="eq">V = gδ(x): &nbsp; tₙ = (g/ik)ⁿ, &nbsp; t = 1/(1 + ig/k), &nbsp; r = −i(g/k)/(1 + ig/k)</span>
+<span>Single spike. The series is geometric and converges for |g| &lt; k.</span>
+<span class="eq">Two spikes at ±a/2: &nbsp; ρ = (|g|/k)·2·max(|cos(ka/2)|, |sin(ka/2)|)</span>
+<span>The eigenvalues of K are (g/ik)(1 ± e<sup>ika</sup>).</span>
+<span class="eq">Barrier, width w, q = √(k² − 2V₀): &nbsp; t e<sup>ikw</sup> = 1 / (cos qw − i (k²+q²)/(2kq) · sin qw)</span>
+<span>Exact transmission. Gives T = 1/(1 + V₀² sin²(qw) / (4E(E − V₀))).</span>
+<span class="eq">T ≈ 1 − |r₁|²</span>
+<span>First Born approximation of the transmission probability.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">This is one particle in one dimension, with fixed potential, no spin, non-relativistic. The potential does not move or react: there is no photon, no field, no creation of particles. In quantum field theory the diagrams also have loops (a closed circuit of lines with a free momentum to sum) and lines that run backward in time (antiparticles). Here a diagram is only a chain: line, vertex, line, vertex, with no branching. The exact answer for smooth potentials is computed from a fine row of kicks, which has an error of about 5·10⁻⁸ to 10⁻⁶. The estimate of ρ comes from many applications of K and it is accurate to about 10⁻³ when two eigenvalues have nearly equal size. The first Born |t|² uses 1 − |r₁|²; other choices exist. "The series diverges" does not mean "the physics is wrong"; the exact amplitude exists for all strengths.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>B. A. Lippmann and J. Schwinger, "Variational principles for scattering processes", Physical Review 79, 469 (1950).</li>
+<li>J. J. Sakurai, <i>Modern Quantum Mechanics</i>, chapter 7: the Lippmann–Schwinger equation and the Born series.</li>
+<li>Sister rooms: <a href="feynman-diagrams.html">Feynman Diagrams From a Path Integral</a> (the toy with one number), <a href="feynman-mirror.html">Light takes every path</a>, <a href="path-integral.html">Every path is an arrow</a>, <a href="double-slit.html">Double Slit Flow</a>, <a href="tunnelling.html">tunnelling</a>.</li>
+</ul>
+</section>
+</main>
+<script>
+/* PHYSICS-CORE START */
+/* 1D scattering of one particle, hbar = m = 1, E = k^2/2, H = -1/2 d^2/dx^2 + V(x).
+   Complex numbers are pairs [re, im]. Incoming wave e^{ikx} from the left:
+   psi = e^{ikx} + r e^{-ikx} (x far left),  psi = t e^{ikx} (x far right).
+   Free propagator: (E - H0) G0 = delta  gives  G0(x,x') = e^{ik|x-x'|}/(ik).
+   Born (Dyson) series: psi_0 = e^{ikx},  psi_n(x) = int G0(x,x') V(x') psi_(n-1)(x') dx'.
+   Far right: t_n = (1/ik) int e^{-ikx'} V psi_(n-1) dx'.  Far left: r_n = (1/ik) int e^{ikx'} V psi_(n-1) dx'.  t = 1 + sum t_n, r = sum r_n. */
+const cmul=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];
+const cadd=(a,b)=>[a[0]+b[0],a[1]+b[1]];
+const csub=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+const cdiv=(a,b)=>{const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]};
+const cabs=a=>Math.hypot(a[0],a[1]);
+const cexpi=th=>[Math.cos(th),Math.sin(th)];
+const cpow=(a,n)=>{let r=[1,0];for(let i=0;i<n;i++)r=cmul(r,a);return r};
+const prob=a=>a[0]*a[0]+a[1]*a[1];
+
+/* ---- the four potentials (all shapes fixed, one strength s) ---- */
+const BARRIER_W=1,DD_SEP=1,SIG=0.4;
+/* sites: the potential as a row of point kicks (x_j, w_j). Delta spikes are exact; a smooth V is a comb of M kicks V(x_j)h */
+function potentialSites(name,s,M){
+  if(name==="delta")return{x:[0],w:[s]};
+  if(name==="double")return{x:[-DD_SEP/2,DD_SEP/2],w:[s,s]};
+  let a,b,f;
+  if(name==="barrier"){a=-BARRIER_W/2;b=BARRIER_W/2;f=()=>s}
+  else{a=-6*SIG;b=6*SIG;f=x=>s*Math.exp(-x*x/(2*SIG*SIG))}
+  const h=(b-a)/M,x=[],w=[];
+  for(let i=0;i<M;i++){const xi=a+(i+0.5)*h;x.push(xi);w.push(f(xi)*h)}
+  return{x,w}}
+function integralOfV(name,s){return name==="delta"?s:name==="double"?2*s:name==="barrier"?s*BARRIER_W:s*SIG*Math.sqrt(2*Math.PI)}
+
+/* ---- exact solution by transfer matrices: (psi, psi') -> M (psi, psi'). Elements are real 2x2 matrices. ---- */
+function combElems(S){const e=[];for(let i=0;i<S.x.length;i++){if(i>0)e.push({type:"free",d:S.x[i]-S.x[i-1]});e.push({type:"delta",g:S.w[i]})}return{xL:S.x[0],elems:e}}
+function exactElems(name,s,M){
+  if(name==="delta")return{xL:0,elems:[{type:"delta",g:s}]};
+  if(name==="double")return{xL:-DD_SEP/2,elems:[{type:"delta",g:s},{type:"free",d:DD_SEP},{type:"delta",g:s}]};
+  if(name==="barrier")return{xL:-BARRIER_W/2,elems:[{type:"slab",d:BARRIER_W,V:s}]};
+  return combElems(potentialSites(name,s,M))}
+function scatter(k,L){
+  let A=1,B=0,C=0,D=1,len=0;
+  for(const e of L.elems){
+    let m;
+    if(e.type==="delta")m=[1,0,2*e.g,1];       /* psi' jumps by 2 g psi */
+    else{const V=e.type==="free"?0:e.V,q2=k*k-2*V,d=e.d;let c,sn;
+      if(q2>1e-14){const q=Math.sqrt(q2);c=Math.cos(q*d);sn=Math.sin(q*d)/q}
+      else if(q2<-1e-14){const q=Math.sqrt(-q2);c=Math.cosh(q*d);sn=Math.sinh(q*d)/q}
+      else{c=1;sn=d}
+      m=[c,sn,-q2*sn,c];len+=d}
+    const nA=m[0]*A+m[1]*C,nB=m[0]*B+m[1]*D,nC=m[2]*A+m[3]*C,nD=m[2]*B+m[3]*D;A=nA;B=nB;C=nC;D=nD}
+  /* no wave comes in from the right: psi'_R = ik psi_R. Solve for r, then t. */
+  const Pp=[C+k*k*B,-k*A+k*D],Pm=[C-k*k*B,-k*A-k*D];
+  const r=cmul([-1,0],cmul(cexpi(2*k*L.xL),cdiv(Pp,Pm)));
+  const u=cexpi(k*L.xL),ub=cexpi(-k*L.xL),rub=cmul(r,ub);
+  const psiL=cadd(u,rub),dpsiL=cmul([0,k],csub(u,rub));
+  const psiR=[A*psiL[0]+B*dpsiL[0],A*psiL[1]+B*dpsiL[1]];
+  const t=cmul(psiR,cexpi(-k*(L.xL+len)));
+  return{t,r}}
+function exactAmps(name,s,k,M){return scatter(k,exactElems(name,s,M))}
+
+/* ---- analytic results used as independent checks ---- */
+function deltaExact(g,k){const den=[1,g/k];return{t:cdiv([1,0],den),r:cdiv([0,-g/k],den)}}   /* t = 1/(1+ig/k), r = -i(g/k)/(1+ig/k) */
+function doubleDeltaExact(g,k,a){                                    /* Dyson equation for two spikes at -a/2, +a/2 */
+  const ga=[0,-g/k];                                                   /* g/(ik) */
+  const one=[1,0],omg=csub(one,ga),e2=cexpi(2*k*a);
+  const det=csub(cmul(omg,omg),cmul(cmul(ga,ga),e2));
+  const sum=cadd(cmul([2,0],omg),cmul(ga,cadd(one,e2)));
+  const t=cadd(one,cdiv(cmul(ga,sum),det));
+  /* r = (g/ik) * sum_j e^{ikx_j} psi_j : psi_A, psi_B from Cramer's rule */
+  const eA=cexpi(-k*a/2),eB=cexpi(k*a/2),eab=cexpi(k*a);
+  const psiA=cdiv(cadd(cmul(omg,eA),cmul(ga,cmul(eab,eB))),det);
+  const psiB=cdiv(cadd(cmul(omg,eB),cmul(ga,cmul(eab,eA))),det);
+  const r=cmul(ga,cadd(cmul(eA,psiA),cmul(eB,psiB)));
+  return{t,r}}
+function barrierExact(V0,w,k){                                        /* barrier of width w, centred on 0, any sign of V0 */
+  const q2=k*k-2*V0;let cq,sq;
+  if(q2>1e-14){const q=Math.sqrt(q2);cq=Math.cos(q*w);sq=Math.sin(q*w)/q}else{const q=Math.sqrt(-q2);cq=Math.cosh(q*w);sq=Math.sinh(q*w)/q}
+  /* t e^{ikw} = 1/(cos(qw) - i (k^2+q^2)/(2kq) sin(qw)),  r e^{ikw} = i (q^2-k^2)/(2kq) sin(qw) * t e^{ikw}  (sin(qw)/q kept together) */
+  const D=[cq,-(k*k+q2)/(2*k)*sq];
+  const te=cdiv([1,0],D);
+  const t=cmul(te,cexpi(-k*w));
+  const r=cmul(cmul([0,(q2-k*k)/(2*k)*sq],te),cexpi(-k*w));
+  return{t,r}}
+function transmissionBarrierFormula(V0,w,k){const E=k*k/2,q2=k*k-2*V0;
+  const s2=q2>0?Math.pow(Math.sin(Math.sqrt(q2)*w),2):-Math.pow(Math.sinh(Math.sqrt(-q2)*w),2);
+  return 1/(1+V0*V0*s2/(4*E*(E-V0)))}
+
+/* ---- Born (Dyson) series on the kicks (x_j, w_j): each term is one more kick ---- */
+function makeTab(S,k){const n=S.x.length,c=new Float64Array(n),s=new Float64Array(n);for(let j=0;j<n;j++){c[j]=Math.cos(k*S.x[j]);s[j]=Math.sin(k*S.x[j])}return{c,s,n}}
+/* one order: psi -> G0 V psi. Also returns the far-right (t) and far-left (r) pieces. G0 = e^{ik|x-x'|}/(ik) is split at x = x'. */
+function kStep(S,k,T,vr,vi){
+  const n=T.n,c=T.c,s=T.s,w=S.w,Ar=new Float64Array(n),Ai=new Float64Array(n),Br=new Float64Array(n),Bi=new Float64Array(n);
+  let TAr=0,TAi=0,TBr=0,TBi=0;
+  for(let j=0;j<n;j++){const sr=w[j]*vr[j],si=w[j]*vi[j];
+    Ar[j]=c[j]*sr+s[j]*si;Ai[j]=c[j]*si-s[j]*sr;      /* e^{-ikx} w psi */
+    Br[j]=c[j]*sr-s[j]*si;Bi[j]=c[j]*si+s[j]*sr;      /* e^{+ikx} w psi */
+    TAr+=Ar[j];TAi+=Ai[j];TBr+=Br[j];TBi+=Bi[j]}
+  const nr=new Float64Array(n),ni=new Float64Array(n);let PAr=0,PAi=0,PBr=0,PBi=0;
+  for(let i=0;i<n;i++){PAr+=Ar[i];PAi+=Ai[i];PBr+=Br[i];PBi+=Bi[i];
+    const SBr=TBr-PBr,SBi=TBi-PBi;
+    const xr=c[i]*PAr-s[i]*PAi+c[i]*SBr+s[i]*SBi,xi=c[i]*PAi+s[i]*PAr+c[i]*SBi-s[i]*SBr;   /* e^{ikx}PA + e^{-ikx}SB */
+    nr[i]=xi/k;ni[i]=-xr/k}                                                                  /* times 1/(ik) = -i/k */
+  return{vr:nr,vi:ni,t:[TAi/k,-TAr/k],r:[TBi/k,-TBr/k]}}
+/* returns t[n], r[n] for n = 0..N: t[0] = 1, r[0] = 0 (free propagation) */
+function bornSeries(S,k,N){
+  const T=makeTab(S,k);let vr=Float64Array.from(T.c),vi=Float64Array.from(T.s);
+  const t=[[1,0]],r=[[0,0]];
+  for(let n=1;n<=N;n++){const o=kStep(S,k,T,vr,vi);vr=o.vr;vi=o.vi;t.push(o.t);r.push(o.r)}
+  return{t,r}}
+function partialSum(terms,N){let s=[0,0];for(let n=0;n<=N&&n<terms.length;n++){s[0]+=terms[n][0];s[1]+=terms[n][1]}return s}
+/* growth rate per order of the series = spectral radius of K = G0 V (the series converges iff it is below 1) */
+function growthRate(S,k,iters,skip){
+  iters=iters||160;skip=skip||40;const T=makeTab(S,k);let vr=Float64Array.from(T.c),vi=Float64Array.from(T.s);
+  let acc=0,cnt=0;
+  for(let n=0;n<iters;n++){
+    let nm=0;for(let j=0;j<T.n;j++)nm+=vr[j]*vr[j]+vi[j]*vi[j];nm=Math.sqrt(nm);
+    if(nm===0||!isFinite(nm))return 0;
+    for(let j=0;j<T.n;j++){vr[j]/=nm;vi[j]/=nm}
+    const o=kStep(S,k,T,vr,vi);vr=o.vr;vi=o.vi;
+    let nn=0;for(let j=0;j<T.n;j++)nn+=vr[j]*vr[j]+vi[j]*vi[j];
+    if(n>=skip){acc+=Math.log(Math.sqrt(nn));cnt++}}
+  return Math.exp(acc/cnt)}
+function rhoDouble(g,k,a){const x=k*a/2;return Math.abs(g)/k*2*Math.max(Math.abs(Math.cos(x)),Math.abs(Math.sin(x)))}
+/* first Born approximation (Fourier transform of V): t1 = (1/ik) int V,  r1 = (1/ik) int V e^{2ikx} */
+function firstBornFormula(name,s,k){
+  const mi=(re,im)=>[im/k,-re/k];                       /* (re+i im)/(ik) */
+  if(name==="delta")return{t1:mi(s,0),r1:mi(s,0)};
+  if(name==="double")return{t1:mi(2*s,0),r1:mi(2*s*Math.cos(k*DD_SEP),0)};
+  if(name==="barrier")return{t1:mi(s*BARRIER_W,0),r1:mi(s*Math.sin(k*BARRIER_W)/k,0)};
+  return{t1:mi(s*SIG*Math.sqrt(2*Math.PI),0),r1:mi(s*SIG*Math.sqrt(2*Math.PI)*Math.exp(-2*k*k*SIG*SIG),0)}}
+/* PHYSICS-CORE END */
+
+"use strict";
+const $=id=>document.getElementById(id);
+const NMAX=30;
+function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=+c.dataset.h0;c.style.height=h+"px";
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);return{g,w,h}}
+const INK="#e7e8ea",MUT="#9a9fa8",GRID="#2a2f39",BLUE="#7fb0ff",GREEN="#5eead4",ORANGE="#fbbf24",PINK="#f472b6";
+const sci=x=>x===0?"0":(Math.abs(x)<1e-3||Math.abs(x)>=1e5)?x.toExponential(2):x.toPrecision(4);
+const fc=a=>`${a[0]<-0.00005?"−":""}${Math.abs(a[0]).toFixed(4)} ${a[1]<-0.00005?"−":"+"} ${Math.abs(a[1]).toFixed(4)}i`;
+const MFINE={barrier:1500,gauss:800,delta:1,double:2},MSWEEP={barrier:300,gauss:200,delta:1,double:2};
+const SYM={barrier:"strength V₀",gauss:"peak height V₀",double:"strength g of each spike",delta:"strength g"};
+const st={pot:"barrier",s:1,k:2,N:6,amp:"t"};
+let cur=null,sweep=null,sweepKey="";
+
+function compute(){
+  const M=MFINE[st.pot],S=potentialSites(st.pot,st.s,M),ser=bornSeries(S,st.k,NMAX),ex=exactAmps(st.pot,st.s,st.k,M),rho=growthRate(S,st.k);
+  cur={S,ser,ex,rho,A:st.amp==="t"?ser.t:ser.r,E:st.amp==="t"?ex.t:ex.r}}
+function sums(A){const out=[];let s=[0,0];for(let n=0;n<A.length;n++){s=[s[0]+A[n][0],s[1]+A[n][1]];out.push(s)}return out}
+
+/* ---------- drawing helpers ---------- */
+function head(g,x,y,ang,sz){g.beginPath();g.moveTo(x,y);g.lineTo(x-sz*Math.cos(ang-0.4),y-sz*Math.sin(ang-0.4));g.lineTo(x-sz*Math.cos(ang+0.4),y-sz*Math.sin(ang+0.4));g.closePath();g.fill()}
+function dot(g,x,y,r,col){g.fillStyle=col||BLUE;g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+
+/* ---------- part 1: strip ---------- */
+function drawStrip(){
+  const c=$("strip"),cols=c.clientWidth<560?2:4;c.dataset.h0=(4/cols)*158;
+  const{g,w,h}=fit(c),rows=4/cols,cw=w/cols,ch=h/rows;
+  g.font="12px system-ui,sans-serif";
+  for(let n=0;n<4;n++){
+    const cx0=(n%cols)*cw,cy0=Math.floor(n/cols)*ch,x0=cx0+10,x1=cx0+cw-10,y=cy0+ch*0.30;
+    g.strokeStyle=GRID;g.lineWidth=1;g.strokeRect(cx0+2,cy0+2,cw-4,ch-4);
+    const xs=[];for(let i=0;i<n;i++)xs.push(x0+34+(x1-x0-68)*(n===1?0.5:i/(n-1)));
+    g.strokeStyle=INK;g.fillStyle=INK;g.lineWidth=2;
+    if(st.amp==="t"||n===0){
+      g.beginPath();g.moveTo(x0,y);g.lineTo(x1,y);g.stroke();
+      head(g,x0+22,y,0,6);head(g,x1-4,y,0,6);
+      for(let i=0;i+1<n;i++)head(g,(xs[i]+xs[i+1])/2+4,y,0,5)}
+    else{
+      const xl=xs[n-1];g.beginPath();g.moveTo(x0,y);g.lineTo(xl,y);g.stroke();head(g,x0+22,y,0,6);
+      for(let i=0;i+1<n;i++)head(g,(xs[i]+xs[i+1])/2+4,y,0,5);
+      g.beginPath();g.moveTo(xl,y);g.quadraticCurveTo(xl+14,y+22,xl-30,y+22);g.lineTo(x0,y+22);g.stroke();head(g,x0+2,y+22,Math.PI,6);head(g,x0+30,y+22,Math.PI,6)}
+    const seq=[];for(let i=0;i<n;i++)seq.push(i%2?"B":"A");
+    xs.forEach((x,i)=>{dot(g,x,y,5.5);if(st.pot==="double"){g.fillStyle=MUT;g.textAlign="center";g.fillText(seq[i],x,y-10)}});
+    g.textAlign="left";g.fillStyle=INK;g.font="600 12px system-ui,sans-serif";g.fillText("order "+n,cx0+10,cy0+ch*0.30+(st.amp==="r"&&n>0?42:26));
+    g.font="11.5px system-ui,sans-serif";g.fillStyle=MUT;
+    const a=cur.A[n],yb=cy0+ch*0.30+(st.amp==="r"&&n>0?58:42);
+    g.fillText((st.amp==="t"?"t":"r")+"ₙ = "+fc(a),cx0+10,yb);
+    let txt;if(n===0)txt=st.amp==="t"?"free line: no kick":"no kick: no reflection";
+    else if(st.pot==="delta")txt="1 way: all at the spike";
+    else if(st.pot==="double")txt=`${2**n} ways: A or B each`;
+    else txt="kicks at any x in V";
+    g.fillText(txt,cx0+10,yb+15);
+    g.fillText(n===0?"":`${n} vertex${n>1?"es":""}, ${n} line${n>1?"s":""} G₀`,cx0+10,yb+30)}
+}
+
+/* ---------- part 1: arrow chain ---------- */
+function drawChain(){
+  const{g,w,h}=fit($("chain")),A=cur.A,E=cur.E,N=st.N;
+  const pts=[[0,0]];let s=[0,0];for(let n=0;n<=N;n++){s=[s[0]+A[n][0],s[1]+A[n][1]];pts.push(s)}
+  let x0=0,x1=0,y0=0,y1=0;const inc=p=>{if(Math.hypot(p[0],p[1])>3)return false;x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);return true};
+  inc([0,0]);inc(E);inc([1,0]);let out=false;for(const p of pts)if(!inc(p))out=true;
+  const pad=0.18,dx=Math.max(x1-x0,0.3)*(1+2*pad),dy=Math.max(y1-y0,0.3)*(1+2*pad),sc=Math.min(w/dx,h/dy),cx=(x0+x1)/2,cy=(y0+y1)/2;
+  const X=x=>w/2+(x-cx)*sc,Y=y=>h/2-(y-cy)*sc;
+  g.font="11px system-ui,sans-serif";g.strokeStyle=GRID;g.lineWidth=1;g.fillStyle=MUT;g.textAlign="left";
+  g.beginPath();g.moveTo(0,Y(0));g.lineTo(w,Y(0));g.moveTo(X(0),0);g.lineTo(X(0),h);g.stroke();
+  g.fillText("real part →",w-70,Y(0)-4);g.fillText("↑ imaginary",X(0)+4,12);
+  g.strokeStyle=GRID;g.setLineDash([3,4]);g.beginPath();g.arc(X(0),Y(0),sc,0,7);g.stroke();g.setLineDash([]);g.fillText("|amplitude| = 1",X(0)+sc*0.72+4,Y(0)-sc*0.72);
+  for(let n=0;n<=N;n++){const a=pts[n],b=pts[n+1],len=Math.hypot(A[n][0],A[n][1])*sc;if(len<1e-9)continue;
+    const col=`hsl(${(200+n*17)%360},75%,65%)`;g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2;
+    g.beginPath();g.moveTo(X(a[0]),Y(a[1]));g.lineTo(X(b[0]),Y(b[1]));g.stroke();
+    if(len>9)head(g,X(b[0]),Y(b[1]),Math.atan2(-(b[1]-a[1]),b[0]-a[0]),7);
+    if(n<=5&&len>14){const mx=(X(a[0])+X(b[0]))/2,my=(Y(a[1])+Y(b[1]))/2,nx=-(Y(b[1])-Y(a[1])),ny=X(b[0])-X(a[0]),nl=Math.hypot(nx,ny)||1;g.fillStyle=col;g.textAlign="center";g.fillText(n,mx+nx/nl*9,my+ny/nl*9+4)}}
+  g.strokeStyle=GREEN;g.lineWidth=2;g.beginPath();g.arc(X(E[0]),Y(E[1]),9,0,7);g.stroke();
+  g.fillStyle=GREEN;g.textAlign="right";g.fillText("exact "+(st.amp==="t"?"t":"r"),X(E[0])-13,Y(E[1])-8);g.textAlign="left";
+  const f=pts[pts.length-1];if(Math.hypot(f[0],f[1])<=3){dot(g,X(f[0]),Y(f[1]),4.5,ORANGE);g.fillStyle=ORANGE;g.fillText("sum, N = "+N,X(f[0])+8,Y(f[1])+16)}
+  if(out){g.fillStyle=ORANGE;g.textAlign="left";g.fillText("the path leaves the picture: the sum runs away",10,h-10)}}
+
+/* ---------- plots B, C ---------- */
+function frame(g,w,h,m,xmax,xlab){g.font="11px system-ui,sans-serif";g.fillStyle=MUT;g.strokeStyle=GRID;g.lineWidth=1;g.textAlign="center";
+  for(let n=0;n<=xmax;n+=5){const x=m.l+(w-m.l-m.r)*n/xmax;g.beginPath();g.moveTo(x,m.t);g.lineTo(x,h-m.b);g.stroke();g.fillText(n,x,h-m.b+14)}
+  g.fillText(xlab,m.l+(w-m.l-m.r)/2,h-3)}
+function plotB(){
+  const{g,w,h}=fit($("plotB")),m={l:40,r:10,t:10,b:30},E=cur.E,ex=Math.hypot(E[0],E[1]),S=sums(cur.A),lo=Math.max(0,ex-0.5),hi=lo+1;
+  const X=n=>m.l+(w-m.l-m.r)*n/NMAX,Y=v=>m.t+(h-m.t-m.b)*(hi-v)/(hi-lo);
+  frame(g,w,h,m,NMAX,"order N");g.textAlign="right";
+  for(let v=lo;v<=hi+1e-9;v+=0.25){g.strokeStyle=GRID;g.beginPath();g.moveTo(m.l,Y(v));g.lineTo(w-m.r,Y(v));g.stroke();g.fillStyle=MUT;g.fillText(v.toFixed(2),m.l-4,Y(v)+4)}
+  g.strokeStyle=GREEN;g.lineWidth=2;g.setLineDash([6,4]);g.beginPath();g.moveTo(m.l,Y(ex));g.lineTo(w-m.r,Y(ex));g.stroke();g.setLineDash([]);
+  g.strokeStyle=ORANGE;g.lineWidth=1;g.setLineDash([2,3]);g.beginPath();g.moveTo(X(st.N),m.t);g.lineTo(X(st.N),h-m.b);g.stroke();g.setLineDash([]);
+  g.fillStyle=BLUE;for(let n=0;n<=NMAX;n++){const v=Math.hypot(S[n][0],S[n][1]);
+    if(v>hi){g.beginPath();g.moveTo(X(n),m.t+2);g.lineTo(X(n)-4,m.t+10);g.lineTo(X(n)+4,m.t+10);g.fill()}
+    else if(v<lo){g.beginPath();g.moveTo(X(n),h-m.b-2);g.lineTo(X(n)-4,h-m.b-10);g.lineTo(X(n)+4,h-m.b-10);g.fill()}
+    else dot(g,X(n),Y(v),3.2,BLUE)}
+  g.textAlign="left";g.fillStyle=GREEN;g.fillText("- - exact |"+(st.amp==="t"?"t":"r")+"|",m.l+8,m.t+24);g.fillStyle=BLUE;g.fillText("● |S_N|",m.l+8,m.t+38);g.fillStyle=ORANGE;g.fillText("┆ your N",m.l+8,m.t+52)}
+function plotC(){
+  const{g,w,h}=fit($("plotC")),m={l:44,r:10,t:10,b:30},E=cur.E,S=sums(cur.A),lo=-16,hi=12;
+  const X=n=>m.l+(w-m.l-m.r)*n/NMAX,Y=v=>m.t+(h-m.t-m.b)*(hi-Math.max(lo,Math.min(hi,v)))/(hi-lo);
+  frame(g,w,h,m,NMAX,"order N");g.textAlign="right";
+  for(let v=-15;v<=10;v+=5){g.strokeStyle=GRID;g.beginPath();g.moveTo(m.l,Y(v));g.lineTo(w-m.r,Y(v));g.stroke();g.fillStyle=MUT;g.fillText("1e"+v,m.l-4,Y(v)+4)}
+  const lg=x=>Math.log10(Math.max(x,1e-300));
+  if(cur.rho>0){g.strokeStyle=ORANGE;g.lineWidth=1.5;g.setLineDash([5,4]);g.beginPath();
+    const c0=lg(Math.hypot(cur.A[3][0],cur.A[3][1]))-3*lg(cur.rho);   /* anchor the trend line at order 3 */
+    for(let n=0;n<=NMAX;n++){const y=Y(c0+n*lg(cur.rho));n?g.lineTo(X(n),y):g.moveTo(X(n),y)}g.stroke();g.setLineDash([])}
+  for(let n=0;n<=NMAX;n++){const e=Math.hypot(S[n][0]-E[0],S[n][1]-E[1]),t=Math.hypot(cur.A[n][0],cur.A[n][1]);
+    if(n>0||t>0){g.fillStyle=PINK;g.fillRect(X(n)-3,Y(lg(t))-3,6,6)}
+    dot(g,X(n),Y(lg(e)),3.3,BLUE)}
+  g.strokeStyle=ORANGE;g.lineWidth=1;g.setLineDash([2,3]);g.beginPath();g.moveTo(X(st.N),m.t);g.lineTo(X(st.N),h-m.b);g.stroke();g.setLineDash([]);
+  g.textAlign="left";g.fillStyle=BLUE;g.fillText("● error",m.l+8,m.t+12);g.fillStyle=PINK;g.fillText("■ term size",m.l+8,m.t+26);g.fillStyle=ORANGE;g.fillText("- - trend ρⁿ, ρ = "+cur.rho.toFixed(3),m.l+8,m.t+40)}
+
+/* ---------- part 3: energy sweep ---------- */
+function ensureSweep(){
+  const key=st.pot+"|"+st.s;if(key===sweepKey)return;sweepKey=key;
+  const M=MSWEEP[st.pot],S=potentialSites(st.pot,st.s,M),K=150,k0=0.2,k1=6;sweep={ks:[],Tex:[],T1:[],TN:[]};
+  for(let i=0;i<K;i++){const k=k0+(k1-k0)*i/(K-1),ser=bornSeries(S,k,NMAX),ex=exactAmps(st.pot,st.s,k,M);
+    sweep.ks.push(k);sweep.Tex.push(prob(ex.t));sweep.T1.push(1-prob(ser.r[1]));
+    const arr=[];let sm=[0,0];for(let n=0;n<=NMAX;n++){sm=[sm[0]+ser.t[n][0],sm[1]+ser.t[n][1]];arr.push(prob(sm))}sweep.TN.push(arr)}}
+function drawSweep(){
+  ensureSweep();
+  const{g,w,h}=fit($("sweep")),m={l:40,r:10,t:10,b:32},k0=0.2,k1=6,top=1.4;
+  const X=k=>m.l+(w-m.l-m.r)*(k-k0)/(k1-k0),Y=v=>m.t+(h-m.t-m.b)*(top-Math.max(-0.05,Math.min(top,v)))/(top+0.05);
+  g.font="11px system-ui,sans-serif";g.fillStyle=MUT;g.strokeStyle=GRID;g.lineWidth=1;g.textAlign="center";
+  for(let k=1;k<=6;k++){g.beginPath();g.moveTo(X(k),m.t);g.lineTo(X(k),h-m.b);g.stroke();g.fillText(k,X(k),h-m.b+14)}
+  g.fillText("wave number k  (energy E = k²/2)",m.l+(w-m.l-m.r)/2,h-3);g.textAlign="right";
+  for(let v=0;v<=1.4;v+=0.2){g.beginPath();g.moveTo(m.l,Y(v));g.lineTo(w-m.r,Y(v));g.stroke();g.fillText(v.toFixed(1),m.l-4,Y(v)+4)}
+  g.strokeStyle=MUT;g.setLineDash([2,3]);g.beginPath();g.moveTo(m.l,Y(1));g.lineTo(w-m.r,Y(1));g.stroke();g.setLineDash([]);
+  const line=(arr,col,lw)=>{g.strokeStyle=col;g.lineWidth=lw;g.beginPath();arr.forEach((v,i)=>{const x=X(sweep.ks[i]),y=Y(v);i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke()};
+  line(sweep.T1,ORANGE,1.5);line(sweep.TN.map(a=>a[st.N]),BLUE,1.8);line(sweep.Tex,INK,2.4);
+  g.strokeStyle=GREEN;g.setLineDash([4,4]);g.lineWidth=1;g.beginPath();g.moveTo(X(st.k),m.t);g.lineTo(X(st.k),h-m.b);g.stroke();g.setLineDash([]);
+  g.textAlign="left";g.fillStyle=INK;g.fillText("— exact |t|²",m.l+8,m.t+12);g.fillStyle=ORANGE;g.fillText("— first Born, 1 − |r₁|²",m.l+8,m.t+26);g.fillStyle=BLUE;g.fillText("— sum of N = "+st.N+" orders, |t_N|²",m.l+8,m.t+40);g.fillStyle=GREEN;g.fillText("┆ your k",m.l+8,m.t+54)}
+
+/* ---------- part 4: single delta spike ---------- */
+function deltaTable(){
+  const g0=st.s,k=st.k,S=potentialSites("delta",g0,1),Nn=Math.max(8,st.N),B=bornSeries(S,k,Nn),gam=[0,-g0/k];
+  let h=`<table class="tb"><tr><th>n</th><th>series t<sub>n</sub> (grid code)</th><th>γⁿ (formula)</th><th>series r<sub>n</sub></th><th>γⁿ (formula)</th><th>largest difference</th></tr>`,worst=0;
+  for(let n=0;n<=8;n++){const f=cpow(gam,n),fr=n?f:[0,0],d=Math.max(Math.hypot(B.t[n][0]-f[0],B.t[n][1]-f[1]),Math.hypot(B.r[n][0]-fr[0],B.r[n][1]-fr[1]));worst=Math.max(worst,d);
+    h+=`<tr><td>${n}</td><td>${fc(B.t[n])}</td><td>${fc(f)}</td><td>${fc(B.r[n])}</td><td>${fc(fr)}</td><td>${d.toExponential(1)}</td></tr>`}
+  const ex=deltaExact(g0,k),sm=partialSum(B.t,Nn),smr=partialSum(B.r,Nn);
+  h+=`<tr><td>sum to N = ${Nn}</td><td>${fc(sm)}</td><td>1/(1+ig/k) = ${fc(ex.t)}</td><td>${fc(smr)}</td><td>${fc(ex.r)}</td><td>${Math.max(Math.hypot(sm[0]-ex.t[0],sm[1]-ex.t[1]),Math.hypot(smr[0]-ex.r[0],smr[1]-ex.r[1])).toExponential(1)}</td></tr></table>`;
+  $("dtab").innerHTML=h;
+  const tm=exactAmps("delta",g0,k,1);
+  $("r4").innerHTML=`<div><span>g, k</span> <b>${g0.toFixed(2)}, ${k.toFixed(2)}</b> <span>ratio |γ| = |g|/k</span> <b>${(Math.abs(g0)/k).toFixed(4)}</b> <span>→ series</span> <b class="${Math.abs(g0)/k<1?"ok":""}">${Math.abs(g0)/k<1?"converges":"diverges"}</b></div>
+  <div><span>first 8 terms: series = closed form, largest difference</span> <b>${worst.toExponential(1)}</b> <b class="ok">${worst<1e-12?"✓":"✗"}</b></div>
+  <div><span>transfer matrix t</span> <b>${fc(tm.t)}</b> <span>formula 1/(1+ig/k)</span> <b>${fc(ex.t)}</b> <b class="ok">${Math.hypot(tm.t[0]-ex.t[0],tm.t[1]-ex.t[1])<1e-12?"✓":"✗"}</b></div>
+  <div><span>|t|² + |r|²</span> <b>${(prob(ex.t)+prob(ex.r)).toFixed(12)}</b>${g0<0?` <span>bound state at E =</span> <b>${(-g0*g0/2).toFixed(3)}</b> <span>series works above E =</span> <b>${(g0*g0/2).toFixed(3)}</b>`:""}</div>`}
+
+/* ---------- read-outs ---------- */
+function readouts(){
+  const T=prob(cur.ex.t),SN=partialSum(cur.ser.t,st.N),TN=prob(SN),d=Math.abs(TN-T),ok=cur.rho<1;
+  $("bEx").textContent=T.toFixed(6);$("bN").textContent=TN<1e4?TN.toFixed(6):TN.toExponential(3);
+  $("bNlab").innerHTML=`sum of N = ${st.N} orders |t<sub>N</sub>|²`;
+  $("bD").textContent=d<1e-3&&d>0?d.toExponential(2):(d<1e4?d.toFixed(6):d.toExponential(2));
+  $("bS").textContent=ok?`yes, ρ = ${cur.rho.toFixed(3)}`:`no, ρ = ${cur.rho.toFixed(3)}`;$("bS").className=ok?"good":"bad";
+  $("bD").className=d<1e-3?"good":"";
+  const ex=cur.ex,te=Math.hypot(SN[0]-ex.t[0],SN[1]-ex.t[1]),SR=partialSum(cur.ser.r,st.N),re=Math.hypot(SR[0]-ex.r[0],SR[1]-ex.r[1]);
+  const fb=firstBornFormula(st.pot,st.s,st.k);
+  $("r0").innerHTML=`<div><span>exact t</span> <b>${fc(ex.t)}</b> <span>exact r</span> <b>${fc(ex.r)}</b> <span>|t|² + |r|²</span> <b>${(prob(ex.t)+prob(ex.r)).toFixed(12)}</b></div>
+  <div><span>sum of N orders: t</span> <b>${fc(SN)}</b> <span>r</span> <b>${fc(SR)}</b></div>
+  <div><span>amplitude error |t_N − t|</span> <b>${sci(te)}</b> <span>|r_N − r|</span> <b>${sci(re)}</b></div>`;
+  const E=cur.E,S=sums(cur.A)[st.N],lab=st.amp==="t"?"t":"r";
+  $("r1").innerHTML=`<div><span>term of order ${st.N}: ${lab}<sub>N</sub></span> <b>${fc(cur.A[st.N])}</b> <span>size</span> <b>${sci(Math.hypot(cur.A[st.N][0],cur.A[st.N][1]))}</b></div>
+  <div><span>sum S<sub>N</sub></span> <b>${fc(S)}</b> <span>exact</span> <b>${fc(E)}</b></div>
+  <div><span>first Born ${lab}₁ by the Fourier formula</span> <b>${fc(st.amp==="t"?fb.t1:fb.r1)}</b> <span>from the grid</span> <b>${fc(cur.A[1])}</b></div>`;
+  const lastT=Math.hypot(cur.A[NMAX][0],cur.A[NMAX][1]),prevT=Math.hypot(cur.A[NMAX-1][0],cur.A[NMAX-1][1]);
+  const sw=[];for(let n=0;n<=NMAX;n++){const e=Math.hypot(sums(cur.A)[n][0]-E[0],sums(cur.A)[n][1]-E[1]);sw.push(e)}
+  const best=sw.reduce((a,v,i)=>v<a.v?{v,i}:a,{v:Infinity,i:0});
+  $("r2").innerHTML=`<div><span>ρ (growth per order, from the iteration)</span> <b>${cur.rho.toFixed(4)}</b> <span>last ratio of terms |${lab}₃₀/${lab}₂₉|</span> <b>${prevT>0?(lastT/prevT).toFixed(3):"–"}</b></div>
+  <div><span>error at N = ${st.N}</span> <b>${sci(sw[st.N])}</b> <span>best error over N = 0…30</span> <b>${sci(best.v)}</b> <span>at N =</span> <b>${best.i}</b></div>
+  ${st.pot==="delta"?`<div><span>exact for one spike: ρ = |g|/k =</span> <b>${(Math.abs(st.s)/st.k).toFixed(4)}</b></div>`:""}${st.pot==="double"?`<div><span>exact for two spikes: ρ = (|g|/k)·2·max(|cos|,|sin|) of ka/2 =</span> <b>${rhoDouble(st.s,st.k,DD_SEP).toFixed(4)}</b></div>`:""}`;
+  const i=Math.round((st.k-0.2)/(6-0.2)*149);
+  $("r3").innerHTML=sweep?`<div><span>at k = ${st.k.toFixed(2)}: exact T</span> <b>${prob(cur.ex.t).toFixed(5)}</b> <span>first Born 1 − |r₁|²</span> <b>${(1-prob(cur.ser.r[1])).toFixed(5)}</b> <span>N-th order</span> <b>${TN<1e4?TN.toFixed(5):TN.toExponential(2)}</b></div>`:""}
+
+function draw(){drawStrip();drawChain();plotB();plotC();drawSweep()}
+function refresh(){
+  $("sLab").textContent=SYM[st.pot];$("sV").textContent=st.s.toFixed(2);$("kV").textContent=st.k.toFixed(2);$("NV").textContent=st.N;
+  compute();ensureSweep();readouts();deltaTable();draw()}
+$("pot").onchange=e=>{st.pot=e.target.value;refresh()};
+$("s").oninput=e=>{st.s=+e.target.value;refresh()};
+$("k").oninput=e=>{st.k=+e.target.value;refresh()};
+$("N").oninput=e=>{st.N=+e.target.value;refresh()};
+$("amp").onchange=e=>{st.amp=e.target.value;refresh()};
+addEventListener("resize",()=>draw());
+refresh();
+</script>
+</body>
+</html>
