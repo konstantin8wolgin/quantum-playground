@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Watching the Slits</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:18px;margin:0 0 6px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#05060a;border-radius:8px}
+.stage{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:14px;align-items:start}
+@media (max-width:760px){.stage{grid-template-columns:minmax(0,1fr)}}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 20px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=range]:disabled{opacity:.45}
+button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.big{width:100%;font-size:15px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-top:12px}
+.big b{font-variant-numeric:tabular-nums}
+.ok{color:var(--chip-exact);font-weight:600}
+.bad{color:var(--warn);font-weight:600}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Watching the Slits</h1>
+<p class="sub">Two slits make stripes. Now put a marker on the electron that records which slit it used. How good must the marker be to kill the stripes? And can you bring the stripes back?</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Wait until dots build up on the screen (about 15 seconds). With "how well we watch" at 0°, you see full stripes.</li>
+<li>Move the <i>how well we watch</i> slider to 90°, then to 180°. The stripes fade. The big number below shows the stripe contrast V and the "path knowledge" D. Their squares always add to 1.</li>
+<li>Set the slider to 180° and tick <i>quantum eraser</i>. The dots get two colours. Each colour alone shows stripes. All dots together show none.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>. This room is the sequel to <a href="double-slit.html">Double Slit Flow</a>.</div>
+
+<section>
+<div class="stage">
+  <div>
+    <canvas id="setup" data-h0="360"></canvas>
+    <div class="cap"><span class="chip c-cartoon">cartoon</span>The set-up. Not to scale. The faint lines go from both slits to the last dots: the picture does not say which way an electron went.</div>
+  </div>
+  <div>
+    <canvas id="screen" data-h0="360"></canvas>
+    <div class="cap"><span class="chip c-exact">exact</span> orange line: the path-sum prediction · <span class="chip c-sim">simulation</span> dots and blue bars: random arrivals</div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>orange curve: <span class="eq">P(y) = ½(|ψ₁|² + |ψ₂|² + 2 Re[ψ₁*ψ₂]⟨χ₁|χ₂⟩)</span>, ψ₁ and ψ₂ from a sum over straight paths through each slit</div>
+  <div><span class="chip c-sim">simulation</span>dots: single arrivals drawn at random from P(y) (seeded random numbers)</div>
+  <div><span class="chip c-int">interpretation</span>"watching" = entanglement with a marker (any physical record), not a conscious observer</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="run" class="primary">Pause</button><button id="restart">New dots</button></div>
+  <label>how well we watch, turn angle θ <b id="thV"></b><input id="th" type="range" min="0" max="180" step="1" value="0"></label>
+  <label>slit distance d <b id="dV"></b><input id="d" type="range" min="16" max="30" step="1" value="20"></label>
+  <label>dots per second <b id="rtV"></b><input id="rt" type="range" min="20" max="600" step="10" value="150"></label>
+  <label><input type="checkbox" id="er"> quantum eraser: read the marker sideways (needs θ = 180°)</label>
+  <label><input type="checkbox" id="sort" checked> colour dots by eraser result</label>
+</div>
+<div class="big" id="big"></div>
+<div class="read" id="read"></div>
+<div class="predict"><b>Predict, then test:</b> at θ = 90° the marker is half-good. Will the stripes be half as strong? Then check the contrast V against |⟨χ₁|χ₂⟩| = cos(θ/2) = 0.71. Is it half, or 0.71?</div>
+<details><summary>What the numbers mean</summary>
+<p>The marker is a small spin that starts up. A "coil" in the lower slit turns it by θ. An electron through the upper slit leaves the marker as χ₁ (up). An electron through the lower slit leaves it as χ₂ (turned by θ). The overlap ⟨χ₁|χ₂⟩ = cos(θ/2) tells how alike the two marker states are. With θ = 0 they are the same: the marker holds no information. With θ = 180° they are orthogonal: one look at the marker tells the slit.</p>
+<p>Contrast V = (P<sub>max</sub> − P<sub>min</sub>)/(P<sub>max</sub> + P<sub>min</sub>) is measured on the exact curve near the centre. The code takes the central maximum, the nearest minimum and the next maximum, and corrects for the slow single-slit envelope. The predicted value is |⟨χ₁|χ₂⟩|. They agree to better than 0.001.</p>
+<p>D = √(1 − |⟨χ₁|χ₂⟩|²) is how well the marker tells the two slits apart (best guess of the slit is right with probability ½(1 + D)). For a pure marker state, V² + D² = 1. For a mixed marker state, only V² + D² ≤ 1 holds.</p>
+<p>"From dots" is a second estimate: the code averages the local interference ratio over all dots and compares it to the exact table. It has a statistical error that falls like 1/√n.</p>
+</details>
+</section>
+
+<section>
+<h2>The marker, and the price of knowing</h2>
+<div class="grid2">
+  <div>
+    <h3>Marker states <span class="chip c-cartoon">cartoon</span></h3>
+    <canvas id="dial" data-h0="260"></canvas>
+    <div class="cap">A slice through the <a class="term" href="../glossary.html#bloch-sphere">Bloch sphere</a> of the marker spin. χ₁ points up. χ₂ is turned by θ. The overlap is cos(θ/2). More about spin: <a href="spinor-flag.html">Spinor flag</a>.</div>
+  </div>
+  <div>
+    <h3>Stripes against knowledge <span class="chip c-exact">exact</span></h3>
+    <canvas id="comp" data-h0="260"></canvas>
+    <div class="cap">Horizontal: stripe contrast V. Vertical: path knowledge D. A pure marker sits on the circle V² + D² = 1. The dot shows the slider. The filled area is not allowed.</div>
+  </div>
+</div>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>In <a href="double-slit.html">Double Slit Flow</a>, electrons make stripes on a screen after two slits. The stripes need one thing: nothing in the world may record which slit the electron used. Here we put a record in the world, a small marker, and we look at what happens to the stripes.</p>
+<p>The rule is simple. If the marker ends in the same state for both slits, the record is empty, and the stripes are full. If the marker ends in two different states, then the two ways are no longer the same final situation, and the <a class="term" href="../glossary.html#interference">interference</a> gets weaker. If the two marker states are orthogonal, the stripes are gone. The stripes fade smoothly in between. More knowledge of the path means less contrast, never more.</p>
+<p>The word "watching" here means <b>any physical record</b> of the path. It does not need a person, a mind, or a screen with a reader. A single scattered photon that carries the information away is enough. There is no "electron that knows it is watched". There is an <b><a class="term" href="../glossary.html#entanglement">entanglement</a></b> between the electron and the marker, and the arrows (<a class="term" href="../glossary.html#amplitude">amplitudes</a>) for the two slits can only add when the marker does not tell them apart.</p>
+<p>The last part is the <a class="term" href="../glossary.html#quantum-eraser">quantum eraser</a>. If the marker is fully on, the stripes are gone. But you can still read the marker in a sideways way, which does not tell the slit. Sort the dots by that sideways result and each pile shows stripes again. One pile has stripes, the other has "anti-stripes". The sum is the pattern without stripes, as before. Nothing was undone in the electrons: only your sorting of them changed.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Left picture</dt><dd>A cartoon of the experiment. Electrons come from the left, pass the wall with two slits, and land on the screen. A coil in the lower slit turns the marker spin by θ. The coloured arcs are the waves from the two slits; their colour is the <a class="term" href="../glossary.html#phase">phase</a>.</dd>
+<dt>Right picture: white dots</dt><dd>Single electrons on the screen. Each dot is one random arrival, drawn with the <a class="term" href="../glossary.html#born-rule">Born rule</a> from the exact probability. The sideways position of a dot has no meaning; it only spreads the dots out.</dd>
+<dt>Blue bars</dt><dd>How many dots arrived at each height: the histogram.</dd>
+<dt>Orange curve</dt><dd>The exact probability P(y) from the path sum. With eraser on, the orange curve is the sum of the two sorted piles.</dd>
+<dt>Teal and pink (eraser only)</dt><dd>Dots with eraser result "+" are teal. Dots with result "−" are pink. The thin teal and pink curves are the exact predictions P₊(y) and P₋(y).</dd>
+<dt>Big number</dt><dd>The stripe contrast V, measured on the exact curve, next to the predicted |⟨χ₁|χ₂⟩|. Also D and V² + D².</dd>
+<dt>Bloch picture, and V–D picture</dt><dd>The two marker states as arrows, and the allowed region for stripes V and knowledge D.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Move θ from 0° to 180° slowly. <details><summary>What happens and why</summary>The stripes fade and the dark gaps fill with dots. At 180° the pattern is a smooth hump. The contrast follows |cos(θ/2)|: at 90° it is 0.71, not 0.5. The marker is a quantum state, so the "half" step of knowing is not half the contrast. What does add up is V² + D² = 1.</details></li>
+<li>Set θ = 90° and read V and D. <details><summary>What happens and why</summary>Both are about 0.71. V² = 0.5 and D² = 0.5. You get a half-good stripe pattern and a half-good guess of the slit. You can not have both fully. This is Bohr's <a class="term" href="../glossary.html#complementarity">complementarity</a>, in the exact form of Englert (1996).</details></li>
+<li>Set θ = 180°. Dots show no stripes. Now tick <i>quantum eraser</i>. <details><summary>What happens and why</summary>The dots get two colours. Look at the teal dots alone: they sit in stripes. The pink dots sit in the gaps of the teal ones. The stripes were never lost: they were hidden in a mix of two patterns. The marker, read sideways, tells you which pile each electron belongs to. P₊ + P₋ is the smooth pattern again.</details></li>
+<li>Untick <i>colour dots by eraser result</i>. <details><summary>What happens and why</summary>You see the sum of both piles: a smooth hump. Reading the marker did not change where the electrons land. Only the sorting changes what you can see. So the eraser can not send a message back in time: someone who has only the unsorted dots sees no stripes, whatever you decide to do with the marker.</details></li>
+<li>Make the slit distance d smaller or larger. <details><summary>What happens and why</summary>The stripes get wider (small d) or closer (large d). The stripe distance is about λL/d. The contrast V does not depend on d: it depends only on how alike the two marker states are.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>Each slit gives a wave at the screen. The room computes it as a sum over straight paths from every point in the slit to the screen point (see <a href="path-integral.html">Every path is an arrow</a>). Call the result ψ₁(y) for the upper slit and ψ₂(y) for the lower. This is the same orange-curve method as in Double Slit Flow, but with a finite slit width and with the exact path length, not the far-field formula.</p>
+<p>Without a marker the electron is in a <a class="term" href="../glossary.html#superposition">superposition</a> (ψ₁ + ψ₂)/√2. With a marker, the joint state of electron and marker is</p>
+<p style="text-align:center"><span class="eq">(ψ₁(y) |χ₁⟩ + ψ₂(y) |χ₂⟩) / √2</span></p>
+<p>This is an entangled state when χ₁ and χ₂ differ. A detector at the screen only sees the electron. For this detector the marker is "traced out": we add the probabilities for the marker, not the arrows. The cross term is then multiplied by ⟨χ₁|χ₂⟩, the overlap of the two marker states. When the overlap is 0, the cross term is 0 and no stripes remain. This is what many people call <i>decoherence</i> of the path: the marker carries the phase information away.</p>
+<p>The eraser measures the marker in the basis |±⟩ = (|χ₁⟩ ± |χ₂⟩)/√2 (for θ = 180°). The result "+" leaves the electron in the state ψ₁ + ψ₂, with probability density ¼|ψ₁ + ψ₂|². The result "−" gives ¼|ψ₁ − ψ₂|². Each of these is a full stripe pattern, shifted by half a stripe against the other. Their sum has no stripes. This is the experiment of Scully, Englert and Walther (1991), and it has been done with photons (for example Walborn et al. 2002).</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">ψ<sub>j</sub>(y) = Σ<sub>s in slit j</sub> e<sup>i k r(s,y)</sup> / √r(s,y), &nbsp; r = √(L² + (y − s)²)</span>
+<span>Path sum for each slit. k = 2π/λ. L is the wall–screen distance.</span>
+<span class="eq">P(y) = ½ ( |ψ₁|² + |ψ₂|² + 2 Re[ψ₁* ψ₂] · ⟨χ₁|χ₂⟩ )</span>
+<span>The probability on the screen, with the marker traced out. The overlap is real here.</span>
+<span class="eq">⟨χ₁|χ₂⟩ = cos(θ/2)</span>
+<span>χ₁ = up, χ₂ = up turned by θ.</span>
+<span class="eq">V = (P<sub>max</sub> − P<sub>min</sub>) / (P<sub>max</sub> + P<sub>min</sub>) = 2 |ψ₁||ψ₂| |⟨χ₁|χ₂⟩| / (|ψ₁|² + |ψ₂|²)</span>
+<span>For slits of equal strength (|ψ₁| = |ψ₂| near the centre), V = |⟨χ₁|χ₂⟩|.</span>
+<span class="eq">D = √(1 − |⟨χ₁|χ₂⟩|²), &nbsp; V² + D² = 1</span>
+<span>Englert's relation: in general V² + D² ≤ 1; equality for pure marker states.</span>
+<span class="eq">P<sub>±</sub>(y) = ¼ |ψ₁ ± ψ₂|², &nbsp; P₊ + P₋ = ½ (|ψ₁|² + |ψ₂|²)</span>
+<span>Eraser patterns for θ = 180°. Each has V = 1; their sum has V = 0.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The marker is an ideal two-level spin, and its states are pure. A real marker (a photon, an air molecule) has many states and is partly mixed; then V² + D² can be less than 1. The slits are equal and the source is a plane wave, so the pattern is mirror-symmetric. The wave is a scalar in two dimensions; edge effects of the slits are not included. The screen window is finite, so the probabilities are normalised inside the window. The electron is not really "told" a slit: no model here says which slit an electron used. The dots are random numbers from a computer, not a simulation of a detector. The eraser here is measured at once with the electron; the "delayed choice" version gives the same statistics but is not simulated. The set-up picture is a cartoon.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman, <i>The Feynman Lectures on Physics</i>, Vol. III, chapter 1 "Quantum Behavior" (free online at feynmanlectures.caltech.edu): the electron "watched" by light.</li>
+<li>M. O. Scully, B.-G. Englert, H. Walther, "Quantum optical tests of complementarity", Nature 351, 111 (1991).</li>
+<li>B.-G. Englert, "Fringe visibility and which-way information: an inequality", Physical Review Letters 77, 2154 (1996).</li>
+<li>S. P. Walborn, M. O. Terra Cunha, S. Pádua, C. H. Monken, "Double-slit quantum eraser", Physical Review A 65, 033818 (2002).</li>
+<li>Rooms: <a href="double-slit.html">Double Slit Flow</a> (the stripes), <a href="order-matters.html">Order matters</a> (what a measurement does), <a href="spinor-flag.html">Spinor flag</a> (the marker spin), <a href="path-integral.html">Every path is an arrow</a> (the path sum).</li>
+</ul>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TAU=2*Math.PI;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let q=Math.imul(a^a>>>15,1|a);q=q+Math.imul(q^q>>>7,61|q)^q;return((q^q>>>14)>>>0)/4294967296}}
+/* units: wavelength 1. Slit 1 is centred at y=+d/2, slit 2 at y=-d/2. Plane wave at normal incidence. */
+const DEFAULTS={lam:1,a:3,d:20,L:800,Y:200,n:801,ns:24};
+function slitAmp(y,yc,P){
+  const k=TAU/P.lam,w=P.a/P.ns;let re=0,im=0;
+  for(let j=0;j<P.ns;j++){const s=yc-P.a/2+(j+0.5)*w,dy=y-s,r=Math.sqrt(P.L*P.L+dy*dy),A=1/Math.sqrt(r);
+    re+=A*Math.cos(k*r);im+=A*Math.sin(k*r)}
+  return [re*w,im*w];
+}
+/* p1=|psi1|^2, p2=|psi2|^2, c12=Re(psi1* psi2), s12=Im(psi1* psi2) */
+function ampPair(y,P){
+  const a=slitAmp(y,P.d/2,P),b=slitAmp(y,-P.d/2,P);
+  return {p1:a[0]*a[0]+a[1]*a[1],p2:b[0]*b[0]+b[1]*b[1],c12:a[0]*b[0]+a[1]*b[1],s12:a[0]*b[1]-a[1]*b[0]};
+}
+function trapz(arr,dy){let s=0;for(let i=1;i<arr.length;i++)s+=0.5*(arr[i-1]+arr[i]);return s*dy}
+function makeCurves(P){
+  const n=P.n,dy=2*P.Y/(n-1),p1=new Float64Array(n),p2=new Float64Array(n),c12=new Float64Array(n),inc=new Float64Array(n);
+  for(let i=0;i<n;i++){const q=ampPair(-P.Y+i*dy,P);p1[i]=q.p1;p2[i]=q.p2;c12[i]=q.c12;inc[i]=0.5*(q.p1+q.p2)}
+  return {P,n,dy,y0:-P.Y,p1,p2,c12,inc,N0:trapz(inc,dy)};
+}
+/* screen probability density for marker overlap ov, normalised to integral 1 inside the window */
+function normP(cv,ov){
+  const a=new Float64Array(cv.n);for(let i=0;i<cv.n;i++)a[i]=cv.inc[i]+ov*cv.c12[i];
+  const Z=trapz(a,cv.dy);for(let i=0;i<cv.n;i++)a[i]/=Z;return a;
+}
+/* eraser piles: P(+-) = 1/4 |psi1 +- psi2|^2, divided by N0 so that P+ + P- = P(ov=0) exactly */
+function pmArr(cv,sg){
+  const a=new Float64Array(cv.n);
+  for(let i=0;i<cv.n;i++)a[i]=0.25*(cv.p1[i]+cv.p2[i]+2*sg*cv.c12[i])/cv.N0;
+  return a;
+}
+/* fringe positions from the phase of psi1* psi2: centre maximum (y=0), first minimum, second maximum */
+function fringePoints(P){
+  const D=P.lam*P.L/P.d,N=900,h=1.6*D/N;let prev=0,unw=0,y1=NaN,y2=NaN;
+  for(let i=1;i<=N;i++){const y=i*h,q=ampPair(y,P),ph=Math.atan2(q.s12,q.c12);
+    let dd=ph-prev;while(dd>Math.PI)dd-=TAU;while(dd<-Math.PI)dd+=TAU;
+    const u0=unw;unw+=dd;prev=ph;
+    if(isNaN(y1)&&unw>=Math.PI)y1=y-h*(unw-Math.PI)/(unw-u0);
+    if(isNaN(y2)&&unw>=TAU){y2=y-h*(unw-TAU)/(unw-u0);break}}
+  const E=[],C=[];for(const y of [0,y1,y2]){const q=ampPair(y,P);E.push(0.5*(q.p1+q.p2));C.push(q.c12)}
+  return {y:[0,y1,y2],E,C};
+}
+/* contrast from the exact curve: central extremum, nearest opposite extremum, next same extremum.
+   The slow single-slit envelope is removed by a quadratic interpolation between the two same-type extrema. */
+function visibilityFP(fp,ov){
+  const P=fp.E.map((e,j)=>e+ov*fp.C[j]),q=Math.pow(fp.y[1]/fp.y[2],2);
+  const A=P[0]*(1-q)+P[2]*q,B=P[1];
+  return Math.abs(A-B)/(A+B);
+}
+const overlapFromTheta=deg=>Math.cos(deg*Math.PI/360);
+const distinguish=ov=>Math.sqrt(Math.max(0,1-ov*ov));
+/* sampler: piecewise-constant cell masses from the trapezoid rule, uniform inside a cell */
+function makeSampler(arr,cv){
+  const cum=new Float64Array(arr.length-1);let t=0;
+  for(let i=0;i<cum.length;i++){t+=0.5*(arr[i]+arr[i+1])*cv.dy;cum[i]=t}
+  return {cum,total:t,y0:cv.y0,dy:cv.dy};
+}
+function sampleFrom(s,rng){
+  const u=rng()*s.total;let lo=0,hi=s.cum.length-1;
+  while(lo<hi){const m=(lo+hi)>>1;if(s.cum[m]<u)lo=m+1;else hi=m}
+  return s.y0+(lo+rng())*s.dy;
+}
+function makeEraserSampler(cv){
+  const Pp=pmArr(cv,+1),Pm=pmArr(cv,-1),sp=makeSampler(Pp,cv),sm=makeSampler(Pm,cv);
+  return {sp,sm,mp:sp.total,mm:sm.total,Pp,Pm};
+}
+function sampleEraser(er,rng){
+  const u=rng()*(er.mp+er.mm),s=u<er.mp?1:-1;
+  return [sampleFrom(s>0?er.sp:er.sm,rng),s];
+}
+/* local interference ratio g(y) = Re(psi1* psi2)/((|psi1|^2+|psi2|^2)/2), between -1 and 1 */
+function gRatio(cv){const g=new Float64Array(cv.n);for(let i=0;i<cv.n;i++)g[i]=cv.c12[i]/cv.inc[i];return g}
+function gAt(cv,g,y){
+  const x=(y-cv.y0)/cv.dy,i=Math.max(0,Math.min(cv.n-2,Math.floor(x))),f=x-i;return g[i]*(1-f)+g[i+1]*f;
+}
+/* table: mean of g under P(ov), for ov = 0..1. Used to estimate ov from dots. */
+function momentTable(cv,g){
+  const M=200,m=new Float64Array(M+1);
+  for(let j=0;j<=M;j++){const a=normP(cv,j/M);let s=0;for(let i=0;i<cv.n;i++)s+=a[i]*g[i];m[j]=s*cv.dy}
+  return {M,m};
+}
+function estimateOverlap(tab,mean,variance,n){
+  const M=tab.M,m=tab.m;let est=0;
+  if(mean<=m[0])est=0;else if(mean>=m[M])est=1;
+  else for(let j=0;j<M;j++)if(mean>=m[j]&&mean<=m[j+1]){est=(j+(mean-m[j])/(m[j+1]-m[j]))/M;break}
+  const slope=(m[M]-m[0]);
+  return {ov:est,sigma:Math.sqrt(variance/n)/Math.abs(slope)};
+}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const NB=100,MAXD=20000;
+let S={},running=true,seed=1,acc=0,lastT=0,dotsN=0;
+function params(){return Object.assign({},DEFAULTS,{d:+$("d").value})}
+function buildGeometry(){
+  const P=params();
+  S.P=P;S.cv=makeCurves(P);S.fp=fringePoints(P);S.g=gRatio(S.cv);S.tab=momentTable(S.cv,S.g);
+  S.pm1=Math.max(...normP(S.cv,1));
+  S.fresh=true;resetDots();
+}
+function curTheta(){return $("er").checked?180:+$("th").value}
+function resetDots(){
+  const th=curTheta(),ov=overlapFromTheta(th);
+  S.th=th;S.ov=ov;S.eraser=$("er").checked;
+  S.Pcur=normP(S.cv,ov);
+  S.samp=makeSampler(S.Pcur,S.cv);
+  S.er=S.eraser?makeEraserSampler(S.cv):null;
+  S.rng=mulberry32(seed*7919+13);
+  S.ys=[];S.sg=[];S.cnt=new Int32Array(NB);S.cp=new Int32Array(NB);S.cm=new Int32Array(NB);
+  S.sumG=0;S.sumG2=0;dotsN=0;
+}
+function addDot(){
+  let y,s=0;
+  if(S.eraser){const r=sampleEraser(S.er,S.rng);y=r[0];s=r[1]}else y=sampleFrom(S.samp,S.rng);
+  S.ys.push(y);S.sg.push(s);dotsN++;
+  const b=Math.max(0,Math.min(NB-1,Math.floor((y+S.P.Y)/(2*S.P.Y)*NB)));
+  S.cnt[b]++;if(s>0)S.cp[b]++;else if(s<0)S.cm[b]++;
+  const g=gAt(S.cv,S.g,y);S.sumG+=g;S.sumG2+=g*g;
+}
+
+/* ---------- drawing ---------- */
+function fit(c){
+  const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,h=+c.dataset.h0;
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  c.style.height=h+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h};
+}
+const TEAL="#5eead4",PINK="#f472b6",ORANGE="#ff9d3c";
+function hashJ(i){const v=Math.sin(i*12.9898+78.233)*43758.5453;return v-Math.floor(v)}
+function drawScreen(){
+  const {x:q,w:W,h:H}=fit($("screen")),Y=S.P.Y,py=y=>H/2-y/Y*H/2;
+  q.fillStyle="#05060a";q.fillRect(0,0,W,H);
+  const sc=W*0.62/S.pm1,binw=2*Y/NB,n=Math.max(1,dotsN),cv=S.cv;
+  const sorted=S.eraser&&$("sort").checked;
+  /* histogram bars */
+  q.fillStyle="rgba(125,170,255,.40)";
+  for(let b=0;b<NB;b++){const dens=S.cnt[b]/(n*binw);q.fillRect(0,py(-Y+(b+1)*binw),dens*sc,H*binw/(2*Y)+0.5)}
+  if(sorted){
+    for(const [arr,col] of [[S.cp,"rgba(94,234,212,.9)"],[S.cm,"rgba(244,114,182,.9)"]]){
+      q.strokeStyle=col;q.lineWidth=1.3;q.beginPath();
+      for(let b=0;b<NB;b++){const dens=arr[b]/(n*binw),yt=py(-Y+(b+1)*binw),yb=py(-Y+b*binw);
+        q.moveTo(0,yt);q.lineTo(dens*sc,yt);q.lineTo(dens*sc,yb)}
+      q.stroke()}
+  }
+  /* dots */
+  const show=Math.min(S.ys.length,6000),first=S.ys.length-show;
+  for(let i=first;i<S.ys.length;i++){
+    q.fillStyle=sorted?(S.sg[i]>0?TEAL:PINK):"#fff";
+    q.beginPath();q.arc((0.68+0.30*hashJ(i))*W,py(S.ys[i]),1.4,0,7);q.fill()}
+  /* exact curves */
+  const path=(arr,col,lw,dash)=>{q.strokeStyle=col;q.lineWidth=lw;q.setLineDash(dash||[]);q.beginPath();
+    for(let i=0;i<cv.n;i++){const X=arr[i]*sc,Yp=py(cv.y0+i*cv.dy);if(i)q.lineTo(X,Yp);else q.moveTo(X,Yp)}q.stroke();q.setLineDash([])};
+  if(S.eraser){path(S.er.Pp,TEAL,1.4);path(S.er.Pm,PINK,1.4)}
+  path(S.Pcur,ORANGE,2.2);
+  q.fillStyle="rgba(255,255,255,.7)";q.font="12px system-ui";q.fillText("screen: probability density P(y)",8,14);
+  q.fillText(dotsN+" dots",8,H-8);
+}
+function drawSetup(){
+  const {x:g,w:W,h:H}=fit($("setup")),th=S.th;
+  g.fillStyle="#05060a";g.fillRect(0,0,W,H);
+  const xs=W*0.07,xw=W*0.40,xsc=W*0.93,yc=H/2,sep=H*0.13,y1=yc-sep,y2=yc+sep,gap=H*0.05;
+  /* waves from both slits, coloured by phase */
+  g.save();g.beginPath();g.rect(xw+4,0,xsc-xw-4,H);g.clip();
+  for(const yy of [y1,y2]){
+    for(let r=6;r<W;r+=7){const hue=((r/28)%1)*360;g.strokeStyle=`hsla(${hue},85%,60%,${0.22*Math.max(0.05,1-r/(xsc-xw+40))})`;g.lineWidth=2;
+      g.beginPath();g.arc(xw+2,yy,r,-Math.PI/2,Math.PI/2);g.stroke()}}
+  g.restore();
+  /* wall with two slits */
+  g.fillStyle="#7a7d85";
+  const wx=xw-3,ww=6;
+  g.fillRect(wx,0,ww,y1-gap);g.fillRect(wx,y1+gap,ww,y2-gap-(y1+gap));g.fillRect(wx,y2+gap,ww,H-(y2+gap));
+  /* incoming wave */
+  g.strokeStyle="rgba(255,255,255,.35)";g.lineWidth=1;
+  for(let x=xs+20;x<xw-8;x+=18){g.beginPath();g.moveTo(x,y1-sep*0.9);g.lineTo(x,y2+sep*0.9);g.stroke()}
+  g.fillStyle="#fff";g.beginPath();g.arc(xs,yc,5,0,7);g.fill();
+  g.font="12px system-ui";g.fillStyle="rgba(255,255,255,.8)";g.fillText("e⁻ source",xs-8,yc+22);
+  g.fillText("slit 1",wx-10,y1-gap-6);g.fillText("slit 2",wx-10,y2+gap+14);
+  /* screen */
+  g.strokeStyle="rgba(255,255,255,.7)";g.setLineDash([4,4]);g.beginPath();g.moveTo(xsc,6);g.lineTo(xsc,H-6);g.stroke();g.setLineDash([]);
+  g.fillStyle="rgba(255,255,255,.8)";g.fillText("screen",xsc-40,H-8);
+  /* faint rays to last dots */
+  const m=Math.min(14,S.ys.length);
+  for(let i=S.ys.length-m;i<S.ys.length;i++){const yy=yc-S.ys[i]/S.P.Y*(H/2-6);
+    for(const sy of [y1,y2]){g.strokeStyle="rgba(255,255,255,.07)";g.beginPath();g.moveTo(xw,sy);g.lineTo(xsc,yy);g.stroke()}
+    g.fillStyle=S.eraser&&$("sort").checked?(S.sg[i]>0?TEAL:PINK):"#fff";g.beginPath();g.arc(xsc,yy,2,0,7);g.fill()}
+  /* marker: spin arrows beside each slit */
+  const arrow=(cx,cy,ang,col,label)=>{
+    const L=16,dx=Math.sin(ang)*L,dy=-Math.cos(ang)*L;
+    g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(cx-dx,cy-dy);g.lineTo(cx+dx,cy+dy);g.stroke();
+    const a=Math.atan2(dy,dx);g.beginPath();g.moveTo(cx+dx,cy+dy);g.lineTo(cx+dx-7*Math.cos(a-0.45),cy+dy-7*Math.sin(a-0.45));g.lineTo(cx+dx-7*Math.cos(a+0.45),cy+dy-7*Math.sin(a+0.45));g.fill();
+    g.font="12px system-ui";g.fillText(label,cx-14,cy+30)};
+  const mx=xw+W*0.09;
+  g.strokeStyle="rgba(255,255,255,.35)";g.strokeRect(mx-26,y1-24,52,48);g.strokeRect(mx-26,y2-24,52,48);
+  arrow(mx,y1,0,"#93c5fd","χ₁ = ↑");
+  arrow(mx,y2,th*Math.PI/180,"#fcd34d","χ₂ turned θ");
+  g.fillStyle="rgba(255,255,255,.55)";g.font="11px system-ui";g.fillText("marker",mx-20,y1-30);g.fillText("marker (coil)",mx-30,y2-30);
+  if(S.eraser){
+    g.fillStyle=TEAL;g.fillText("read marker: |+⟩ or |−⟩",xsc-W*0.34,18);
+  }
+}
+function drawDial(){
+  const {x:g,w:W,h:H}=fit($("dial")),th=S.th*Math.PI/180,cx=W/2,cy=H/2+6,R=Math.min(W,H)*0.36;
+  g.fillStyle="#05060a";g.fillRect(0,0,W,H);
+  g.strokeStyle="rgba(255,255,255,.35)";g.lineWidth=1.2;g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+  g.setLineDash([3,4]);g.beginPath();g.moveTo(cx-R-8,cy);g.lineTo(cx+R+8,cy);g.moveTo(cx,cy-R-8);g.lineTo(cx,cy+R+8);g.stroke();g.setLineDash([]);
+  /* Bloch angle is theta: chi2 = cos(th/2)|up> + sin(th/2)|down>, drawn at angle theta from up */
+  const vec=(ang,col,lab)=>{const ex=cx+R*Math.sin(ang),ey=cy-R*Math.cos(ang);
+    g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2.5;g.beginPath();g.moveTo(cx,cy);g.lineTo(ex,ey);g.stroke();
+    g.beginPath();g.arc(ex,ey,5,0,7);g.fill();g.font="13px system-ui";g.fillText(lab,ex+(Math.sin(ang)>=0?8:-26),ey+(Math.cos(ang)>0.5?-6:14))};
+  g.strokeStyle="rgba(255,255,255,.6)";g.lineWidth=1.5;g.beginPath();g.arc(cx,cy,R*0.3,-Math.PI/2,-Math.PI/2+th);g.stroke();
+  vec(0,"#93c5fd","χ₁");vec(th,"#fcd34d","χ₂");
+  if(S.eraser){
+    g.setLineDash([2,3]);for(const [a,l,c] of [[Math.PI/2,"|+⟩",TEAL],[-Math.PI/2,"|−⟩",PINK]]){
+      const ex=cx+R*Math.sin(a),ey=cy-R*Math.cos(a);g.strokeStyle=c;g.fillStyle=c;g.beginPath();g.moveTo(cx,cy);g.lineTo(ex,ey);g.stroke();
+      g.fillText(l,ex+(a>0?-30:4),ey-8)}g.setLineDash([]);}
+  g.fillStyle="rgba(255,255,255,.8)";g.font="12px system-ui";
+  g.fillText("overlap ⟨χ₁|χ₂⟩ = cos(θ/2) = "+S.ov.toFixed(3),8,16);g.fillText("up",cx+6,cy-R-10);g.fillText("down",cx+6,cy+R+16);
+}
+function drawComp(){
+  const {x:g,w:W,h:H}=fit($("comp")),m=34,pw=Math.min(W-m-12,H-m-14),ox=m,oy=H-m+4,fx=v=>ox+v*pw,fy=v=>oy-v*pw;
+  g.fillStyle="#05060a";g.fillRect(0,0,W,H);
+  g.fillStyle="rgba(244,114,182,.10)";g.beginPath();g.moveTo(fx(1),fy(1));g.lineTo(fx(0),fy(1));g.lineTo(fx(0),fy(0));
+  for(let a=0;a<=90;a+=3){const t=a*Math.PI/180;g.lineTo(fx(Math.sin(t)),fy(Math.cos(t)))}g.closePath();g.fill();
+  g.strokeStyle="rgba(255,255,255,.5)";g.lineWidth=1.2;g.strokeRect(ox,fy(1),pw,pw);
+  g.strokeStyle=ORANGE;g.lineWidth=2;g.beginPath();for(let a=0;a<=90;a+=2){const t=a*Math.PI/180;const X=fx(Math.sin(t)),Yp=fy(Math.cos(t));a?g.lineTo(X,Yp):g.moveTo(X,Yp)}g.stroke();
+  const ov=S.ov,V=visibilityFP(S.fp,ov),D=distinguish(ov);
+  g.fillStyle="#fff";g.beginPath();g.arc(fx(V),fy(D),6,0,7);g.fill();
+  g.strokeStyle="rgba(255,255,255,.3)";g.setLineDash([3,3]);g.beginPath();g.moveTo(fx(V),oy);g.lineTo(fx(V),fy(D));g.lineTo(ox,fy(D));g.stroke();g.setLineDash([]);
+  g.fillStyle="rgba(255,255,255,.85)";g.font="12px system-ui";
+  g.fillText("stripe contrast V →",ox+pw/2-48,oy+16);g.fillText("0",ox-4,oy+14);g.fillText("1",fx(1)-4,oy+14);
+  g.save();g.translate(12,fy(0.5)+40);g.rotate(-Math.PI/2);g.fillText("path knowledge D →",0,0);g.restore();
+  g.fillText("1",ox-12,fy(1)+10);
+  g.fillText("V² + D² = 1",fx(0.52),fy(0.86));
+}
+function readouts(){
+  const ov=S.ov,V=visibilityFP(S.fp,ov),D=distinguish(ov),diff=Math.abs(V-Math.abs(ov)),ok=diff<1e-3;
+  $("big").innerHTML=`stripe contrast <b>V = ${V.toFixed(4)}</b> (measured on the exact curve) · predicted |⟨χ₁|χ₂⟩| = <b>${Math.abs(ov).toFixed(4)}</b> · difference <b>${diff.toExponential(1)}</b> <span class="${ok?"ok":"bad"}">${ok?"✓ agree":"✗ off"}</span><br>path knowledge <b>D = ${D.toFixed(4)}</b> · <b>V² + D² = ${(V*V+D*D).toFixed(4)}</b> <span class="${Math.abs(V*V+D*D-1)<2e-3?"ok":"bad"}">${Math.abs(V*V+D*D-1)<2e-3?"✓ = 1":"✗"}</span>`;
+  const n=dotsN;let est="…";
+  if(n>=50){const mean=S.sumG/n,vr=Math.max(1e-12,S.sumG2/n-mean*mean),e=estimateOverlap(S.tab,mean,vr,n);est=`${e.ov.toFixed(3)} ± ${e.sigma.toFixed(3)}`}
+  let html=`<div><span>θ </span><b>${S.th}°</b></div><div><span>overlap cos(θ/2) </span><b>${ov.toFixed(4)}</b></div><div><span>dots </span><b>${n}</b></div><div><span>contrast from dots </span><b>${est}</b></div>`;
+  if(S.eraser){
+    let np=0;for(const s of S.sg)if(s>0)np++;
+    let maxd=0;for(let i=0;i<S.cv.n;i++)maxd=Math.max(maxd,Math.abs(S.er.Pp[i]+S.er.Pm[i]-S.Pcur[i]));
+    html+=`<div><span>"+" dots </span><b>${np}</b> <span>"−" dots </span><b>${n-np}</b></div>
+    <div><span>max |P₊ + P₋ − P| </span><b>${maxd.toExponential(1)}</b></div>
+    <div><span>contrast of P₊ </span><b>${visibilityFP(S.fp,1).toFixed(4)}</b> <span>of P₋ </span><b>${visibilityFP(S.fp,-1).toFixed(4)}</b> <span>of the sum </span><b>${V.toFixed(4)}</b></div>`;
+  }
+  $("read").innerHTML=html;
+}
+function labels(){$("thV").textContent=$("th").value+"°"+($("er").checked?" (locked)":"");$("dV").textContent=$("d").value;$("rtV").textContent=$("rt").value}
+function frame(ts){
+  const dt=Math.min(0.05,(ts-lastT)/1000||0);lastT=ts;
+  if(running&&dotsN<MAXD){acc+=dt*(+$("rt").value);while(acc>=1&&dotsN<MAXD){addDot();acc--}}
+  drawSetup();drawScreen();drawDial();drawComp();readouts();
+  requestAnimationFrame(frame);
+}
+function syncEraser(){const e=$("er").checked;$("th").disabled=e;if(e)$("th").value=180;labels();resetDots()}
+$("th").addEventListener("input",()=>{labels();resetDots()});
+$("d").addEventListener("input",()=>{labels();buildGeometry()});
+$("rt").addEventListener("input",labels);
+$("er").addEventListener("change",syncEraser);
+$("sort").addEventListener("change",()=>{});
+$("run").onclick=()=>{running=!running;$("run").textContent=running?"Pause":"Run"};
+$("restart").onclick=()=>{seed++;resetDots();running=true;$("run").textContent="Pause"};
+labels();buildGeometry();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
