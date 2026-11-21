@@ -50,3 +50,9 @@ scope, because visuals can teach them better than the usual formalism.
 - Also added `tests/xy-vortices.test.mjs`. It found that "add vortex pair" made two vortices of the same sign when the click hit a grid point exactly; fixed by putting the cores at cell centres.
 - Possible next rooms: SU(2) gauge field on a lattice (non-Abelian Wilson loops), quark model hadrons from SU(3) weights, a "Wick morph" video export.
 - Review gate: the user reviews every room before the repo goes public.
+
+## Round 3 (2026-11-21): user review
+- User: loves the rooms, especially the double slit. Some rooms are confusing without context. Wants information so people understand what they see, some math, and more on Feynman diagrams and path integrals. Then an MVP.
+- Done: a "How to use" box and a full guide in every room (template in `notes/guide-template.css`, reference `demos/double-slit.html`); `glossary.html` (67 terms); landing page as four routes with audience tags; two Feynman rooms.
+- Fixes found while writing the guides: spinor 360° message at the slider end, path-integral captions (force direction, best arch vs classical path, thermal density), SU(3) hint (t³ for pure red), flux plot divided by n, XY friction text, string-breaking "must agree" label only for heavy fermions.
+- Next: MVP = make the repo public and put the rooms on GitHub Pages, after the user says yes.

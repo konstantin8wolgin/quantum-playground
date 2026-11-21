@@ -8,6 +8,8 @@ Not research. The aim: change parameters, watch what happens, understand it.
 
 | Demo | What it shows |
 |---|---|
+| [`demos/feynman-mirror.html`](demos/feynman-mirror.html) | Feynman's arrows for light: reflection from every point of a mirror, a scraped mirror as a grating, Snell's law from the least-time point, partial reflection from a glass sheet |
+| [`demos/feynman-diagrams.html`](demos/feynman-diagrams.html) | Where Feynman diagrams come from: zero-dimensional φ⁴ theory, diagrams as pairings of legs with symmetry factors, the asymptotic series vs the exact integral, QED cartoons and electron g−2 |
 | [`demos/path-integral.html`](demos/path-integral.html) | Real-time sum over paths (arrows, Cornu spiral, classical limit) and imaginary-time Monte Carlo (harmonic oscillator, double well, tunneling) |
 | [`demos/spinor-flag.html`](demos/spinor-flag.html) | SU(2) and the 720° rotation: belt trick (with untangle slider), Bloch sphere with Penrose flag, the two spinor arrows, neutron-interferometer brightness |
 | [`demos/double-slit.html`](demos/double-slit.html) | Schrödinger wave through two slits (phase colours), Bohm flow lines, single arrival dots, path-sum prediction |
@@ -21,7 +23,7 @@ Not research. The aim: change parameters, watch what happens, understand it.
 | [`demos/flux-vortices.html`](demos/flux-vortices.html) | Abelian Higgs model: a vortex traps one flux quantum, BPS energy 2π, global vs gauged vortex, type I vs type II forces |
 | [`demos/string-breaking.html`](demos/string-breaking.html) | Lattice Schwinger model (1+1D QED) by exact diagonalisation: the flux tube between two charges stretches, then breaks; fractional charges never break |
 
-Start at [`index.html`](index.html). Open any file in a browser. No install, no server.
+Start at [`index.html`](index.html). It groups the rooms into four routes and marks each room as "for everybody", "some physics" or "for students". Every room has a short "How to use" box at the top and a full guide at the bottom (idea in one minute, what you see, things to try with answers, the physics, the math, honest limits, further reading). [`glossary.html`](glossary.html) explains 67 terms and links each one to the rooms that show it. Open any file in a browser. No install, no server.
 
 ## Checks
 

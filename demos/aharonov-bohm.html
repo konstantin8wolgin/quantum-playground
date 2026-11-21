@@ -47,6 +47,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -54,6 +75,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>A Phase Without a Force</h1>
 <p class="sub">A thin magnet hides behind the wall, between the two slits. Its magnetic field stays inside it. The electron wave never touches the field. Yet the stripes on the screen move when you change the field. The field does not push the electron. It turns the arrow of each path.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Watch the wave pass the two slits. The blue bars on the right build up over time and settle on the orange curve. The run ends at time 760.</li>
+<li>Move the <i>flux</i> slider (it restarts the run). Compare the orange curve with the grey dashed curve, which is the pattern without flux. Try 0.5 and 1.0.</li>
+<li>Tick <i>move the cut line</i> during a run. The colours change, but the stripes do not. Set <i>view</i> to "probability only" to see the colours go away.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <div class="stage">
@@ -86,6 +115,76 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p><b>Story.</b> Nature adds up phases. Every path has an arrow. A magnetic potential gives each path one extra turn of its arrow. The size of the turn depends only on how the path winds around the flux. The group of such turns is U(1), the circle. No force acts on the electron: the electron never feels a push, but the sum of its arrows changes. The effect was predicted by Ehrenberg and Siday (1949) and by Aharonov and Bohm (1959). Tonomura's group saw it in 1986.</p>
 <p><b>Limits.</b> The magnet here is a hard disc of radius 4 cells with ψ = 0. It scatters a little wave, so the simulated stripes are not exactly the orange curve. The shift is still the same to about ±0.05 stripe distance. The screen is not in the far field, so stripe distances change slowly with height.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>This is the double-slit experiment with one change. A very thin magnet sits behind the wall, between the two slits. Its magnetic field is only inside the magnet. Everywhere the electron can go, the field is zero. So no magnetic force acts on the electron.</p>
+<p>Yet the stripes on the screen move when you change the strength of the magnet. How? The magnet changes the <a class="term" href="../glossary.html#phase">phase</a> of the electron wave. A wave that goes above the magnet gets a different phase from a wave that goes below it. When the two waves meet at the screen, the stripes show the difference. This is the Aharonov–Bohm effect. It tells us that the <a class="term" href="../glossary.html#vector-potential">vector potential</a>, and not only the field, matters in quantum physics.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Big picture: colours</dt><dd>In "phase colours" view, the colour is the phase of the wave ψ. The colour goes red, yellow, green, cyan, blue, magenta, red for one full turn of the phase. Red is phase 0.</dd>
+<dt>Big picture: brightness</dt><dd>The <a class="term" href="../glossary.html#probability">probability</a> density |ψ|². Weak parts are brightened, so you can see them. In "probability only" view there are no colours: the brightness goes from dark to yellow-white.</dd>
+<dt>Grey wall with two gaps</dt><dd>The wall and the two slits. The wave cannot enter the wall.</dd>
+<dt>Black disc with a yellow ring and Φ</dt><dd>The thin magnet (a solenoid). The wave cannot enter it. Its field is trapped inside; Φ is the flux.</dd>
+<dt>Cyan dashed line, "cut line"</dt><dd>A bookkeeping line from the magnet to the border. The code puts the extra phase on the waves that cross this line. It has no physical meaning. You can move it with the checkbox.</dd>
+<dt>White dashed vertical line, "screen"</dt><dd>The place where the pattern is collected.</dd>
+<dt>Right panel: blue bars</dt><dd>The probability that the simulated wave collects at each height of the screen line, added over time. The bars grow during the run.</dd>
+<dt>Right panel: orange curve</dt><dd>The path sum with flux: one arrow for each straight path from a slit point to a screen point. Paths through the top slit turn by the extra angle α.</dd>
+<dt>Right panel: grey dashed curve</dt><dd>The same path sum with no flux. Compare it with the orange curve to see the shift.</dd>
+<dt>Three small circles</dt><dd>Light blue: the arrow of the path through the bottom slit. Yellow: the arrow of the path through the top slit, turned by α. Orange: the sum of both (drawn at a smaller scale). The text α = … gives the turn in degrees. At α = 360° the yellow arrow is back at the blue arrow.</dd>
+<dt>Numbers below</dt><dd>Time; the total probability on the grid (a check of the code); the stripe shift in the simulation, in the path sum, and from the formula −Φ/Φ₀; the stripe distance; and which cut line is in use. After a run ends, extra lines compare it with earlier runs.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Set flux to 0.5. Where does the middle stripe go? <details><summary>What happens and why</summary>The middle stripe, which is bright at zero flux, becomes dark. The whole pattern moves by half a stripe distance. A flux of 0.5 Φ₀ gives α = 180°. The arrows from the two slits, which pointed the same way in the middle, now point in opposite directions and cancel.</details></li>
+<li>Set flux to 1.0. Do the stripes come back? <details><summary>What happens and why</summary>Yes. The pattern is the same as for zero flux. One flux unit gives α = 360°, one full turn. A full turn of an arrow changes nothing. So the shift repeats with period 1: Φ = 0, 1, 2 give the same stripes. You can check the numbers below: the shift of the simulation, the path sum, and −Φ/Φ₀ (mod 1) agree. The simulation can differ by a few hundredths of a stripe distance.</details></li>
+<li>Tick "move the cut line" during a run. Do the stripes on the screen change? <details><summary>What happens and why</summary>The colours change in the region between the old and the new cut line. The stripes do not change. Moving the cut line is a change of gauge: it multiplies ψ by a phase factor that depends on the place. Probabilities do not see such a factor. To check this with numbers, finish one run with the cut line at "right". Change the checkbox, press Restart, and finish a second run with the same flux. The relative difference of the two screen patterns is then shown: about 10<sup>−12</sup>, which is rounding error.</details></li>
+<li>Try flux 0.25, then 0.75. <details><summary>What happens and why</summary>The pattern moves by a quarter of a stripe distance, and then by three quarters. At 0.75 it looks like a shift by a quarter in the other direction (−0.25), because a shift by a whole stripe distance gives the same picture.</details></li>
+<li>Change the wavelength λ. <details><summary>What happens and why</summary>The stripe distance changes (it is about λ·L/d). The shift, in units of the stripe distance, stays the same. The phase α depends on the flux only, and not on the wavelength.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>Classically, a charge feels the <i>force</i> from the electric and magnetic fields. In quantum mechanics, a wave ψ carries a <a class="term" href="../glossary.html#phase">phase</a>, and the <a class="term" href="../glossary.html#vector-potential">vector potential</a> A changes this phase along a path. The change of the phase along a path is the integral of A along it. For two paths that go on two sides of the magnet, the difference is the integral of A around the closed loop. That integral equals the magnetic <a class="term" href="../glossary.html#flux">flux</a> Φ inside the loop. This holds even where the field B is zero along the paths.</p>
+<p>So each path gets one extra turn of its arrow, and this turn depends only on how the path winds around the flux. In the <a class="term" href="../glossary.html#path-integral">path integral</a> language, you add a phase to each path. The phase factors form the group <a class="term" href="../glossary.html#u1">U(1)</a>: the circle. The flux that gives a full turn is one <a class="term" href="../glossary.html#flux-quantum">flux quantum</a>, Φ₀ = h/e for an electron.</p>
+<p>The cut line shows the idea of <a class="term" href="../glossary.html#gauge-symmetry">gauge symmetry</a>. You can choose A in many ways, and you can move the cut line, and the physical result stays the same. Only the phase around a closed loop is real. This loop phase is a <a class="term" href="../glossary.html#wilson-loop">Wilson loop</a>. The room <a href="wilson-loops.html">Phases Around a Loop</a> uses it on a lattice, and the room <a href="flux-vortices.html">Vortices That Trap Flux</a> shows flux that is trapped in whole packets. The room <a href="double-slit.html">Double slit flow</a> is this room without the magnet.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">i ∂ψ/∂t = ½ (−i∇ − A)² ψ + V ψ</span>
+<span>The Schrödinger equation for a charge in a vector potential A. The units are ħ = m = e = 1.</span>
+<span class="eq">B = ∇ × A = 0 &nbsp; outside the magnet, &nbsp; but &nbsp; ∮ A · dl = Φ</span>
+<span>The field is zero where the electron goes, but the loop integral of A around the magnet is not zero.</span>
+<span class="eq">ψ → e<sup>i ∫ A·dl</sup> ψ<sub>0</sub> &nbsp; along a path</span>
+<span>The wave along a path gets an extra phase from A. With a suitable choice of gauge, the wave is the field-free wave times this factor.</span>
+<span class="eq">α = ∮ A · dl = 2π Φ / Φ₀, &nbsp; Φ₀ = h / e</span>
+<span>The phase difference between the two paths. The full flux unit Φ₀ is about 4.1 × 10<sup>−15</sup> weber for an electron.</span>
+<span class="eq">ψ(screen) ≈ a₁ e<sup>i k r₁</sup> e<sup>iα</sup> + a₂ e<sup>i k r₂</sup></span>
+<span>Two-path sum: the top path (r₁) gets the extra α.</span>
+<span class="eq">|ψ|² ∝ |a₁|² + |a₂|² + 2|a₁||a₂| cos(k(r₁ − r₂) + α)</span>
+<span>The interference term has α added to the usual phase. So the stripes move.</span>
+<span class="eq">shift = − (α / 2π) × stripe distance = −(Φ / Φ₀) × λ L / d</span>
+<span>The stripes move by Φ/Φ₀ of a stripe distance. The sign is the room's convention. The shift repeats with period 1 in Φ/Φ₀.</span>
+<span class="eq">ψ → e<sup>iα (θ' − θ) / 2π</sup> ψ</span>
+<span>Moving the cut line is this change of gauge. Here θ is the angle around the magnet, measured from the old and from the new cut line. It changes the colours but not |ψ|².</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The simulation is two-dimensional. The magnet is a hard disc of radius 4 cells that the wave cannot enter. This disc scatters some wave, so the simulated stripes are not exactly the orange curve. The shift agrees to about ±0.05 stripe distance. The screen is not in the far field, so the stripe distance changes slowly with height. The orange path sum uses straight paths only. In a real experiment (Tonomura's group used an electron microscope and a tiny ring-shaped magnet) the shielding of the field is never perfect; the 1986 experiments took great care to show that it was. People still argue about how to explain the effect in words (is the potential "real"?). The calculation itself is not in doubt.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman, R. B. Leighton and M. Sands, <i>The Feynman Lectures on Physics</i>, Vol. II, chapter 15 "The vector potential" (free online at feynmanlectures.caltech.edu).</li>
+<li>Y. Aharonov and D. Bohm, "Significance of electromagnetic potentials in the quantum theory", Physical Review 115, 485 (1959).</li>
+<li>W. Ehrenberg and R. E. Siday, "The refractive index in electron optics and the principles of dynamics", Proceedings of the Physical Society B 62, 8 (1949): the earlier prediction.</li>
+<li>A. Tonomura et al., "Evidence for Aharonov–Bohm effect with magnetic field completely shielded from electron wave", Physical Review Letters 56, 792 (1986).</li>
+<li>Next room: <a href="wilson-loops.html">Phases Around a Loop</a> puts a phase on every link of a grid.</li>
+</ul>
 </section>
 </main>
 

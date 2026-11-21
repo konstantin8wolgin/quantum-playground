@@ -58,6 +58,27 @@ a{color:var(--accent)}
 .two{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-top:10px;align-items:start}
 @media (max-width:760px){.two{grid-template-columns:1fr}}
 .pick{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -65,6 +86,14 @@ a{color:var(--accent)}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Three Colours</h1>
 <p class="sub">A quark has three colour amplitudes. SU(3) turns them into each other. Here you can turn them by hand, see that the order of turns matters, and see the patterns the same maths makes for the light quarks u, d and s.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Panel 1: the state starts as pure red. Press and hold <i>+</i> under λ1. The red arrow shrinks and the green arrow grows. Release when the red arrow is gone.</li>
+<li>Press the buttons of the other groups and watch the three arrows and the three small dots change. Use <i>mix of all three</i> or <i>random</i> for a richer start.</li>
+<li>Panel 2: move the <i>amount t</i> slider and compare the first two rows. Panel 3: pick a quark and an antiquark, and see which meson corner the pair lands on.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <p><b>How big is SU(3)?</b> A 3×3 complex matrix has 9 free numbers. That group is called U(3), and it has 9 dimensions. SU(3) is the part with determinant 1. That one rule removes one dimension, so SU(3) has <b>8 dimensions</b>. Each dimension has one generator: the eight Gell-Mann matrices λ1 … λ8.</p>
 <div class="note"><b>One maths, two uses.</b> The same SU(3) maths appears twice in nature. <b>Colour SU(3)</b> is an exact gauge symmetry of the strong force. Its 8 generators are the 8 gluons. <b>Flavour SU(3)</b> of the quarks u, d, s is only an approximate symmetry (the "eightfold way"). The s quark is heavier than u and d, so the patterns are slightly bent. <b>Panels 1 and 2 are colour. Panel 3 is flavour.</b> Do not mix them up: a "red" quark and an "up" quark are different labels.</div>
@@ -110,7 +139,7 @@ a{color:var(--accent)}
 <canvas id="order" height="330" style="margin-top:8px"></canvas>
 <div class="cap">Top: λ1 then λ4. Middle: λ4 then λ1. Bottom: the difference between the two final states, drawn to the same scale. If the order did not matter, the bottom row would be empty.</div>
 <div class="read" id="read2"></div>
-<div class="predict"><b>Predict, then test:</b> set t to a very small value. Is the difference big or small? Now double t. By how much does the difference grow? (Hint: for small t it grows as t².)</div>
+<div class="predict"><b>Predict, then test:</b> set t to a very small value. Is the difference big or small? Now double t. By how much does the difference grow? (Hint: start from a state with some green or blue: then it grows as t². For pure red it grows even faster, as t³, because the first-order difference does nothing to red.)</div>
 <details><summary>What the numbers mean</summary>
 <p>For two generators A and B, the turns commute only if the generators commute. The commutator <span class="eq">[λ1/2, λ2/2] = i·λ3/2</span> means that a λ1 turn then a λ2 turn differs from the reverse by a small λ3 turn. The number in front, the <i>structure constant</i> f<sub>123</sub>, equals 1. The structure constants f<sub>abc</sub> define the group completely. The check f<sub>458</sub> = √3/2 shows where λ8 enters.</p>
 <p>The unitarity check applies 1000 random turns (random generator, random angle) to a random state. The sum Σ|c|² must stay 1. Rounding errors stay below 10⁻¹².</p>
@@ -138,6 +167,100 @@ a{color:var(--accent)}
 <p><b>Root vectors.</b> A root is the difference of two quark weights, for example u − d = (1, 0). There are six. Each one belongs to a ladder operator that turns one quark flavour into another (for example d → u). Applied to a state, it moves the weight by the root, or gives zero if no state exists at the target. The pairs u–d, u–s and d–s belong to λ1, λ2 and λ4, λ5 and λ6, λ7. These are the flavour twins of the colour moves in Panel 1.</p>
 <p><b>Limits.</b> This is flavour SU(3). It is only approximate, because the quark masses differ. The real π⁰, η, η′ mix. The ladder here moves one highlighted weight: it does not track the full state vector. A decuplet triangle of baryons (3 ⊗ 3 ⊗ 3) is not drawn in this room.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>A <a class="term" href="../glossary.html#quark">quark</a> carries a kind of charge that comes in three types. Physicists call them red, green and blue, but they are only names. They have nothing to do with the colours of light. This charge is the <a class="term" href="../glossary.html#colour-charge">colour charge</a>. It is the source of the strong force, which holds the quarks together inside protons and neutrons. A leftover of the same force holds the nucleus together.</p>
+<p>Quantum mechanics lets a quark be in a mix of the three types. The mix is three <a class="term" href="../glossary.html#amplitude">amplitudes</a>: one arrow for red, one for green and one for blue. The strong force turns these arrows into each other. All the allowed turns form a group. It is called <a class="term" href="../glossary.html#su3">SU(3)</a>, and it has 8 independent ways of turning, one for each <a class="term" href="../glossary.html#generator">generator</a>.</p>
+<p>This room lets you do the turns with your hands. You will see three things. First, the turns never change the total: the three squared lengths always add to 1. Second, the order of the turns matters. Third, the same maths, used for the light quarks u, d and s, draws the hexagon of the lightest mesons.</p>
+
+<h3>What you see</h3>
+<h3 style="font-size:14px;color:var(--muted)">Panel 1: the colour state</h3>
+<dl>
+<dt>Three wheels</dt><dd>One wheel for each colour (red, green, blue). The arrow in a wheel is the amplitude of that colour. The arrow's length is the size of the amplitude. The dashed circle has length 1. The arrow's angle is the <a class="term" href="../glossary.html#phase">phase</a>. The text under each wheel gives the length |c|.</dd>
+<dt>Colour swatch</dt><dd>A patch that mixes red, green and blue light in the amounts |r|², |g|², |b|², scaled so the largest is full. It is only a picture: real colour charge has no visible colour.</dd>
+<dt>Buttons "+" and "−"</dt><dd>Hold them to turn the state with one generator. "+" turns forward and "−" turns back. The buttons are in four groups. λ1, λ2 mix red and green. λ4, λ5 mix red and blue. λ6, λ7 mix green and blue. λ3 and λ8 only change phases (the "torus").</dd>
+<dt>Three small round plots</dt><dd>One for each pair of colours. The dot is the "spin direction" of that pair: across is x, up is z, and a brighter dot points more toward you (y). The distance of the dot from the centre shows how much of the state sits in the pair. The names "red up" and "green down" mark the top and bottom of the circle.</dd>
+<dt>Numbers</dt><dd>The sum of the squares Σ|c|² (it stays 1) and the three squared lengths.</dd>
+</dl>
+<h3 style="font-size:14px;color:var(--muted)">Panel 2: order matters</h3>
+<dl>
+<dt>Top row of wheels</dt><dd>The state after turning with λ1 by the amount t, and then with λ4 by t.</dd>
+<dt>Middle row</dt><dd>The state after the same two turns in the other order: λ4 first, then λ1.</dd>
+<dt>Bottom row</dt><dd>The difference between the two final states, drawn on the same scale. If the order did not matter, all three arrows would be zero.</dd>
+<dt>Numbers</dt><dd>The length of the difference, the size of U₁U₄ − U₄U₁, and some checks of the maths: the commutator rule, the structure constants f₁₂₃ and f₄₅₈, and the "drift" after 1000 random turns, which must be tiny (below 10⁻¹²).</dd>
+</dl>
+<h3 style="font-size:14px;color:var(--muted)">Panel 3: the weight diagram (now the labels are flavours u, d, s)</h3>
+<dl>
+<dt>Horizontal axis I3, vertical axis Y</dt><dd>The two numbers that label a state: isospin I3 and hypercharge Y. A state is one point in this plane.</dd>
+<dt>Blue circles with letters</dt><dd>The quarks u, d, s at their points. Dashed blue circles: the three antiquarks. The antiquark of a quark sits at the opposite point.</dd>
+<dt>White hexagon and white dots</dt><dd>The mesons: pairs of one quark and one antiquark. The six corners are π⁺, K⁺, K⁰, π⁻, K⁻, K̄⁰. The three centre states sit on one point, which is marked "×3".</dd>
+<dt>Two blue arrows</dt><dd>The weight of the quark you picked, then the weight of the antiquark, added tip to tail. The tip is where the pair lands.</dd>
+<dt>Orange ring</dt><dd>The highlighted state.</dd>
+<dt>Green arrows</dt><dd>The six "root" steps, drawn from the highlighted state. A grey dashed arrow means: no state at the other end. Click a green arrow or a ladder button to move there.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Start from pure red. Hold λ1 "+" until the state is pure green. Then hold λ4. Does blue appear? <details><summary>What happens and why</summary>No blue appears. λ4 only mixes red with blue. After the first turn there is no red any more, so λ4 has nothing to mix. You need λ6 or λ7 (green with blue) to reach blue. The arrow lengths of the other colours do not change.</details></li>
+<li>Now hold λ3 or λ8. Do the sizes of the arrows change, or only the angles? <details><summary>What happens and why</summary>Only the angles change. λ3 and λ8 are diagonal matrices, so they only multiply each amplitude by a phase. The three lengths and the colour swatch stay the same. Together these two make the "torus" of pure phase turns.</details></li>
+<li>Hold λ1 "+" for about four seconds (a full turn, t = 2π). Watch the red and green arrows. <details><summary>What happens and why</summary>Both arrows come back to their start but with the opposite sign: they point the other way. The blue arrow is unchanged, because λ1 does not touch blue. You need t = 4π to be back at the start. This is the half angle t/2 that you meet in <a href="spinor-flag.html">The Spinor Flag</a>.</details></li>
+<li>Panel 2: set t to a very small value. Is the difference big or small? Then double t. <details><summary>What happens and why</summary>The difference is small. When you double t, a generic state gives a difference four times larger: it grows as t². Use "mix of all three" in Panel 1 to see this. The size is about (t²/4)·√(|g|² + |b|²). There is one special case. The default start, pure red, gives a much smaller difference that grows as t³: doubling t makes it eight times larger. The reason: the leading term comes from the commutator of λ1 and λ4, which is proportional to λ7, and λ7 does nothing to a pure red state. So the order matters less for red.</details></li>
+<li>Panel 2: set t = 180° with the "mix of all three" start. <details><summary>What happens and why</summary>The difference is large. The two orders now end in clearly different states. Order matters because the generators do not commute: [λ1, λ4] is not zero.</details></li>
+<li>Panel 3: pick u and anti-u. Where does the sum land? <details><summary>What happens and why</summary>On the centre of the hexagon, at (0, 0). The weight of the antiquark is the exact opposite of the quark's, so the sum is zero. The centre holds three states: u ū, d d̄ and s s̄. In nature they mix into π⁰, η and η′.</details></li>
+<li>Panel 3: pick u and anti-s. Which corner is it? <details><summary>What happens and why</summary>The corner K⁺ at (½, 1), top right. u has (½, ⅓) and anti-s has (0, +⅔). The sum is (½, 1). The electric charge Q = I3 + Y/2 is 1, as for K⁺. How many pairs land on the centre? Three: u ū, d d̄ and s s̄. The other six pairs land on the six corners, one each.</details></li>
+<li>Panel 3: from the π⁺ corner, press the ladder buttons. <details><summary>What happens and why</summary>Each green arrow moves the state by one root, for example d→u moves by (1, 0). If the arrow would leave the hexagon there is no state at the end, and the ladder gives zero. The six roots are the differences between quark weights.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p><b>Colour is exact.</b> In the strong force, the choice of which axis is "red" is only a convention. You may turn the three colour arrows by any SU(3) matrix, and the laws do not change. This is a <a class="term" href="../glossary.html#gauge-symmetry">gauge symmetry</a>. This symmetry is the reason why the force exists: a symmetry that may differ from point to point needs a <a class="term" href="../glossary.html#gauge-field">gauge field</a> to carry the information. This field has 8 components, one for each generator. Its quanta are the 8 <a class="term" href="../glossary.html#gluon">gluons</a>. This theory is <a class="term" href="../glossary.html#qcd">quantum chromodynamics (QCD)</a>.</p>
+<p><b>Why 8.</b> A 3 × 3 unitary matrix has 9 free numbers. The rule "determinant 1" removes one. So SU(3) has 8 dimensions. In other rooms, you saw <a class="term" href="../glossary.html#u1">U(1)</a> (one arrow, 1 generator) and <a class="term" href="../glossary.html#su2">SU(2)</a> (two arrows, 3 generators), for example in <a href="spinor-flag.html">The Spinor Flag</a>. SU(3) is the next step.</p>
+<p><b>Order matters.</b> The turns of U(1) commute: the order does not matter. The turns of SU(2) and SU(3) do not. The size of the effect is measured by the <a class="term" href="../glossary.html#commutator">commutator</a>. This is also why the gluons carry colour themselves, and why they interact with each other. That is the basis of <a class="term" href="../glossary.html#confinement">confinement</a>: no free quark is seen. The room <a href="wilson-loops.html">Phases Around a Loop</a> shows a simple picture of this.</p>
+<p><b>Flavour is not exact.</b> Panel 3 uses the same group in a different role. The quarks u, d and s have nearly equal masses compared with the other quarks. So the laws are almost symmetric when you turn u, d and s into each other. This is the "eightfold way" of Gell-Mann and Ne'eman. It is only approximate, because the s quark is heavier. The hexagon and its centre are the result of the group: a quark and an antiquark make 3 × 3 = 9 states, which split into 8 + 1.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">U = exp(i t λ<sub>k</sub> / 2), &nbsp; k = 1 … 8</span>
+<span>A turn about generator k by the amount t. The λ<sub>k</sub> are the eight Gell-Mann matrices. The code computes the exponential with a Taylor series.</span>
+<span class="eq">λ<sub>k</sub> = λ<sub>k</sub><sup>†</sup>, &nbsp; tr λ<sub>k</sub> = 0, &nbsp; tr(λ<sub>a</sub>λ<sub>b</sub>) = 2δ<sub>ab</sub></span>
+<span>Hermitian (so U is unitary), traceless (so det U = 1), and normalised. The matrix λ8 = diag(1, 1, −2)/√3.</span>
+<span class="eq">U†U = 1 &nbsp; ⇒ &nbsp; |r|² + |g|² + |b|² = 1</span>
+<span>A unitary turn never changes the total squared length.</span>
+<span class="eq">[λ<sub>a</sub>/2, λ<sub>b</sub>/2] = i f<sub>abc</sub> λ<sub>c</sub>/2</span>
+<span>The commutator rule. The numbers f<sub>abc</sub> are the structure constants. They fix the whole group.</span>
+<span class="eq">f<sub>123</sub> = 1, &nbsp; f<sub>147</sub> = ½, &nbsp; f<sub>458</sub> = √3/2</span>
+<span>Three examples. The room checks f₁₂₃ and f₄₅₈ with the code. The number f₁₄₇ = ½ is the one that Panel 2 uses.</span>
+<span class="eq">e<sup>a</sup>e<sup>b</sup> − e<sup>b</sup>e<sup>a</sup> ≈ [a, b] &nbsp; (a, b small)</span>
+<span>For small turns, the difference between the two orders is the commutator of the two generators.</span>
+<span class="eq">‖U₄U₁ψ − U₁U₄ψ‖ ≈ (t²/4) ‖λ₇ψ‖ = (t²/4)√(|g|² + |b|²)</span>
+<span>With a = it λ4/2 and b = it λ1/2, the commutator is t²·(i/2)(λ7/2). It is zero for a pure red state, so the difference then starts at order t³.</span>
+<span class="eq">I3 = λ3/2, &nbsp; Y = λ8/√3, &nbsp; Q = I3 + Y/2</span>
+<span>The two generators that commute. Their values on a state are its weight. The charge Q follows.</span>
+<span class="eq">u = (½, ⅓), &nbsp; d = (−½, ⅓), &nbsp; s = (0, −⅔)</span>
+<span>The weights of the three quarks, read from the diagonals of λ3/2 and λ8/√3. An antiquark has the opposite weight.</span>
+<span class="eq">w(q q̄′) = w(q) − w(q′)</span>
+<span>Weights add. This gives 9 sums: 6 corners of the hexagon and 3 on the centre.</span>
+<span class="eq">3 ⊗ 3̄ = 8 ⊕ 1</span>
+<span>The 9 states split into an octet (the hexagon with 2 states at the centre) and a singlet (the third centre state).</span>
+<span class="eq">root = w(q) − w(q′), &nbsp; 6 of them</span>
+<span>A root is a step between two weights. For example u − d = (1, 0). Each root belongs to a ladder operator that turns one flavour into another.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The colour state here is a global turn of three amplitudes, with no gauge field and no force. You see the group, not QCD. A single coloured quark cannot exist alone in nature (confinement), so Panel 1 shows a state that you cannot make in a laboratory. The colour swatch is a cartoon. Panel 3 is flavour SU(3), which is only approximate. The states π⁰, η and η′ are not simple sums of u ū, d d̄ and s s̄: they mix. The ladder moves one highlighted weight, not a full quantum state. Baryons (three quarks, the "decuplet" triangle) are not drawn.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>H. Georgi, <i>Lie Algebras in Particle Physics</i>: the chapters on SU(3), weights and roots.</li>
+<li>M. Gell-Mann, "A schematic model of baryons and mesons", Physics Letters 8, 214 (1964).</li>
+<li>A. Zee, <i>Quantum Field Theory in a Nutshell</i>, the chapters on non-abelian gauge theory.</li>
+<li>D. Tong, lecture notes on Gauge Theory (free on the web).</li>
+<li>Next room: <a href="wilson-loops.html">Phases Around a Loop</a> shows how a simple gauge theory on a grid confines charge.</li>
+</ul>
 </section>
 </main>
 

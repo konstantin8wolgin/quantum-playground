@@ -48,6 +48,27 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 .mat{display:inline-block;font-family:ui-serif,Georgia,serif;font-size:14px;margin:4px 14px 4px 0;vertical-align:middle}
 .mat table{display:inline-table;border-left:2px solid var(--muted);border-right:2px solid var(--muted);border-radius:6px;padding:0 4px;border-collapse:separate;border-spacing:8px 1px}
 .hide{display:none!important}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -55,6 +76,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Order Matters</h1>
 <p class="sub">Ask a quantum system two questions. Swap the order, and you get different answers. Three views of one fact: spin magnets, the rule x·p ≠ p·x, and the map of a state in phase space.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Panel 1: press "Fire 1000". Read the two detector boxes on the right: about half of the particles reach z+ and half reach z−. Now press the "z" button of magnet 2 and fire again. All particles reach z+.</li>
+<li>Panel 2: move the three sliders. The coloured lines change a lot. The thick white line does not leave the dashed pink line.</li>
+<li>Panel 3: press the buttons "coherent", "Fock 1" and "cat". Look for blue areas on the map. Blue means that W is negative.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h3>1 · The magnet chain <span class="chip c-sim">simulation</span><span class="chip c-exact">exact</span></h3>
@@ -116,6 +145,114 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p><b>The Wigner function.</b> <span class="eq">W(x,p) = (1/π) ∫ ψ*(x+y) ψ(x−y) e<sup>2ipy</sup> dy</span>. Its integral over p is the probability to find x. Its integral over x is the probability to find p. Its total integral is 1. But W itself can be negative: negative W means no classical probability can explain the state. The Fock 1 state has <span class="eq">W(0,0) = −1/π ≈ −0.318</span>. The blue stripes of the cat state are the interference of its two parts.</p>
 <p>Limits of this page: the map covers −5 … 5 in x and p, so the centre sliders stop at ±2. The wave on the grid is cut at ±10. The checks in the readouts are computed live.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>In everyday life, the order of two questions does not matter. You can ask "how tall is it?" and then "how heavy is it?", or the other way round. The answers are the same. In quantum mechanics this is not always true. Some pairs of questions disturb each other. If you ask question A and then question B, the answer to A is lost. If you ask A again, the answer can be different.</p>
+<p>A magnet that measures spin is such a question: "is the spin up or down along this axis?" A magnet along z and a magnet along x do not commute. Ask z, then x, then z again, and the first z answer is gone. The same fact appears for position and momentum, and the room shows it three times: with magnets, with a rule for functions, and with a map of a state in position and momentum together.</p>
+<p>The key word is <a class="term" href="../glossary.html#commutator">commutator</a>: the difference between "A then B" and "B then A". If it is not zero, the two questions cannot both have sharp answers at once. This is the root of the <a class="term" href="../glossary.html#uncertainty">uncertainty</a> principle.</p>
+
+<h3>What you see</h3>
+<h4>Panel 1: the magnet chain</h4>
+<dl>
+<dt>Grey boxes with a white arrow</dt><dd>The magnets, M1, M2 and M3. The arrow shows the axis of the question. "z" is up, "x" is sideways, and a number like 45° is in between. A magnet splits the beam in two.</dd>
+<dt>Orange beam and blue beam</dt><dd>The two answers of a magnet. Orange: "+" (spin along the arrow). Blue: "−" (against it). The label on each beam gives the axis and the sign, for example "x+".</dd>
+<dt>Number and thickness of a beam</dt><dd>The share of <i>all</i> particles that go along this beam: an exact result from the <a class="term" href="../glossary.html#born-rule">Born rule</a>. A thicker beam carries more.</dd>
+<dt>Dashed circle or white bar on a beam</dt><dd>A gate. A dashed circle is an open gate. A white bar with a black slash is a closed gate: the beam stops there. Click a gate to open or close it, or use the "block +" and "block −" boxes.</dd>
+<dt>Moving dots</dt><dd>Single particles. A white dot has not yet been asked. After a magnet, the dot takes the colour of the answer that it got (orange or blue). Each answer is a random draw.</dd>
+<dt>Boxes on the right</dt><dd>The detectors at the last magnet. Each shows the number counted, the exact percentage, and the percentage that you have seen so far. The "seen" value is noisy and gets closer to the exact value when you fire more particles.</dd>
+<dt>Controls</dt><dd><i>preset</i>: three ready setups. <i>start</i>: the source makes spin up along z, or spin with no direction ("unpolarised"). <i>magnets</i>: 1, 2 or 3. For each magnet: the buttons "z" and "x", an axis angle φ, and the two block boxes. <i>Pause</i>/<i>Run</i>, <i>Fire 1000</i> (shoots 1000 particles at once) and <i>Reset counts</i>.</dd>
+<dt>Numbers below</dt><dd>The exact chance at the last detectors, a check of the shares among arrivals, the share that was blocked on the way, and the counts.</dd>
+</dl>
+<h4>Panel 2: order of operations</h4>
+<dl>
+<dt>Two small plots</dt><dd>The left plot shows the real part, and the right plot the imaginary part, of four functions. The horizontal axis is x from −7 to 7. (On a narrow screen the plots sit one above the other.)</dd>
+<dt>Blue line "x·p ψ"</dt><dd>Take the wave function ψ. First apply p (a momentum operation). Then multiply by x.</dd>
+<dt>Orange line "p·x ψ"</dt><dd>The other order: first multiply by x, then apply p.</dd>
+<dt>Thick white line "difference"</dt><dd>Blue minus orange.</dd>
+<dt>Dashed pink line "i ψ"</dt><dd>The function ψ times the number i. The white line lies on top of it.</dd>
+<dt>Matrix line below</dt><dd>The same rule for spin: [σ<sub>x</sub>, σ<sub>z</sub>] is the matrix on the left, and it equals −2i σ<sub>y</sub> (the matrix on the right). The check number is about zero.</dd>
+<dt>Sliders</dt><dd><i>width σ</i>: how wide the wave packet is. <i>momentum k₀</i>: how fast it moves. <i>centre x₀</i>: where it sits.</dd>
+</dl>
+<h4>Panel 3: phase space</h4>
+<dl>
+<dt>Square map</dt><dd>Horizontal: position x. Vertical: momentum p. Both go from −5 to 5. The colour shows the Wigner function W. Orange: W is positive. Blue: W is negative. Brighter means a larger size of W. Black: W is about zero.</dd>
+<dt>Strip below the map</dt><dd>The chance to find the particle at x. The orange line is W added up over all p. The blue area is |ψ(x)|². The two agree.</dd>
+<dt>Strip right of the map</dt><dd>The chance to find momentum p. It is W added up over all x.</dd>
+<dt>Buttons</dt><dd>The state to show: <i>coherent</i> (the most classical quantum state), <i>squeezed</i>, <i>Fock 0 … 3</i> (a fixed number of energy quanta in a harmonic oscillator), and <i>cat</i> (two lumps at once).</dd>
+<dt>White circle (coherent only)</dt><dd>The centre of the state. Drag on the map to move it, or use the centre sliders.</dd>
+<dt>Numbers</dt><dd>The total of W (it must be 1), the value at the centre, the lowest value of W, and the product Δx·Δp (the spread in position times the spread in momentum).</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Panel 1, preset "z, then x (block x−), then z". Predict the share at z+. Press "Fire 1000".
+<details><summary>What happens and why</summary>About half of the arrivals are z+ and half are z−. Many people expect 100 % z+, because the first magnet kept only z+. But the x magnet asks a question that z+ cannot answer: z+ is 50/50 for x. After the x answer, the particle has a sharp x and no z at all. So the last z question gives 50/50 again. Of all particles, 25 % reach z+ and 25 % reach z−, and half are blocked.</details></li>
+<li>Press the "z" button on magnet 2, then fire again.
+<details><summary>What happens and why</summary>Now every arrival is z+. The z question commutes with itself, so asking it a second time gives the same answer. The first answer survives.</details></li>
+<li>Choose the preset "z, then 45°, then x (block all −)". Compare it with a chain of only two magnets, z and then x.
+<details><summary>What happens and why</summary>With the middle magnet at 45°, 72.9 % of all particles reach x+. With only z then x, only 50 % do. An extra question in between makes more particles pass. Each step turns the spin direction by only 45°, and the chance to pass a small turn is high: cos²(22.5°) = 0.854 at each step, and 0.854² = 0.729. This is a quantum "ratchet": many small steps beat one big step.</details></li>
+<li>Set "start" to "unpolarised". Look at the first magnet.
+<details><summary>What happens and why</summary>Half of the particles go up and half go down, for every axis. A state with no direction has no preferred axis. After the first magnet, the particles in each beam have a sharp spin along that axis.</details></li>
+<li>Panel 2: change the width σ, the momentum k₀ and the centre x₀.
+<details><summary>What happens and why</summary>The blue and orange lines change a lot, because each depends on the shape of ψ. The white line does not leave the dashed pink line. The difference "x·p minus p·x" is always iψ, for any ψ. This is the rule [x, p] = i (with ħ = 1). The readout shows a small error, about 10<sup>−4</sup>, from the grid.</details></li>
+<li>Panel 3: choose "Fock 1". Look at the centre of the map. Can W be negative?
+<details><summary>What happens and why</summary>Yes. W(0, 0) = −1/π = −0.318. A probability can never be negative, so W is not a probability. It is a quasi-probability. A negative W means that no classical cloud of points can have the same position and momentum chances. Fock 2 is positive at the centre and has a negative ring around it. Fock 3 is negative at the centre again.</details></li>
+<li>Choose "cat" and make the separation D larger. Where do the blue stripes sit?
+<details><summary>What happens and why</summary>The two orange lumps sit at x = ±D/2. The stripes sit in the middle, at x near 0, between the lumps. They alternate orange and blue along the p direction, and they get thinner as D grows (the spacing in p is 2π/D). This is the interference of the two lumps. If the state were only a mix of the two lumps, there would be no stripes. The stripes show that the state is a superposition of both positions at once.</details></li>
+<li>Choose "squeezed" and move r. Watch the two strips and Δx·Δp.
+<details><summary>What happens and why</summary>For r &gt; 0 the state gets narrow in x and wide in p. For r &lt; 0 it is the other way round. The product Δx·Δp stays at 0.5, the smallest value that the rules allow. You can move uncertainty from one variable to the other, but you cannot remove it. The map shows this as an oval along the x axis or the p axis, with the same area.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>In quantum mechanics a question is an <a class="term" href="../glossary.html#observable">observable</a>. It is a matrix (for spin) or an operator (for position and momentum). The answers that you can get are the eigenvalues of that matrix. The chance of each answer follows the <a class="term" href="../glossary.html#born-rule">Born rule</a>. After a <a class="term" href="../glossary.html#measurement">measurement</a>, the state is the one that belongs to the answer you got. So a second, identical question gives the same answer. This is the textbook view of "collapse".</p>
+<p>Two observables A and B can have sharp values together only if the <a class="term" href="../glossary.html#commutator">commutator</a> [A, B] = AB − BA is zero. For the <a class="term" href="../glossary.html#spin">spin</a> of an electron, the components do not commute: [σ<sub>x</sub>, σ<sub>z</sub>] = −2iσ<sub>y</sub>. This is why panel 1 loses the z answer after the x magnet. For position and momentum, [x, p] = iħ. This single rule gives the <a class="term" href="../glossary.html#uncertainty">uncertainty</a> relation: Δx·Δp ≥ ħ/2. It is not a limit of our instruments. It is a property of the state itself.</p>
+<p>The same group of rules also tells us how spin turns, as in <a href="spinor-flag.html">The spinor flag</a>: the three Pauli matrices generate rotations, and they do not commute, so rotations in 3D do not commute either.</p>
+<p>The last panel puts position and momentum on one map. A classical particle is a point on this map. A quantum state cannot be a point: the cell of area ħ/2 is the smallest that a state can fill. The <a class="term" href="../glossary.html#wigner-function">Wigner function</a> W is the nearest thing to a cloud of points on the <a class="term" href="../glossary.html#phase-space">phase space</a>. Its sums over p and over x give the true chances for x and for p. But W itself can be negative. A <a class="term" href="../glossary.html#superposition">superposition</a> such as the cat shows its quantum nature in the negative stripes. The Fock states are the energy levels of a harmonic oscillator: the same kind of oscillator that shakes in <a href="restless-vacuum.html">The restless vacuum</a>. Fock 0 is the <a class="term" href="../glossary.html#ground-state">ground state</a>, and it has the same shape as a coherent state at the centre.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">σ<sub>z</sub> = [[1, 0], [0, −1]], &nbsp; σ<sub>x</sub> = [[0, 1], [1, 0]], &nbsp; σ<sub>y</sub> = [[0, −i], [i, 0]]</span>
+<span>The three Pauli matrices. Each one is one spin question (its answers are +1 and −1).</span>
+<span class="eq">[σ<sub>x</sub>, σ<sub>z</sub>] = σ<sub>x</sub>σ<sub>z</sub> − σ<sub>z</sub>σ<sub>x</sub> = −2i σ<sub>y</sub> ≠ 0</span>
+<span>The commutator is not zero, so z and x cannot both be sharp.</span>
+<span class="eq">P(+) = (1 + r·n) / 2, &nbsp; r → ±n after the answer</span>
+<span>The chance of the answer "+" for a magnet along n, when the spin points along r (a unit vector). After the answer, the spin points along ±n.</span>
+<span class="eq">z, then x, then z: &nbsp; ½ · ½ = ¼ &nbsp; at z+</span>
+<span>For r = z and n = x: r·n = 0, so each step gives ½. Of all particles ½ pass the x gate, and then half of those reach z+.</span>
+<span class="eq">z, 45°, x: &nbsp; [(1 + cos 45°)/2]² = cos⁴(22.5°) ≈ 0.729</span>
+<span>Each step turns the spin by 45°, so r·n = cos 45° each time.</span>
+<span class="eq">p = −iħ d/dx, &nbsp; [x, p] ψ = −iħ xψ′ + iħ (xψ)′ = iħ ψ</span>
+<span>The product rule leaves the extra term iħψ. This is true for every smooth ψ. Panel 2 checks it on a grid (ħ = 1).</span>
+<span class="eq">Δ<sub>A</sub> Δ<sub>B</sub> ≥ ½ |⟨[A, B]⟩| &nbsp; ⇒ &nbsp; Δx Δp ≥ ħ/2</span>
+<span>The Robertson relation. It follows from the Cauchy–Schwarz inequality.</span>
+<span class="eq">W(x, p) = (1/π) ∫ ψ*(x + y) ψ(x − y) e<sup>2ipy</sup> dy &nbsp; (ħ = 1)</span>
+<span>The Wigner function. Here ψ(x ± y) are the wave function at two points on both sides of x.</span>
+<span class="eq">∫ W dp = |ψ(x)|², &nbsp; ∫ W dx = |φ(p)|², &nbsp; ∬ W dx dp = 1</span>
+<span>The sums over p and over x give the true chances. φ(p) is the wave function in momentum.</span>
+<span class="eq">Coherent: W = (1/π) e<sup>−(x−x₀)² − (p−p₀)²</sup> &nbsp; &nbsp; Fock 1: W(0, 0) = −1/π</span>
+<span>The coherent state is a round, positive hill. For Fock n, W(0, 0) = (−1)<sup>n</sup>/π.</span>
+<span class="eq">Squeezed: Δx = e<sup>−r</sup>/√2, &nbsp; Δp = e<sup>r</sup>/√2</span>
+<span>The product is ½ for every r.</span>
+<span class="eq">Cat: &nbsp; W ∝ e<sup>−p²</sup> [ e<sup>−(x−D/2)²</sup> + e<sup>−(x+D/2)²</sup> + 2 e<sup>−x²</sup> cos(D p) ]</span>
+<span>The last term is the interference. It makes stripes along p, with spacing 2π/D, between the two lumps.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The magnets are ideal: each splits the beam perfectly into two. The dots are random draws from the Born rule. They are not paths of real particles, and nobody knows which beam a particle "really" takes. Panel 1 follows the textbook "collapse" rule. Other readings of quantum mechanics give the same numbers. Panel 2 uses finite differences on a grid, so the identity holds only to about 10<sup>−4</sup> and the ends are cut. It is a check, not a proof; the proof is the one line in "The math". Panel 3 uses units with ħ = 1 and a harmonic oscillator of mass 1 and frequency 1. The map covers −5 to 5 in x and p, so the centre sliders stop at ±2. The Wigner integral has a finite cut-off, so checks such as ∫W = 1 are close to their values, not exact.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman, <i>The Feynman Lectures on Physics</i>, Vol. III, chapter 5 "Spin One" and chapter 6 "Spin One-Half" (free online at feynmanlectures.caltech.edu): chains of Stern–Gerlach magnets.</li>
+<li>J. J. Sakurai and J. Napolitano, <i>Modern Quantum Mechanics</i>, chapter 1 "Fundamental Concepts": the Stern–Gerlach experiment and the commutator.</li>
+<li>E. Wigner, "On the quantum correction for thermodynamic equilibrium", Physical Review 40, 749 (1932): the original Wigner function.</li>
+<li>David Tong, lecture notes "Quantum Mechanics" (University of Cambridge, free online).</li>
+<li>Next room: <a href="spinor-flag.html">The spinor flag</a> shows what the non-commuting spin matrices do to a turning electron.</li>
+</ul>
 </section>
 </main>
 

@@ -43,6 +43,27 @@ button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -50,6 +71,14 @@ summary{cursor:pointer;color:var(--accent)}
 <a class="back" href="../index.html" style="font-size:13px;color:var(--accent);text-decoration:none">← all rooms</a>
 <h1>Double Slit Flow</h1>
 <p class="sub">One electron wave goes through two slits. Colour shows the phase, brightness shows the probability. The thin lines show how the probability flows. Dots on the screen are single arrivals.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Watch the wave pass the two slits. Wait until dots build up on the screen at the right (about 20 seconds).</li>
+<li>Set <i>slits</i> to "top only". The stripes go away. Set it back to "both open". The stripes come back.</li>
+<li>Move the <i>slit distance d</i> and the <i>wavelength λ</i> sliders, then press Restart. Compare the three stripe distances below the picture.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <div class="stage">
@@ -79,6 +108,65 @@ summary{cursor:pointer;color:var(--accent)}
 <p>The flow lines follow the probability current <span class="eq">v = (ħ/m)·Im(∇ψ/ψ)</span>. In the de Broglie–Bohm interpretation a particle really moves on such a line. Standard quantum mechanics gives the same dot statistics without the lines. The lines never cross, so a line that starts in the upper half stays in the upper half.</p>
 <p>Check: the far-field stripe distance is about <span class="eq">λL/d</span>, where L is the distance from the slits to the screen.</p>
 </details>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Send electrons, one at a time, at a wall with two narrow slits. Each electron arrives at one point on the screen, as one small dot. But after thousands of dots, a pattern of stripes appears. Neither slit alone makes these stripes. Richard Feynman said that this experiment contains "the only mystery" of quantum mechanics.</p>
+<p>The quantum rule is this. For each way that the electron can go, nature gives a small <a class="term" href="../glossary.html#amplitude">arrow (an amplitude)</a>. Add the arrows of all the ways head to tail. The squared length of the sum is the <a class="term" href="../glossary.html#probability">probability</a>. With two slits there are two ways. At some points on the screen the two arrows point in opposite directions and cancel: a dark stripe. At other points they point the same way: a bright stripe. This is <a class="term" href="../glossary.html#interference">interference</a>.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Colours in the big picture</dt><dd>The <a class="term" href="../glossary.html#phase">phase</a> of the wave ψ, that is, the direction of its arrow. Red → yellow → green → blue → red is one full turn. One full turn of colour is one <a class="term" href="../glossary.html#wavelength">wavelength</a>.</dd>
+<dt>Brightness</dt><dd>The probability density |ψ|², that is, where the electron is likely to be. Very weak parts are shown brighter than they are, so you can see the wave behind the slits.</dd>
+<dt>Grey bars</dt><dd>The wall with its two slits. The wave cannot enter the wall.</dd>
+<dt>White lines and white dots</dt><dd>Flow lines of the probability. They show how the probability moves, like stream lines in water. The lines never cross.</dd>
+<dt>Dashed line</dt><dd>The screen.</dd>
+<dt>Right panel: white dots</dt><dd>Single electrons that arrive on the screen. Each dot is one random arrival, drawn from the wave at the screen.</dd>
+<dt>Right panel: blue bars</dt><dd>How many dots arrived at each height: the histogram.</dd>
+<dt>Right panel: orange curve</dt><dd>The prediction of the path sum: one arrow for every straight path from a slit to the screen point, all added. It does not use the simulation.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Close one slit (<i>slits</i> → "top only"). <details><summary>What happens and why</summary>The stripes go away, and you see one broad spot. With one slit there is only one family of paths, so there is nothing for the arrows to cancel against. The broad spot is the diffraction of a single slit: a narrow slit spreads the wave.</details></li>
+<li>Make the slit distance d larger. <details><summary>What happens and why</summary>The stripes move closer together. The stripe distance is about λL/d. A larger d gives a larger difference in path length for a small step on the screen, so the arrows turn against each other faster.</details></li>
+<li>Make the wavelength λ larger. <details><summary>What happens and why</summary>The stripes move apart. A longer wavelength means the arrow turns more slowly along the path, so you need a larger step on the screen to go from bright to dark. For an electron, λ = h/p: a slower electron has a longer wavelength.</details></li>
+<li>Follow one flow line from the upper slit. <details><summary>What happens and why</summary>It stays in the upper half of the picture. Flow lines cannot cross, and the line in the middle is a line of symmetry. In the de Broglie–Bohm interpretation, this says that an electron that lands in the upper half came through the upper slit. Standard quantum mechanics makes the same predictions for the dots, but it does not say which path the electron took.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>The electron is described by a <a class="term" href="../glossary.html#wavefunction">wave function</a> ψ. It is a complex number at each point: a length and a direction (a phase). The wave moves by the <a class="term" href="../glossary.html#schrodinger">Schrödinger equation</a>. The simulation solves this equation step by step on a grid of 600 × 360 points.</p>
+<p>The same result comes from the <a class="term" href="../glossary.html#path-integral">path integral</a>. Take every path from the source to a screen point. Give it an arrow that turns by its <a class="term" href="../glossary.html#action">action</a> S divided by <a class="term" href="../glossary.html#hbar">ħ</a>. For a free electron, the arrow turns by one full turn for each wavelength of path length. Add all arrows. The room <a href="path-integral.html">Every path is an arrow</a> shows this sum in detail. Here, the orange curve uses only the straight paths through the slits, and it already gives the stripes.</p>
+<p>The dots show that the electron is not a smeared-out wave when you detect it. Each detection gives one point. The wave only gives the probability of each point. This is the <a class="term" href="../glossary.html#born-rule">Born rule</a>.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">iħ ∂ψ/∂t = −(ħ²/2m) ∇²ψ + V ψ</span>
+<span>The Schrödinger equation. In the code ħ = m = 1, and V is very large inside the wall.</span>
+<span class="eq">ψ(screen) ≈ a₁ e<sup>i k r₁</sup> + a₂ e<sup>i k r₂</sup>, &nbsp; k = 2π/λ</span>
+<span>The two-path approximation: r₁ and r₂ are the distances from the two slits to the screen point.</span>
+<span class="eq">|ψ|² ≈ |a₁|² + |a₂|² + 2|a₁||a₂| cos(k (r₁ − r₂))</span>
+<span>The last term is the interference. It is zero with one slit.</span>
+<span class="eq">r₁ − r₂ ≈ d·y / L &nbsp; ⇒ &nbsp; stripe distance Δy ≈ λ L / d</span>
+<span>Valid when the screen is far away (L much larger than d).</span>
+<span class="eq">v = (ħ/m) Im(∇ψ / ψ)</span>
+<span>The velocity of the flow lines. It is the probability current divided by the probability density.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The world here is two-dimensional, and the wall is perfectly hard. The source is one wave packet, not a stream of separate electrons. The dots are drawn at random from |ψ|² at the screen; a real detector would do the same. The screen is not very far away, so λL/d is only approximate. The three numbers below the picture differ by a few percent for this reason.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman, <i>The Feynman Lectures on Physics</i>, Vol. III, chapter 1 "Quantum Behavior" (free to read online at feynmanlectures.caltech.edu).</li>
+<li>A. Tonomura et al., "Demonstration of single-electron buildup of an interference pattern", American Journal of Physics 57, 117 (1989): the real experiment with single electrons.</li>
+<li>Next room: <a href="aharonov-bohm.html">A phase without a force</a> puts a hidden magnet between the two slits.</li>
+</ul>
 </section>
 </main>
 

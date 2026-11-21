@@ -48,6 +48,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -55,6 +76,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Tunnelling in Imaginary Time</h1>
 <p class="sub">Quantum amplitudes are turning arrows. Turn time by 90° in the complex plane, and the arrows stop turning: they become plain positive weights. Then a computer can draw paths like a random walk, and you can watch a particle tunnel as a kink in the path.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>In part 1, drag the <i>rotation angle θ</i> slider from 0° to 90°, or press "Rotate time". Watch the coloured arrows stop turning and become plain positive numbers.</li>
+<li>In part 2, watch the white line. It sits in one valley and sometimes jumps to the other one. Each jump is a "kink". Wait until the number "from the Monte-Carlo correlator" appears (it needs 1500 samples).</li>
+<li>Move the <i>barrier steepness λ</i> and <i>Planck constant ħ</i> sliders. Watch how the jumps get rarer or more frequent, and how the splitting ΔE changes.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h2>1 · Turn time into space</h2>
@@ -129,6 +158,102 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p>Semiclassical (instanton gas) estimate: <span class="eq">ΔE ≈ 2ħω·√(6S₀/(πħ))·e<sup>−S₀/ħ</sup></span>. This is approximate: it ignores corrections of order ħ/S₀. For a dilute gas of kinks, the number of kinks on a path of length β is about <span class="eq">βΔE/(2ħ)</span>.</p>
 <p>Errors you can see: the path has N slices, so the step is ε = β/N. A big ε adds a small error to ΔE. The Monte-Carlo fit also has noise. For a very high barrier, jumps are so rare that the sampler needs a long time. That is the same physics: tunnelling is slow.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>A quantum particle can be in one of two valleys, with a hill between them. Classically, if it has too little energy, it stays in its valley for ever. In quantum mechanics it can end up in the other valley anyway. This is <a class="term" href="../glossary.html#tunnelling">tunnelling</a>.</p>
+<p>How can you compute it? The quantum rule gives every path a turning arrow, and you must add all arrows. The arrows spin, so they mostly cancel, and the sum is hard to do on a computer. There is a mathematical trick: let time run along a different direction in the complex plane, so that "time" becomes "imaginary". This is a <a class="term" href="../glossary.html#wick-rotation">Wick rotation</a>. After it, the arrows do not turn. Each path gets a plain positive weight, and a wild path gets a small weight. Now a computer can pick paths at random, in the same way as a random walk. Part 1 shows this change. Part 2 uses it.</p>
+<p>In part 2, you watch such random paths in a landscape with two valleys. A path mostly sits in one valley. Sometimes it jumps quickly to the other valley. Each jump is an <a class="term" href="../glossary.html#instanton">instanton</a>. How often the jumps happen tells you how fast the real particle tunnels. Imaginary time is a tool for the calculation. No particle really moves in imaginary time.</p>
+
+<h3>What you see</h3>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 1 · Turn time into space</h4>
+<dl>
+<dt>Left picture: many coloured curves</dt><dd>A fan of paths from point A (bottom left, white dot) to point B (up right, white dot). Horizontal: time. Vertical: position x. All paths are a straight line plus a sine bump of size c. Only every second path of the 51 is drawn.</dd>
+<dt>Colour of a path</dt><dd>The <a class="term" href="../glossary.html#phase">phase</a> of its weight, that is, the direction of its arrow (red = 0°, then through yellow and green to cyan at 180° and blue and purple to red again).</dd>
+<dt>Brightness and thickness of a path</dt><dd>The length of its weight arrow. A faint thin path counts for little.</dd>
+<dt>Middle picture: arrows from one centre</dt><dd>All 51 weights as arrows from a common point. The grey circle has length 1. At θ = 0 all arrows are on the circle and point in different directions. At θ = 90° all arrows lie on the right half of the horizontal axis ("Re"), and the wild paths are tiny.</dd>
+<dt>Right picture: arrows head to tail</dt><dd>The same arrows, added one after the other, in the order of the bump size c from −2.5 to 2.5. The white arrow is the sum. The cyan dot is the exact result of the Gaussian integral over c. The picture zooms to fit.</dd>
+<dt>Numbers under the pictures</dt><dd>The length and turning angle of an edge path, the weight of the straight path, the sum of the arrows against the exact value, and the exact free propagator K together with the heat kernel (diffusion) at θ = 90°.</dd>
+</dl>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 2 · Watch a particle tunnel</h4>
+<dl>
+<dt>White line (left picture)</dt><dd>One live path x(τ). Horizontal: imaginary time τ, from 0 to the total length β. Vertical: position. The path is periodic: its end joins its start.</dd>
+<dt>Dashed grey lines at +a and −a</dt><dd>The bottoms of the two valleys. Here a = 1.</dd>
+<dt>Cyan dashed curve</dt><dd>The exact classical kink a·tanh(ω(τ − τ₀)/2), placed by hand on the first jump of the white line. The live path is noisy, so it follows the cyan curve only roughly. The text "kinks now" counts the jumps.</dd>
+<dt>Blue dots (right picture)</dt><dd>The measured correlator ⟨x(0)x(τ)⟩ divided by ⟨x²⟩, on a log scale. It tells you how long the path "remembers" which valley it was in. Big dots every third point.</dd>
+<dt>Amber line</dt><dd>A fit to the blue dots with the shape e<sup>−ΔEτ/ħ</sup> (and its mirror, because the path is periodic).</dd>
+<dt>Teal dashed line</dt><dd>The exact decay rate, from solving the Schrödinger equation on a grid. The amber and teal lines should agree after some time.</dd>
+<dt>Big numbers</dt><dd>ΔE exact (teal chip), ΔE from the Monte-Carlo fit (needs 1500 samples), the instanton estimate (approximate), and the percentage difference between fit and exact.</dd>
+<dt>Small numbers</dt><dd>The well frequency ω, the barrier height V(0), the instanton action S₀ (computed in two ways), the suppression factor e<sup>−S₀/ħ</sup>, the two lowest energy levels, the kinks counted, and the sampler settings.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 1</h4>
+<ol class="try">
+<li>At θ = 0, do the arrows add up to a big arrow or a small one? <details><summary>What happens and why</summary>A small one. There are 51 arrows, each of length 1, and in a perfect case they would add to about 5. The sum is about 1.3 only, so most of the arrows cancel. The wild paths (large bump c) have a large action, and their arrows spin fast and point in all directions. The paths close to the straight line have a nearly stationary phase, so they agree with each other and survive. This is <a class="term" href="../glossary.html#stationary-phase">stationary phase</a>.</details></li>
+<li>Slide θ to 90°. Which paths dominate now? Does the sum turn or stay on the positive axis? <details><summary>What happens and why</summary>The straight and nearly straight paths dominate. The wild paths shrink to nothing, because their weight is e<sup>−q sin θ</sup> and q is large for a big bump. At 90° each weight is the positive number e<sup>−S<sub>E</sub>/ħ</sup>. Nothing turns, so the white sum arrow lies on the positive axis (direction 0°) and equals the exact cyan dot. The middle picture shrinks to a bunch of short arrows along the axis.</details></li>
+<li>Stop at θ = 45°. <details><summary>What happens and why</summary>You see both effects: the arrows turn a bit and they shrink a bit. This is the path between the two worlds. The room works with a complex time t = τe<sup>−iθ</sup>, and every angle between 0 and 90° is a valid way to compute the same exact answer (the propagator).</details></li>
+<li>At θ = 90° compare the propagator K to the "heat kernel". <details><summary>What happens and why</summary>They are the same number. The quantum propagator of a free particle in imaginary time is the diffusion kernel of a random walker. This is the reason a computer can sample paths like a random walk.</details></li>
+</ol>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 2</h4>
+<ol class="try">
+<li>Raise λ (a higher, steeper barrier). Do the jumps get rarer? By how much does ΔE fall? <details><summary>What happens and why</summary>Yes, the jumps get rarer. A kink costs the factor e<sup>−S₀/ħ</sup>, and S₀ grows like √λ. With the default ħ = 1, S₀/ħ is only about 3 to 5, so the fall is moderate: ΔE goes from about 0.57 at λ = 3 to about 0.30 at λ = 6. Set ħ to 0.5 and try the same: ΔE falls from about 0.021 to about 0.0025, a factor of 8. The fall is exponential, and it is dramatic when S₀/ħ is large.</details></li>
+<li>Make ħ larger. Does the particle tunnel more or less? <details><summary>What happens and why</summary>More. ħ sets how "quantum" the world is. A larger ħ makes e<sup>−S₀/ħ</sup> larger, so kinks are cheaper. At λ = 3 the splitting ΔE goes from about 0.021 at ħ = 0.5 to about 0.57 at ħ = 1 and about 1.7 at ħ = 1.5. In the limit ħ → 0 the particle never tunnels. This is the <a class="term" href="../glossary.html#classical-limit">classical limit</a>.</details></li>
+<li>Make the path length β longer. <details><summary>What happens and why</summary>More jumps fit on the path. The average number of kinks is about βΔE/(2ħ), the number you see in the "dilute-gas guess". The correlator also covers a longer τ range, so the fitted ΔE is more precise.</details></li>
+<li>Watch the cyan curve and the white line at a jump. <details><summary>What happens and why</summary>The jump has the shape of the classical kink (a hyperbolic tangent), with some noise from the random sampling. The jump takes a time of order 1/ω. In between the jumps, the path stays in a valley for a long time. This is the "gas" of well-separated kinks.</details></li>
+<li>Compare the amber line to the teal dashed line, and the big numbers. <details><summary>What happens and why</summary>After 1500 samples they usually agree within about 15 % (the number turns green). The Monte-Carlo method knows nothing about the Schrödinger equation. It only samples paths with the weight e<sup>−S<sub>E</sub>/ħ</sup>. Yet the decay of the correlator gives the same ΔE as the exact solution. This is the path integral at work.</details></li>
+<li>Compare the instanton estimate with the exact ΔE. <details><summary>What happens and why</summary>At the default values (λ = 3, ħ = 1) the estimate is about 0.93 and the exact value is about 0.57, so the estimate is too high by about 60 %. At ħ = 0.5, λ = 6 (S₀/ħ above 9) the estimate is about 0.0028 and the exact value is about 0.0025: only 13 % off. The formula is a large-S₀/ħ result. It gets better as S₀/ħ grows.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>The <a class="term" href="../glossary.html#path-integral">path integral</a> says that the amplitude to go from A to B is the sum over all paths of e<sup>iS/ħ</sup>, where S is the <a class="term" href="../glossary.html#action">action</a>. This sum is the <a class="term" href="../glossary.html#propagator">propagator</a>. The room <a href="path-integral.html">Every path is an arrow</a> shows this in detail. For a free particle it can be done exactly, and part 1 uses this to test the fan of paths.</p>
+<p>A <a class="term" href="../glossary.html#wick-rotation">Wick rotation</a> sets time t = τe<sup>−iθ</sup> and turns θ from 0 to 90°. At 90° time is <a class="term" href="../glossary.html#imaginary-time">imaginary time</a>. The weight changes from e<sup>iS/ħ</sup> to e<sup>−S<sub>E</sub>/ħ</sup>, where S<sub>E</sub> is the "Euclidean action". It is the energy-like sum ∫(½ẋ² + V) dτ with a plus sign for the potential. A path with a large S<sub>E</sub> is suppressed. The sum is now like a statistical average, and you can sample it with <a class="term" href="../glossary.html#monte-carlo">Monte Carlo</a>: propose a change of the path, accept it with a probability that depends on how the weight changes (the Metropolis rule), and repeat.</p>
+<p>A second use of imaginary time: for long τ, the weight is dominated by the lowest energy levels, because a state with energy E decays like e<sup>−Eτ/ħ</sup>. So the correlator ⟨x(0)x(τ)⟩ falls like e<sup>−(E₁−E₀)τ/ħ</sup>. The gap E₁ − E₀ between the two lowest levels is the tunnelling splitting ΔE. In a symmetric double well, the lowest state E₀ is "particle in both valleys" and the next one E₁ is the same with a sign change. A particle that starts in the left valley then oscillates between the valleys with a period of 2πħ/ΔE. So a small ΔE means slow tunnelling.</p>
+<p>Which paths matter? Each valley has a ground state with energy about ħω/2. A path that stays in one valley has a small action. A path with one jump has the extra action S₀ = ∫√(2V) dx between the valleys. This is the instanton action. A "dilute gas" of such kinks, far apart, explains ΔE ∝ e<sup>−S₀/ħ</sup>. This idea is the starting point of many calculations in quantum field theory. In gauge theories instantons are the analogue in four dimensions (Coleman's lectures give a classic introduction).</p>
+<p>What is exact in this room: the energy levels (diagonalised on a grid), S₀, the kink shape, the free propagator and the Gaussian integral in part 1. What is simulation: the live path and the correlator. What is interpretation: the picture of a gas of kinks and the formula for ΔE built on it. What is cartoon: the hand-placed cyan kink, and the one-parameter family of paths in part 1.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">K(A→B) = ∫ 𝒟x e<sup>i S[x]/ħ</sup>, &nbsp; S = ∫ ( ½ m ẋ² − V ) dt</span>
+<span>The propagator as a sum over all paths. In real time each path has a weight of length 1 and a turning phase.</span>
+<span class="eq">t = τ e<sup>−iθ</sup> &nbsp; ⇒ &nbsp; at θ = 90°: &nbsp; e<sup>iS/ħ</sup> → e<sup>−S<sub>E</sub>/ħ</sup>, &nbsp; S<sub>E</sub> = ∫ ( ½ m ẋ² + V ) dτ</span>
+<span>The Wick rotation. The weight is now a positive number, small for paths with a large Euclidean action.</span>
+<span class="eq">x(u) = Δ u + c sin(π u), &nbsp; S = m ( Δ² + π² c² / 2 ) / (2 t)</span>
+<span>The fan in part 1: u runs from 0 to 1. The cross term of ẋ² integrates to zero, which leaves Δ² + π²c²/2. t is the (complex) duration.</span>
+<span class="eq">iS/ħ = q ( −sin θ + i cos θ ), &nbsp; q = m(Δ² + π²c²/2) / (2ħτ)</span>
+<span>The weight has length e<sup>−q sin θ</sup> and turns by q cos θ. At θ = 0 it only turns. At θ = 90° it only shrinks.</span>
+<span class="eq">K<sub>free</sub> = √( m / (2π i ħ t) ) · exp( i m Δ² / (2ħ t) ) &nbsp; → &nbsp; √( m / (2πħτ) ) · e<sup>−mΔ²/(2ħτ)</sup></span>
+<span>The free propagator, and its form at θ = 90°: the heat kernel, the density of a diffusing random walker.</span>
+<span class="eq">V(x) = λ (x² − a²)², &nbsp; ẍ = V′(x), &nbsp; ½ ẋ² = V(x)</span>
+<span>The double well. In imaginary time the particle moves in the upside-down potential −V. The first integral fixes the energy at zero. A solution that rolls from −a to +a is the kink.</span>
+<span class="eq">x(τ) = a tanh( ω (τ − τ₀) / 2 ), &nbsp; ω = √(8 λ a²)</span>
+<span>The kink. ω is the oscillation frequency at the bottom of one valley, since V″(a) = 8λa² (m = 1). Here τ₀ is the time of the jump.</span>
+<span class="eq">S₀ = ∫<sub>−a</sub><sup>a</sup> √(2V) dx = (4√2 / 3) √λ a³</span>
+<span>The instanton action, the cost of one jump. Each kink brings the factor e<sup>−S₀/ħ</sup>.</span>
+<span class="eq">⟨x(0) x(τ)⟩ ∝ e<sup>−ΔE τ / ħ</sup> + e<sup>−ΔE (β−τ) / ħ</sup></span>
+<span>The correlator of a periodic path. The decay rate is the gap ΔE = E₁ − E₀. The second term comes from the periodic ends.</span>
+<span class="eq">ΔE ≈ 2 ħ ω √( 6 S₀ / (π ħ) ) · e<sup>−S₀/ħ</sup></span>
+<span>The instanton-gas estimate of the splitting. It leaves out corrections of relative order ħ/S₀, so it is good only for S₀/ħ much larger than 1.</span>
+<span class="eq">⟨number of kinks⟩ ≈ β ΔE / (2ħ)</span>
+<span>Every kink flips the sign of x, and ⟨x(0)x(τ)⟩ decays as e<sup>−2Γτ</sup> with the flip rate Γ per unit τ. So 2Γ = ΔE/ħ, and the number on a path of length β is Γβ.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">Imaginary time is a mathematical tool. It gives exact energy levels and decay rates of the ground-state sector, but a path in imaginary time is not a movie of what the real particle does. The instanton formula is approximate, and at the default settings it is off by tens of percent (see the first big numbers). The fan in part 1 uses only a one-parameter family of paths, so its sum has the right shape but not the right size. The finite sum of 51 paths at θ = 0 differs from the exact Fresnel value. The Monte-Carlo sampler uses 300 time slices, so ΔE has a small step error (ε = β/300), and it has statistical noise. For a very high barrier or a small ħ, jumps are rare, and the sampler needs a long time: that is the same physics as slow tunnelling. The kink-pair and flip moves are there to help the sampler cross the barrier, and they keep the exact weight.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>S. Coleman, <i>Aspects of Symmetry</i>, chapter "The uses of instantons": the double well, the dilute gas and the splitting formula.</li>
+<li>R. P. Feynman and A. R. Hibbs, <i>Quantum Mechanics and Path Integrals</i>: the path integral from the start.</li>
+<li>M. Creutz and B. Freedman, "A statistical approach to quantum mechanics", Annals of Physics 132, 427 (1981): Monte-Carlo paths for the quantum oscillator.</li>
+<li>A. Zee, <i>Quantum Field Theory in a Nutshell</i>: the Wick rotation and the path integral in the early chapters.</li>
+<li>David Tong, lecture notes on Quantum Field Theory (free online).</li>
+<li>Next room: <a href="restless-vacuum.html">The restless vacuum</a> uses the same lowest-energy idea for a whole field, and shows a force from it.</li>
+</ul>
 </section>
 </main>
 

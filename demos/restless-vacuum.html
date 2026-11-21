@@ -48,6 +48,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -55,6 +76,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>The Restless Vacuum</h1>
 <p class="sub">Take a field at its lowest energy. Nothing is added, nothing can be taken away. It still shakes. Put two walls close together, and the shaking leaves a tiny pull between them.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Look at the blue line in part 1. It is a field, and it never stops shaking. Compare the two big numbers under the pictures. After a few seconds they agree.</li>
+<li>Move the <i>mass m</i> slider to the right. The shaking gets smaller. Then widen the <i>window w</i>. The orange average shakes less than a single site does.</li>
+<li>Go to part 3. Move the <i>wall distance L</i> slider. Read the force at L, then at half of L.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h2>1 · The field never sits still</h2>
@@ -141,6 +170,107 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p>This is the lattice version of the Casimir effect. In real 3D electromagnetism, with metal plates, the force per area is −π²ħc/(240 L⁴). The idea is the same: leave out the waves that do not fit, and the energy depends on L.</p>
 <p>Caution on the picture. Subtracting bulk and surface energy is a choice made in the sum. On the lattice it is clean, because the closed form is exact. In a real experiment the plates are real objects, and only the L-dependent force is measured.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Take a field and remove all the energy you can. What is left is the <a class="term" href="../glossary.html#vacuum">vacuum</a>, the state with the lowest energy. You might expect the field to sit still at zero. It does not. In quantum mechanics a value and its rate of change cannot both be exactly zero (the <a class="term" href="../glossary.html#uncertainty">uncertainty</a> principle). So the field value has a spread: if you measure it at one place, you get a random number, sometimes up, sometimes down.</p>
+<p>This room builds the smallest model of that: a chain of beads joined by springs. Part 1 shows the random field value and how an average over many sites shakes less. Part 2 shows that every wave on the chain keeps a minimum energy, the <a class="term" href="../glossary.html#zero-point-energy">zero-point energy</a>. Part 3 puts two walls in the chain. Only some waves fit between the walls, so the total minimum energy depends on the distance. A change of energy with distance is a force. This is the <a class="term" href="../glossary.html#casimir">Casimir effect</a>.</p>
+<p>A word of care. You may have read that "particles pop in and out of the vacuum". This room does not show that. It shows something simpler and more solid: the value of the field in its lowest state has a spread, and the waves of the field have a minimum energy.</p>
+
+<h3>What you see</h3>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 1 · The field never sits still</h4>
+<dl>
+<dt>Light-blue line (left picture)</dt><dd>The field value φ at each of the N sites of the chain. Up means a positive value, down a negative value. The vertical scale is fixed (about ±3), so you can compare settings.</dd>
+<dt>Grey line</dt><dd>φ = 0, the "no field" level.</dd>
+<dt>Dashed teal lines</dt><dd>Plus and minus the exact spread (the standard deviation) of φ at one site. About two thirds of the values fall between them.</dd>
+<dt>White dot</dt><dd>The one site that feeds the histogram on the right.</dd>
+<dt>Orange band and orange bar</dt><dd>The window of w sites that is averaged. The bar shows the average value over the window.</dd>
+<dt>Blue bars (histogram)</dt><dd>How often each value of φ occurred at the white-dot site, collected over time. The axis is in units σ of the exact spread.</dd>
+<dt>Teal curve (histogram)</dt><dd>The exact Gaussian (bell curve) that quantum mechanics predicts. The bars should grow into this curve.</dd>
+<dt>Two big numbers</dt><dd>⟨φ²⟩ is the mean square of the field. Left: measured so far. Middle: the exact value from a sum over modes. The small text says how far off the measurement is.</dd>
+<dt>Log-log plot "spread of the average"</dt><dd>Both axes are logarithmic. Horizontal: window width w. Vertical: the spread of the average over w sites. Teal line: exact. Small blue dots: measured for every w. Big orange dot: your window.</dd>
+</dl>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 2 · Every mode keeps some energy</h4>
+<dl>
+<dt>Coloured bars</dt><dd>One bar for each wave (normal mode) on the chain. The height is ½ω, the lowest energy of that wave. Long waves are on the left (blue), the shortest wave is on the right (green).</dd>
+<dt>Numbers below</dt><dd>The smallest bar, and the total vacuum energy E₀, the sum of all bars.</dd>
+</dl>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 3 · Two walls and a tiny pull</h4>
+<dl>
+<dt>Two light bars</dt><dd>The walls, L sites apart. The field must be zero at a wall.</dd>
+<dt>Coloured curves between the walls</dt><dd>The standing waves that fit (the first five: teal, blue, purple, yellow, orange). A wave fits only if it has zero value at both walls. This part of the picture is a cartoon.</dd>
+<dt>Faint grey curves outside</dt><dd>Outside the walls, any wavelength fits. Also a cartoon.</dd>
+<dt>Right plot</dt><dd>Horizontal: the wall distance L. Vertical: the energy that depends on L, after the parts that do not pull are taken out. Blue dots: exact on the chain. Teal line: the formula −π/(24L). Orange dot: your L. The values are negative and get more negative as L gets smaller.</dd>
+<dt>Big numbers</dt><dd>L times the leftover energy, next to its limit −π/24 ≈ −0.131. Below: the force on the chain and the formula for it. A negative force means the walls attract.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 1</h4>
+<ol class="try">
+<li>Make the field heavier: raise the mass m. Does it shake more or less? <details><summary>What happens and why</summary>It shakes less. Each wave has the spread √(1/(2ω)), and a heavier field has a larger ω for every wave. A stiffer spring holds its bead closer to zero, also in the lowest state. The big number ⟨φ²⟩ falls, and the histogram gets narrower.</details></li>
+<li>Make the window w wider. Does the average over many sites shake more or less than one site? <details><summary>What happens and why</summary>It shakes less, because neighbouring sites partly cancel each other: when one is up, another is often down. But the drop is slow. Neighbours are partly in step (they are joined by springs), so you need a wide window to cancel much. Watch the big orange dot slide down the teal line in the log-log plot.</details></li>
+<li>Set the mass very small (0.02) and the chain long. <details><summary>What happens and why</summary>The field now has large, slow swings. The long waves have a small ω, so their spread 1/(2ω) is large. A light field has long-range correlations: far-away sites move together. The measured number needs more time to settle, because the long waves change slowly.</details></li>
+<li>Press "new exact snapshot" a few times. <details><summary>What happens and why</summary>Each press draws a fresh, independent sample of the lowest state. Every sample is a different random shape, but all have the same statistics. Watch the histogram: it keeps filling toward the same curve.</details></li>
+</ol>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 2</h4>
+<ol class="try">
+<li>Change the mass and watch the left bars. <details><summary>What happens and why</summary>The left bars (long waves) are the ones that depend on m the most. With a small mass, the longest wave has almost no restoring force, so its bar is nearly zero. No bar is ever exactly zero for a mass above zero. The total E₀ always stays above zero.</details></li>
+</ol>
+<h4 style="margin:10px 0 4px;font-size:14px">Part 3</h4>
+<ol class="try">
+<li>Halve L. Is the pull 2, 4 or 8 times stronger? Read the force at L and at L/2. <details><summary>What happens and why</summary>4 times stronger. On this chain the force is −π/(24L²), so halving L gives (2)² = 4 times the force. In real three-dimensional electromagnetism the pressure between two plates goes as 1/d⁴, so halving the gap gives 16 times the pressure. The exponent depends on the number of dimensions and on the kind of field. The idea is the same.</details></li>
+<li>Look at the first big number as you move L. <details><summary>What happens and why</summary>L times the leftover energy is close to −0.131 (that is −π/24) for every L. This is the check that the energy really goes as 1/L. For small L (3 to 6) it is a little off: the chain is a lattice, and with very few sites the continuum formula is only approximate.</details></li>
+<li>Count the waves that fit as you move L. <details><summary>What happens and why</summary>L − 1 waves fit. A larger L lets in more waves. Each new wave carries its ½ω. Most of that sum grows in a smooth way with L (the "bulk" energy). The tiny rest, which does depend on L in a pulling way, is the Casimir energy.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>A <a class="term" href="../glossary.html#field">field</a> has a value at every point. In the quantum theory (a <a class="term" href="../glossary.html#quantum-field">quantum field</a>) a field is like a very large set of springs. Take the chain of beads in this room. Its motion splits into independent waves, the normal modes. Each wave is a quantum oscillator. The lowest state of an oscillator, its <a class="term" href="../glossary.html#ground-state">ground state</a>, is not "at rest at zero". It is a Gaussian bump in the <a class="term" href="../glossary.html#wavefunction">wave function</a>, with a spread of the value and an energy ½ħω. This is the <a class="term" href="../glossary.html#zero-point-energy">zero-point energy</a>.</p>
+<p>When you add up all waves, the field value at one site has a spread that comes from all of them. This room draws the field from exactly that distribution. Each frame is a true sample. It gives the right statistics for the field values at one instant. The smooth motion from frame to frame is only a trick that keeps the same statistics. It is not the real time evolution.</p>
+<p>The Casimir effect comes from boundaries. A wall that forces the field to zero removes the waves that do not fit. Then the sum of the ½ħω terms depends on the wall distance. Hendrik Casimir saw this in 1948. The force was first measured well in 1997 by Steve Lamoreaux. For real parallel metal plates (a 3D electromagnetic field) the energy per area is −π²ħc/(720 d³), and the force per area (the pressure) is −π²ħc/(240 d⁴). The chain in this room is a toy with one dimension and one scalar field. Its result, −π/(24L), is the 1D relative.</p>
+<p>To see how these ideas connect to other rooms: the <a href="tunnelling.html">tunnelling room</a> finds lowest-energy physics by sampling paths in imaginary time, and the <a href="wilson-loops.html">loops room</a> uses a lattice (a grid) like the chain here. A cost of energy in a tube and the creation of pairs from the vacuum appear in <a href="string-breaking.html">Pull two charges apart</a>.</p>
+<p>What is exact in this room: the ground-state Gaussian, the sum over modes, the Casimir sum and its closed form. What is simulation: the running averages and histograms. What is interpretation: "the vacuum shakes" is a way to say that measurements of φ at one instant give a spread. What is cartoon: the smooth motion between frames, and the drawing of the walls and waves.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">H = Σᵢ [ ½ πᵢ² + ½ (φᵢ₊₁ − φᵢ)² + ½ m² φᵢ² ]</span>
+<span>The energy of the chain. φᵢ is the field at site i, πᵢ is its rate of change, the springs join neighbours, and m² adds a pull to zero. We use ħ = 1 and wave speed 1. The chain closes into a ring.</span>
+<span class="eq">ω<sub>k</sub> = √( m² + 4 sin²(k/2) ), &nbsp; k = 2π j / N</span>
+<span>The frequency of the wave with wave number k. Long waves (k small) are slow, the shortest wave (k = π) is fastest.</span>
+<span class="eq">⟨a<sub>k</sub>²⟩ = 1 / (2 ω<sub>k</sub>)</span>
+<span>In the ground state each wave amplitude is a Gaussian random number with this variance. It is the ground-state oscillator of mass 1.</span>
+<span class="eq">⟨φ²⟩ = (1/N) Σ<sub>k</sub> 1 / (2 ω<sub>k</sub>)</span>
+<span>The spread of the field at one site is the sum of the spreads of all waves, divided by N. A larger m raises every ω, so this sum falls. This is the teal "exact" number.</span>
+<span class="eq">Var(window average) = (1/(N w²)) Σ<sub>k</sub> [ sin²(wk/2) / sin²(k/2) ] / (2 ω<sub>k</sub>)</span>
+<span>The extra factor is the effect of averaging over w neighbours. It is w² for the longest waves and small for short waves, so short waves average away first.</span>
+<span class="eq">E₀ = Σ<sub>k</sub> ½ ω<sub>k</sub></span>
+<span>The vacuum energy. Every wave adds ½ω, and no wave adds zero.</span>
+<span class="eq">ω<sub>n</sub> = 2 sin( nπ / 2L ), &nbsp; n = 1 … L−1</span>
+<span>With the field forced to zero at two walls L sites apart, only these standing waves fit.</span>
+<span class="eq">E(L) = ½ Σ ω<sub>n</sub> = Σ sin( nπ / 2L ) = ½ ( cot( π / 4L ) − 1 )</span>
+<span>The sum of sines has a closed form (sum a geometric series of e<sup>inx</sup> and take the imaginary part).</span>
+<span class="eq">E(L) = (2/π) L − ½ − π / (24 L) + …</span>
+<span>For large L, use cot x ≈ 1/x − x/3. The first term grows with L (bulk energy). The second is a fixed energy of the two walls. Neither makes a force that depends on L in a pulling way.</span>
+<span class="eq">E<sub>Casimir</sub> = −π / (24 L), &nbsp; F = −dE/dL = −π / (24 L²)</span>
+<span>The part that is left. It is negative and more negative at small L, so the force F is negative: the walls attract.</span>
+<span class="eq">real plates: &nbsp; E/A = −π² ħ c / (720 d³), &nbsp; pressure = −π² ħ c / (240 d⁴)</span>
+<span>The result for two ideal parallel plates, a distance d apart, in 3D electromagnetism (Casimir 1948). A is the plate area.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The chain is a one-dimensional scalar toy, not electromagnetism. The frame-to-frame motion is a random walk that keeps the right statistics. It is not how the field really moves in time. The samples are right for the field value at one instant, but a single picture does not show the momentum, which has its own spread. The step "take out the bulk and wall energy" is a choice that works cleanly on the lattice because the closed form is exact. In a real experiment, plates are real materials with finite conductivity, they are not perfectly flat, and heat adds a small effect. The measured force agrees with theory to a few percent, not exactly. And the vacuum energy from the sum of all modes is a very large number in a full theory. Only the part that changes with the distance is measured here.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>H. B. G. Casimir, "On the attraction between two perfectly conducting plates", Proc. K. Ned. Akad. Wet. 51, 793 (1948): the original paper.</li>
+<li>S. K. Lamoreaux, "Demonstration of the Casimir force in the 0.6 to 6 μm range", Physical Review Letters 78, 5 (1997): the first precise measurement.</li>
+<li>A. Zee, <i>Quantum Field Theory in a Nutshell</i>: the chapters on the path integral and a short section on the Casimir effect.</li>
+<li>David Tong, lecture notes on Quantum Field Theory (free online): the free scalar field and its zero-point energy.</li>
+<li>Next room: <a href="string-breaking.html">Pull two charges apart</a> shows the vacuum making a new pair when a string of field is stretched far enough.</li>
+</ul>
 </section>
 </main>
 

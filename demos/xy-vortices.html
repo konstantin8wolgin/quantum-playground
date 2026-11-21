@@ -40,6 +40,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -47,6 +68,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Broken Symmetry</h1>
 <p class="sub">A field that likes to be "somewhere" on a circle, but has no reason to choose one place. Push it and see two kinds of motion. Then put such a field on every point of a grid, cool it down, and watch vortices freeze in.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: press <i>Push up the wall</i>. The ball swings back and forth, and the orange line on the right wiggles. Then press <i>Push along the valley</i>. The ball keeps going round and does not swing back.</li>
+<li>Part 2: press <i>Cool down from hot</i>. The coloured picture starts as noise and then forms patches. White and black circles show the vortices that stay.</li>
+<li>Click on the coloured picture to add a vortex pair. Move the <i>temperature</i> slider up and down to make vortices appear and disappear. Try <i>cool-down time</i> short and long.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h2>1 · The Mexican hat <span class="chip c-exact">exact</span></h2>
@@ -86,6 +115,93 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p><b>Vortices.</b> Around a vortex the angle turns by 360°. In its centre the field cannot pick an angle, so a real field must climb to the top of the hat there. Vortex and anti-vortex pairs bind at low T and come apart near <span class="eq">T<sub>KT</sub> ≈ 0.893</span> (Kosterlitz and Thouless, Nobel Prize 2016). In two dimensions there is no true long-range order at any T &gt; 0 (Mermin–Wagner), only this "quasi-order".</p>
 <p><b>Cool-down.</b> If you cool fast, distant regions pick their angles before they can talk to each other, and vortices get trapped where they meet. Slow cooling leaves fewer. This is the Kibble–Zurek idea, first proposed for the early universe and tested in superfluid helium and cold atoms.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Many things in nature "choose a direction" when they get cold. A magnet picks north or south. A superfluid picks a phase. Before the choice, all directions are equal. After the choice, one direction wins. Physicists call this <a class="term" href="../glossary.html#symmetry-breaking">symmetry breaking</a>.</p>
+<p>Part 1 shows the idea with one ball. The ball sits on a hill shaped like a Mexican hat. The lowest points of the hat form a circle: a valley. All points of the valley are equally good, but the ball must rest at one of them. It can move in two ways. It can go up the wall of the valley, and then it swings back. Or it can roll along the valley, and then nothing pushes it back. The first motion is a heavy "particle" (the Higgs mode). The second is a free, massless one (the <a class="term" href="../glossary.html#goldstone">Goldstone</a> mode).</p>
+<p>Part 2 puts a little compass on every point of a grid. Neighbouring compasses like to point the same way. Heat makes them shake. When you cool the grid fast, different regions choose different directions. Where the regions meet, the compasses must turn once around a point. This point is a <a class="term" href="../glossary.html#vortex">vortex</a>. It cannot disappear easily, so cooling leaves some vortices behind.</p>
+
+<h3>What you see</h3>
+<h3 style="font-size:14px;color:var(--muted)">Part 1: the Mexican hat</h3>
+<dl>
+<dt>Grey-blue mesh</dt><dd>The shape of the energy V = −μ²|φ|² + ¼|φ|⁴. Height is energy. The mesh is drawn in 3D. Drag with the mouse to turn it. Lines on the near side are brighter, so you can see through the hat.</dd>
+<dt>Bright blue ring</dt><dd>The valley: the circle of lowest energy. It appears only when μ² &gt; 0. For μ² ≤ 0 the hat becomes a bowl and there is no ring.</dd>
+<dt>Orange ball</dt><dd>The value of the complex field φ at one point. Its place on the floor of the picture is the real and imaginary part of φ. The ball rolls on the hat like a real ball.</dd>
+<dt>Thin orange line</dt><dd>The trail of the last 400 frames.</dd>
+<dt>Right panel, orange curve (top)</dt><dd>The distance of the ball from the centre, against time. It swings up and down when you push up the wall.</dd>
+<dt>Right panel, blue curve (bottom)</dt><dd>The angle of the ball along the valley, against time. A straight rising line means constant speed around the valley.</dd>
+<dt>Numbers under the plots</dt><dd>The swing frequency measured from the orange curve, next to the formula value. And the angular speed along the valley.</dd>
+</dl>
+<h3 style="font-size:14px;color:var(--muted)">Part 2: the grid of compasses</h3>
+<dl>
+<dt>Colours (view "colours")</dt><dd>The angle of the compass at each of 128 × 128 sites. Red → yellow → green → cyan → blue → magenta → red is one full turn of 360°. Same colours mean same direction.</dd>
+<dt>Short lines (view "arrows")</dt><dd>The same angles, drawn as short lines. The picture shows every third site. A line has no head: the compass has an angle but the line is only a marker for it.</dd>
+<dt>White circle</dt><dd>A vortex with winding number +1: going once around it, the angle turns once forward. On the picture you see all colours around one point.</dd>
+<dt>Black circle</dt><dd>An anti-vortex, winding number −1: the angle turns once backward. (The circles are found by adding the angle steps around each small square of four sites.)</dd>
+<dt>Top right plot</dt><dd>The vortex density (vortices per site) against temperature. The dashed blue line marks T ≈ 0.893, where the pairs come apart. Each orange dot is one of your runs: stay at one temperature for about three seconds and a dot appears.</dd>
+<dt>Bottom right plot</dt><dd>Blue dots: the number of vortices left after one cool-down, against the cool-down time in sweeps. Both axes are logarithmic.</dd>
+<dt>Numbers below</dt><dd>Sweeps done, the energy per site, and the number of vortices now. A "sweep" means one attempt to turn every compass once.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: press "Push up the wall", then "Push along the valley". <details><summary>What happens and why</summary>The first push makes the ball swing. The wall of the valley pushes it back, and the orange curve oscillates with frequency 2μ. The second push makes the ball go round the valley. The valley floor is flat: there is no force along it, so the angle grows in a straight line and the ball never swings back. The numbers show the measured frequency and the formula agree.</details></li>
+<li>Part 1: set μ² below 0. <details><summary>What happens and why</summary>The hat turns into a bowl. The valley ring disappears. The ball now swings in every direction with the same frequency √(2|μ²|). Nothing is special about any direction: the symmetry is not broken. The Goldstone motion is gone. This is the answer to "what changes?": there is no free direction any more.</details></li>
+<li>Part 1: add friction and push again. <details><summary>What happens and why</summary>Friction slows all motion, so the swing dies out and the ball settles at a point of the valley. It also slows the roll along the valley. That is plain friction, not a force from the hat: the hat itself gives no push along the valley. Without friction (γ = 0), the roll never changes.</details></li>
+<li>Part 2: cool down fast (short time), then slow (long time). <details><summary>What happens and why</summary>The fast cool-down leaves many vortices. The slow one leaves few. When you cool fast, far-apart regions choose their angle without knowing about each other. Where the regions meet in a mismatched way, a vortex gets trapped. When you cool slowly, the regions have time to line up. This is the Kibble–Zurek idea. In one test run, 32 sweeps left about 180 vortices, and 3000 sweeps left about 6. Your numbers will differ, because the process is random.</details></li>
+<li>Part 2: set T = 0.1, then press "Add a long wave". Watch the colours. <details><summary>What happens and why</summary>The wave fades very slowly: it stays for thousands of sweeps. This is the Goldstone mode of the grid. A slow, long twist of the angle costs almost no energy, so nothing pushes it back quickly. Short waves cost more energy and fade fast. The wave is not a vortex: the colours never go once around a point.</details></li>
+<li>Part 2: click on the picture at T = 0.3, then at T = 1.2. <details><summary>What happens and why</summary>The click makes a vortex pair, 12 sites apart. At low T the pair is "bound": the two circles attract, and they may slowly move together and annihilate. At high T the heat pulls pairs apart, and free vortices wander around. The count in the top plot shows this change near T = 0.893.</details></li>
+<li>Part 2: move the temperature slowly from 0.2 to 1.6 and wait about three seconds at each step. <details><summary>What happens and why</summary>Orange dots build up a curve. The vortex density is small at low T and grows fast when T passes about 0.9. This is the Kosterlitz–Thouless transition. The curve is smooth, not a sharp jump, because the grid is finite and it takes time to settle.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p><b>Part 1.</b> A complex <a class="term" href="../glossary.html#field">field</a> φ has two parts, a size and an angle (a <a class="term" href="../glossary.html#phase">phase</a>). The energy depends on the size only. This gives the Mexican hat. The rotation of the angle is a symmetry (called <a class="term" href="../glossary.html#u1">U(1)</a>). When the field sits at a point of the valley, it picks one angle and the symmetry is broken. The motion along the valley has no restoring force. This is the Goldstone mode. In a field with many points, it becomes a massless wave. The rule is Goldstone's theorem: each broken continuous symmetry gives one massless mode.</p>
+<p>The motion up the wall is the radial mode. It has a mass: its frequency is ω = 2μ. People call this the "Higgs mode" of a field with a broken global symmetry. Be careful with the word. The real <a class="term" href="../glossary.html#higgs">Higgs mechanism</a> needs one more ingredient: a <a class="term" href="../glossary.html#gauge-field">gauge field</a>. With the gauge field, the massless Goldstone mode is "eaten" and the gauge field gets a mass. Nothing like this happens in this room, because there is no gauge field here. The room <a href="flux-vortices.html">Vortices That Trap Flux</a> adds it.</p>
+<p><b>Part 2.</b> Put the field on a <a class="term" href="../glossary.html#lattice">lattice</a>. Keep only the angle at each site. This is the XY model. The computer draws random configurations with the right chances for a given temperature, using the Metropolis rule. This is a <a class="term" href="../glossary.html#monte-carlo">Monte Carlo</a> method. A <a class="term" href="../glossary.html#vortex">vortex</a> has a <a class="term" href="../glossary.html#winding-number">winding number</a>: how many times the angle turns around it. In the middle of a vortex the field cannot choose an angle. On the real hat, it would have to climb to the top.</p>
+<p>In two dimensions, there is no true long-range order at any T &gt; 0 (the Mermin–Wagner theorem). Long waves destroy it. But there is a sharp change at T<sub>KT</sub>: below it, vortices and anti-vortices stay in bound pairs, and above it they move freely (<a class="term" href="../glossary.html#kt-transition">KT transition</a>). Kosterlitz and Thouless shared the 2016 Nobel Prize (with Haldane) for this kind of work.</p>
+<p>The same maths describes thin films of superfluid helium, and cold atoms. The cool-down test is the Kibble–Zurek mechanism. It was first proposed for the early universe and checked in many laboratory systems.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">V(φ) = −μ²|φ|² + ¼|φ|⁴, &nbsp; φ = r e<sup>iθ</sup></span>
+<span>The hat. In the code the quartic coefficient is λ = ¼ (the quantity "LAM"). It depends on r only, not on θ.</span>
+<span class="eq">V′(r) = 0 &nbsp; ⇒ &nbsp; r₀² = μ²/(2λ) = 2μ²</span>
+<span>The valley ring has this radius. Any θ is allowed, so the minimum is a circle.</span>
+<span class="eq">V″(r₀) = −2μ² + 3r₀² = 4μ² &nbsp; ⇒ &nbsp; ω = 2μ</span>
+<span>A small swing up the wall is harmonic with this frequency. The mass of the radial mode is 2μ. The angle has no such term: its frequency is 0.</span>
+<span class="eq">V ≈ |μ²||φ|² &nbsp; ⇒ &nbsp; ω = √(2|μ²|) &nbsp; (μ² &lt; 0)</span>
+<span>In the bowl, both directions swing with the same frequency.</span>
+<span class="eq">E = −Σ<sub>⟨ij⟩</sub> cos(θ<sub>i</sub> − θ<sub>j</sub>)</span>
+<span>The XY energy: a sum over neighbouring pairs. It is lowest when all angles are equal.</span>
+<span class="eq">P(accept) = min(1, e<sup>−ΔE/T</sup>)</span>
+<span>The Metropolis rule for a trial change of one angle. T is the temperature (units where the coupling and k<sub>B</sub> are 1).</span>
+<span class="eq">E/N ≈ −2 + T/2 &nbsp; (low T)</span>
+<span>Every wave mode stores T/2 of energy (equipartition), and a perfect state has −2 per site. The number is shown under the plot.</span>
+<span class="eq">w = (1/2π) Σ<sub>□</sub> Δθ, &nbsp; Δθ ∈ (−π, π]</span>
+<span>The winding number of one small square: add the four angle steps around it, each wrapped into (−π, π]. It is 0 or ±1. This gives the circles.</span>
+<span class="eq">θ = arg((z − z₊)/(z − z₋))</span>
+<span>The imprint of a click: a +1 vortex at z₊ and a −1 vortex at z₋, 12 sites apart.</span>
+<span class="eq">T<sub>KT</sub> ≈ 0.893 (in units of the coupling)</span>
+<span>A value from large simulations. The exact rule is T<sub>KT</sub> = (π/2) ρ<sub>s</sub>, where ρ<sub>s</sub> is the stiffness of the angle field. Bound vortex pairs lower ρ<sub>s</sub> from 1 to about 0.57 at the transition.</span>
+<span class="eq">ΔE(pair, distance R) ≈ 2π J ln(R/a) + 2 E<sub>core</sub></span>
+<span>The energy of one vortex–anti-vortex pair grows like the logarithm of the distance. Heat can pay this cost only when the entropy gain is larger. This gives the transition.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">Part 1 is one classical ball. It shows the shapes of the motions, but it is not a quantum field. Part 2 is the XY model: a classical model with random sampling, not a real material. The "time" of the cool-down is the number of Monte Carlo sweeps, and it is not real time. The exact law for the number of vortices against cool-down time is not drawn here: the plot only shows that slow cooling leaves fewer. The grid has 128 × 128 sites with wrap-around edges, so the transition looks rounded and the density at a given T needs a few seconds to settle. Close to T<sub>KT</sub> it settles very slowly. The clicked pair is a rough start, not an exact solution.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>J. M. Kosterlitz and D. J. Thouless, "Ordering, metastability and phase transitions in two-dimensional systems", J. Phys. C 6, 1181 (1973).</li>
+<li>A. Zee, <i>Quantum Field Theory in a Nutshell</i>, the chapters on spontaneous symmetry breaking and the Goldstone theorem.</li>
+<li>D. Tong, lecture notes on Statistical Field Theory (free on the web): the XY model and the KT transition.</li>
+<li>Next room: <a href="flux-vortices.html">Vortices That Trap Flux</a> adds a gauge field to the vortex, and the energy stops growing.</li>
+</ul>
 </section>
 </main>
 
@@ -154,7 +270,7 @@ function radialFreq(){if(hist.length<50)return NaN;const mx=[],k=(+$("mu").value
 function angSpeed(){const r2=ball.x*ball.x+ball.y*ball.y;return r2>1e-9?(ball.x*ball.vy-ball.y*ball.vx)/r2:0}
 function read1(){const mu2=+$("mu").value,w=radialFreq(),pred=mu2>0?2*Math.sqrt(mu2):Math.sqrt(2*Math.abs(mu2));
   $("read1").innerHTML=`<div><span>swing frequency measured </span><b>${isNaN(w)?"…":w.toFixed(3)}</b> <span>· predicted ${mu2>0?"2μ":"√(2|μ²|)"} = </span><b>${pred.toFixed(3)}</b></div>
-  <div><span>speed along the valley </span><b>${angSpeed().toFixed(3)}</b> <span>rad/s (no force changes it)</span></div>`}
+  <div><span>speed along the valley </span><b>${angSpeed().toFixed(3)}</b> <span>rad/s (no force along the valley changes it; only friction slows it)</span></div>`}
 $("kickR").onclick=()=>{const r=Math.hypot(ball.x,ball.y)||1,ux=r>1e-6?ball.x/r:1,uy=r>1e-6?ball.y/r:0;ball.vx+=0.25*ux;ball.vy+=0.25*uy;hist=[]};
 $("kickT").onclick=()=>{const r=Math.hypot(ball.x,ball.y),ux=r>1e-6?-ball.y/r:0,uy=r>1e-6?ball.x/r:1;ball.vx+=0.35*ux;ball.vy+=0.35*uy;hist=[]};
 $("reset1").onclick=reset1;

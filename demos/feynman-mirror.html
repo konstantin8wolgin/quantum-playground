@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Light Takes Every Path</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d;}
+}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:18px;margin:0 0 6px}
+h3{font-size:15px;margin:12px 0 4px}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#05060a;border-radius:8px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+.grid3 h3{margin:0 0 4px;font-size:13.5px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.big{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:14px;padding:10px 14px;border:2px solid var(--chip-exact);border-radius:10px}
+.big div{min-width:0}
+.big .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.big .l{font-size:12.5px;color:var(--muted)}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html" style="font-size:13px;color:var(--accent);text-decoration:none">← all rooms</a>
+<h1>Light Takes Every Path</h1>
+<p class="sub">A photon does not choose one way. It tries every way. Each way gives a small arrow, and the arrows are added. Three examples: a mirror, a glass surface that bends light, and a thin sheet of glass.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: look at the spiral of arrows. Only the arrows in the middle add up. Then move the <i>detector</i> slider to the middle (x = 0) and press <i>Scrape the mirror</i>. Light now goes to a place it did not go before.</li>
+<li>Part 2: move the <i>glass index n</i> slider. The white path is the fastest path, and it obeys Snell's law. Read the two numbers in the green box.</li>
+<li>Part 3: make the sheet thicker with the <i>thickness</i> slider. The reflection goes up and down between 0 and about 15 %.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
+<!-- ============ PART 1 ============ -->
+<section id="sec1">
+<h2>1. The mirror: every strip is a path</h2>
+<p>A lamp S sends light to a detector P. The light may touch the mirror at any point. We cut the mirror in strips. Each strip gives one path S → strip → P, and one arrow. The arrow turns by one full turn for each wavelength of path length.</p>
+<canvas id="c1geo" data-h0="250"></canvas>
+<div class="grid3">
+  <div><h3>Travel time of each path</h3><canvas id="c1time" data-h0="200"></canvas></div>
+  <div><h3>Arrows added head to tail</h3><canvas id="c1chain" data-h0="200"></canvas></div>
+  <div><h3>Light on the detector line</h3><canvas id="c1scan" data-h0="200"></canvas></div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>path lengths, arrow angles and the sum (ray optics, scalar waves, no polarisation)</div>
+  <div><span class="chip c-exact">exact</span>stationary-phase value 2π/(k L'') for an endless mirror</div>
+  <div><span class="chip c-int">interpretation</span>colour = arrow direction; "every path" is the path-integral view</div>
+  <div><span class="chip c-cartoon">cartoon</span>mirror is cut in only 40–80 strips; lamp and detector are close</div>
+</div>
+<div class="controls">
+  <label>wavelength λ <b id="l1V"></b><input id="l1" type="range" min="0.3" max="1.2" step="0.01" value="0.8"></label>
+  <label>number of strips <b id="n1V"></b><input id="n1" type="range" min="40" max="80" step="1" value="60"></label>
+  <label>detector position x <b id="p1V"></b><input id="p1" type="range" min="-6" max="10" step="0.1" value="4"></label>
+  <label><input type="checkbox" id="soft" checked> soft mirror ends (removes ripples from the edges)</label>
+  <div class="btns"><button id="scrape" class="primary">Scrape the mirror</button><button id="restore">Restore mirror</button></div>
+</div>
+<div class="big">
+  <div><div class="v" id="b1a">–</div><div class="l">|sum of arrows|² (strips, live)</div></div>
+  <div><div class="v" id="b1b">–</div><div class="l">exact: 2π/(k L'') (endless mirror)</div></div>
+  <div><div class="v" id="b1c">–</div><div class="l">ratio (strips ÷ exact; 1 = perfect)</div></div>
+</div>
+<div class="read" id="r1"></div>
+<div class="predict"><b>Predict, then test:</b> put the detector at x = 4 (the lamp is at x = −4). Which strips give most of the sum: the ones at the ends or the ones in the middle? Then press <i>Scrape the mirror</i> with the detector at x = 0. Will more or less light reach x = 0? Where will the bright spot move when you make λ larger?</div>
+<details><summary>What the numbers mean</summary>
+<p>The path through strip i has length <span class="eq">L<sub>i</sub></span>. Its arrow has angle <span class="eq">k L<sub>i</sub></span> with <span class="eq">k = 2π/λ</span>. Each arrow is the sum of the tiny arrows inside its strip, so its length is the strip width times sinc(k L' w / 2). A long arrow means that the path length hardly changes along the strip. Soft ends fade the arrows near the mirror ends to zero. A hard edge adds small ripples to the sum.</p>
+<p>For an endless mirror the sum is exactly known in the limit of short waves. Near the equal-angle point <span class="eq">L ≈ L₀ + ½ L'' (x − x*)²</span>, so the sum is a Fresnel integral. Its size squared is <span class="eq">2π/(k L'')</span>, where <span class="eq">L'' = h₁²/r₁³ + h₂²/r₂³</span>. The number in the green box is the strip sum divided by this value. With 60 strips it is within about 1 % of 1.</p>
+<p>"Scrape" keeps only the strips whose arrow points into the half plane of the total sum, as seen from the detector you chose. The kept strips form a pattern with period d. Light is then sent to the detector with <span class="eq">d (sin θ<sub>out</sub> − sin θ<sub>in</sub>) = m λ</span>, with m = 1. The line "grating check" measures d from the pattern near the middle and shows m. It is close to 1, but not exact, because the strips are coarse and the lamp is near.</p>
+</details>
+</section>
+
+<!-- ============ PART 2 ============ -->
+<section id="sec2">
+<h2>2. Why light bends: the fastest path</h2>
+<p>Light goes from S in air to P in glass. It may cross the surface at any point. The arrow of a path turns by <span class="eq">2π (L<sub>air</sub> + n L<sub>glass</sub>)/λ</span>. Far from the fastest path, the arrows turn quickly and cancel. Near the fastest path, they turn slowly and add.</p>
+<canvas id="c2geo" data-h0="290"></canvas>
+<div class="grid3">
+  <div><h3>Travel time of each path</h3><canvas id="c2time" data-h0="200"></canvas></div>
+  <div><h3>Arrows added head to tail</h3><canvas id="c2chain" data-h0="200"></canvas></div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>path lengths, least-time point (found by a search that does not use Snell's law), the two angles</div>
+  <div><span class="chip c-exact">exact</span>Snell's law: sin θ₁ / sin θ₂ = n</div>
+  <div><span class="chip c-int">interpretation</span>colour = arrow direction; white path = path of least time</div>
+  <div><span class="chip c-cartoon">cartoon</span>80 strips; close lamp and detector; scalar light</div>
+</div>
+<div class="controls">
+  <label>glass index n <b id="n2V"></b><input id="n2" type="range" min="1" max="2" step="0.01" value="1.5"></label>
+  <label>wavelength λ <b id="l2V"></b><input id="l2" type="range" min="0.3" max="1.2" step="0.01" value="0.6"></label>
+  <label>detector position x <b id="p2V"></b><input id="p2" type="range" min="-6" max="9" step="0.1" value="4"></label>
+</div>
+<div class="big">
+  <div><div class="v" id="b2a">–</div><div class="l">sin θ₁ / sin θ₂ at the least-time point</div></div>
+  <div><div class="v" id="b2b">–</div><div class="l">exact: n (Snell's law)</div></div>
+  <div><div class="v" id="b2c">–</div><div class="l">difference</div></div>
+</div>
+<div class="read" id="r2"></div>
+<div class="predict"><b>Predict, then test:</b> make n larger. Does the white path bend toward the surface normal (the vertical) or away from it? Then make n = 1.00. What does the white path look like?</div>
+<details><summary>What the numbers mean</summary>
+<p>The code finds the point of least travel time by a search on the time curve only. It does not use Snell's law. Then it measures the two angles from the vertical. The ratio of their sines is n. This is Snell's law, found as the place where the path integral has no turning arrows. Glass is "slower" because the arrow turns n times faster inside it.</p>
+<p>Fermat's principle (light takes the path of least time) is a result of the path integral: only paths near the least-time path have arrows that add.</p>
+</details>
+</section>
+
+<!-- ============ PART 3 ============ -->
+<section id="sec3">
+<h2>3. A sheet of glass: two arrows</h2>
+<p>Light hits a glass sheet in air (n = 1.5). A little light is reflected at the front surface. A little light is reflected at the back surface. Each gives one arrow of length 0.2 (so 4 % of the light, 0.2² = 0.04). The front arrow points backward (reversed). The back arrow is turned by <span class="eq">2π · 2nt/λ</span>, where t is the thickness.</p>
+<div class="grid3">
+  <div><h3>The sheet</h3><canvas id="c3sheet" data-h0="220"></canvas></div>
+  <div><h3>Arrows</h3><canvas id="c3arrows" data-h0="220"></canvas></div>
+  <div><h3>Reflection R as the sheet gets thicker</h3><canvas id="c3curve" data-h0="220"></canvas></div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>Airy formula: all bounces inside the sheet (solid curve and thin arrows)</div>
+  <div><span class="chip c-cartoon">cartoon</span>two-arrow sum = Feynman's approximation (dashed curve): it ignores the bounces inside the glass</div>
+  <div><span class="chip c-exact">exact</span>arrow angles and lengths from the Fresnel amplitudes at normal incidence</div>
+</div>
+<div class="controls">
+  <label>thickness t <b id="t3V"></b><input id="t3" type="range" min="0" max="1500" step="1" value="92"></label>
+  <label>wavelength λ <b id="l3V"></b><input id="l3" type="range" min="400" max="700" step="1" value="550"></label>
+  <label>glass index n <b id="n3V"></b><input id="n3" type="range" min="1.1" max="2.2" step="0.01" value="1.5"></label>
+</div>
+<div class="big">
+  <div><div class="v" id="b3a">–</div><div class="l">R, two arrows (Feynman)</div></div>
+  <div><div class="v" id="b3b">–</div><div class="l">R, Airy (exact, all bounces)</div></div>
+  <div><div class="v" id="b3c">–</div><div class="l">largest R: two arrows 4r² / exact 4r²/(1+r²)²</div></div>
+</div>
+<div class="read" id="r3"></div>
+<div class="predict"><b>Predict, then test:</b> start at t = 0. How much light does a very thin sheet reflect: 4 %, 8 % or none? Then increase t slowly. How much thickness does it take to go from the first dark point to the next dark point? Change λ to red, then to blue. Does the thickness change?</div>
+<details><summary>What the numbers mean</summary>
+<p>At normal incidence, the amplitude reflected by the front surface is <span class="eq">−r</span> with <span class="eq">r = (n−1)/(n+1)</span>. Inside the glass, the back surface reflects <span class="eq">+r</span>. Feynman uses two arrows: front <span class="eq">−r</span>, back <span class="eq">r e<sup>iδ</sup></span>, with <span class="eq">δ = 4π n t/λ</span>. The sum has the size <span class="eq">R = 4r² sin²(δ/2)</span>. Its largest value is 4r² = 16 % for n = 1.5.</p>
+<p>The exact answer also includes light that bounces back and forth inside the sheet. This is a series of smaller arrows: −r, then (1−r²) r e<sup>iδ</sup>, then (1−r²) r³ e<sup>2iδ</sup>, and so on. The series gives <span class="eq">R = 4r² sin²(δ/2) / [(1−r²)² + 4r² sin²(δ/2)]</span>. The largest value is <span class="eq">4r²/(1+r²)² = 14.79 %</span>. The two-arrow value is a good first answer, but it is not exact: it is too large by 8 % at the top.</p>
+</details>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Richard Feynman's idea is simple. When a photon goes from a lamp to a detector, it does not go on one path. It goes on <i>every</i> path. Each path gives a small arrow (an <a class="term" href="../glossary.html#amplitude">amplitude</a>). The arrow turns as the photon travels: one full turn for each <a class="term" href="../glossary.html#wavelength">wavelength</a> of path. Add all the arrows head to tail. The squared length of the sum is the <a class="term" href="../glossary.html#probability">probability</a> that the photon arrives.</p>
+<p>These arrows are the <a class="term" href="../glossary.html#path-integral">path integral</a> for light. Paths with a very different length have arrows that point in all directions, so they cancel. Only paths near the shortest (or longest) one have arrows that point the same way. This is why a mirror seems to work with one path (angle in = angle out) and why glass seems to bend light with one path (Snell's law). In both cases, one path is only the place where the arrows add up. See the <a href="path-integral.html">path-integral room</a> and the <a href="double-slit.html">double-slit room</a> for the same rule with electrons.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Coloured lines (parts 1 and 2)</dt><dd>One line for each path. The colour is the direction of its arrow: one full turn of colour is one wavelength of path.</dd>
+<dt>White path</dt><dd>The path of least travel time. For the mirror it has equal angles. For the glass it obeys Snell's law.</dd>
+<dt>Travel time graph</dt><dd>For each strip: how long the photon needs on its path, counted in wave periods. The curve has a valley. Near the bottom of the valley the time changes little from strip to strip, so the arrows turn little.</dd>
+<dt>Spiral of arrows</dt><dd>All arrows added head to tail, in the order of the strips. At the two ends the arrows turn fast, so the chain curls into small circles. In the middle the chain is nearly straight. The white arrow from the start to the end is the sum.</dd>
+<dt>Light on the detector line (part 1)</dt><dd>The squared sum for detectors at all places on the line of the detector. You see where the mirror sends the light.</dd>
+<dt>Sheet picture (part 3)</dt><dd>Light comes from above and goes through a glass sheet. Two reflected rays are drawn. The thickness is stretched to be visible.</dd>
+<dt>Arrows of the sheet (part 3)</dt><dd>Blue: front arrow (reversed). Orange: back arrow, turned by the thickness. White: their sum. Thin grey arrows: the smaller arrows from bounces inside the glass.</dd>
+<dt>Curve R(t) (part 3)</dt><dd>Dashed: two arrows. Solid: exact (Airy). The dot shows the current thickness.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: look at the spiral. Which strips make the sum? <details><summary>What happens and why</summary>The strips in the middle, near the equal-angle point. There the path length changes slowly, so neighbouring arrows point the same way and form a straight chain. At the ends the chain curls into circles that add up to almost nothing. This is the stationary-phase idea: only paths where the length is at its minimum count. The check number in the green box says the strip sum has the size that the stationary-phase formula predicts.</details></li>
+<li>Part 1: make λ smaller. <details><summary>What happens and why</summary>The spiral at the ends becomes tighter and the straight part in the middle becomes shorter. The part of the mirror that matters (the first Fresnel zone) has a width of about √(λ/L''), so it shrinks like √λ. For very short waves, light seems to touch the mirror at one point only. This is the <a class="term" href="../glossary.html#classical-limit">classical limit</a>: rays.</details></li>
+<li>Part 1: put the detector at x = 0 and press <i>Scrape the mirror</i>. <details><summary>What happens and why</summary>The mirror keeps only the strips whose arrows point with the sum for this detector. All kept arrows now add. The light at x = 0 grows by a large factor, although light on a normal mirror would not go there from this lamp. The kept strips form a pattern, like the grooves of a reflection grating. The light goes where the grating law says: d (sin θ<sub>out</sub> − sin θ<sub>in</sub>) = λ. Move the detector away and the bright spot stays at x = 0 in the graph on the right. Change λ, and the bright spot moves, because a grating bends each colour to another angle.</details></li>
+<li>Part 2: move n from 1.0 to 2.0. <details><summary>What happens and why</summary>At n = 1.0 the white path is a straight line. As n grows, the white path crosses the surface closer to the point above the detector, and the light bends toward the vertical inside the glass. In glass, each path is longer in wave count (n times), so it is "slower". The path of least time is then one that stays shorter inside the glass. The ratio sin θ₁ / sin θ₂ stays equal to n.</details></li>
+<li>Part 3: set the thickness to 0 and then increase it. <details><summary>What happens and why</summary>At t = 0 the two arrows have equal length and point in opposite directions. They cancel: no reflection. At 2nt = λ/2 (about 92 nm for green light) the back arrow has turned half a turn, and now both arrows point the same way: R is at the top, 16 % with two arrows and 14.8 % exact. At 2nt = λ the arrows cancel again. The pattern repeats every λ/(2n) of thickness, about 183 nm. This is the reason for the colours of soap bubbles and oil films.</details></li>
+<li>Part 3: change λ. <details><summary>What happens and why</summary>The maximum and minimum positions move: they depend on the ratio t/λ. A thick sheet reflects different colours differently. For a very thick sheet (more than a few thousand wavelengths of white light), the maxima for the different colours overlap and the colour goes away.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>This room follows the spirit of Feynman's popular book <i>QED: The Strange Theory of Light and Matter</i> (1985). The pictures here are drawn new.</p>
+<p>The rule has three steps. (1) For each way the photon can go, draw an arrow. Its length depends on how likely the process is. Its direction is the <a class="term" href="../glossary.html#phase">phase</a>, which is the <a class="term" href="../glossary.html#action">action</a> divided by <a class="term" href="../glossary.html#hbar">ħ</a>. For light on a straight path, the phase is 2π times the path length divided by the wavelength. (2) Add the arrows. This is <a class="term" href="../glossary.html#superposition">superposition</a>. (3) Square the length of the sum.</p>
+<p>The mirror shows <a class="term" href="../glossary.html#stationary-phase">stationary phase</a>. When the path length is at a minimum, the phase does not change to first order, so arrows add. The strips near the minimum have a width of about one Fresnel zone. The sum is then a Fresnel integral and the length squared is 2π/(k L''). When you scrape away the strips that point backward, you build a grating by hand: light now comes to a place where the stationary-phase point of the full mirror would not send it.</p>
+<p>Refraction is the same sum, but the phase turns n times faster in glass. The place where the phase is stationary gives Snell's law. The sheet of glass shows that even a "partial" reflection is a sum of two paths. Each surface does not "decide" to reflect 4 %. The 4 % is the length of one arrow. The thickness changes the relative direction of the two arrows, and so R changes between 0 and about 15 %.</p>
+<p>A <a href="feynman-diagrams.html">Feynman diagram</a> is a bookkeeping of such arrows. Each line and each corner of a diagram stands for one factor of an arrow, and the whole diagram is one arrow in the sum. The room "Feynman diagrams from a path integral" shows how this works for the photon and the electron. This room gives the simplest case: only the photon path, with the glass and the mirror as given. In the full theory (<a class="term" href="../glossary.html#qed">QED</a>) the glass atoms also take part, and the number r = (n − 1)/(n + 1) comes from a sum over many <a class="term" href="../glossary.html#feynman-diagram">Feynman diagrams</a> with the photon and the electrons in the glass.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">A = Σ<sub>i</sub> a<sub>i</sub> e<sup>i k L<sub>i</sub></sup>, &nbsp; k = 2π/λ, &nbsp; P = |A|²</span>
+<span>The sum over strips. L<sub>i</sub> is the length of path i. a<sub>i</sub> is the strip width times sinc(k L' w/2).</span>
+<span class="eq">L(x) = √((x − x<sub>S</sub>)² + h<sub>S</sub>²) + √((x<sub>P</sub> − x)² + h<sub>P</sub>²)</span>
+<span>Length of the mirror path through the point x.</span>
+<span class="eq">dL/dx = sin θ<sub>in</sub> − sin θ<sub>out</sub> = 0 &nbsp; ⇒ &nbsp; θ<sub>in</sub> = θ<sub>out</sub></span>
+<span>Stationary phase for the mirror.</span>
+<span class="eq">|A|² ≈ 2π / (k L''), &nbsp; L'' = h<sub>S</sub>²/r<sub>S</sub>³ + h<sub>P</sub>²/r<sub>P</sub>³</span>
+<span>Size of the sum from an endless mirror, for short waves.</span>
+<span class="eq">d (sin θ<sub>out</sub> − sin θ<sub>in</sub>) = m λ</span>
+<span>Reflection grating with period d. For the scraped mirror m = 1.</span>
+<span class="eq">T(x) = r<sub>air</sub> + n r<sub>glass</sub>, &nbsp; dT/dx = 0 &nbsp; ⇒ &nbsp; sin θ₁ = n sin θ₂</span>
+<span>Refraction: the same method. This is Snell's law.</span>
+<span class="eq">r = (n − 1)/(n + 1), &nbsp; δ = 4π n t / λ</span>
+<span>Arrow length for one glass surface, and the turn of the back arrow.</span>
+<span class="eq">R<sub>2</sub> = |−r + r e<sup>iδ</sup>|² = 4r² sin²(δ/2) &nbsp; (maximum 4r² = 16 % for n = 1.5)</span>
+<span>Two-arrow approximation.</span>
+<span class="eq">R = 4r² sin²(δ/2) / [(1 − r²)² + 4r² sin²(δ/2)] &nbsp; (maximum 4r²/(1+r²)² = 14.79 %)</span>
+<span>Exact result for the sheet: the sum of all bounces, a geometric series with ratio r² e<sup>iδ</sup>.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">Light is treated as a scalar wave: there is no polarisation and no change of r with angle (in parts 1 and 2). The arrows have a fixed length per strip. Real light from a point lamp gets weaker with distance, and this is left out. The path sum for the mirror uses a flat mirror that reflects every strip equally, with no atoms. Part 3 is at normal incidence only; the thin arrows come from the standard Fresnel amplitudes, which are not derived here. The "two arrows" picture is Feynman's approximation and is 8 % too high at the maximum. The scrape is a one-detector design: the strips are kept for one detector and one wavelength. Because the mirror has only 40–80 strips, the measured grating law is close to 1 but not exact. The wave sums here do not show that a photon "really" takes all paths. They are a way to compute the correct probability.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman, <i>QED: The Strange Theory of Light and Matter</i> (Princeton University Press, 1985), chapters 2 and 3: the mirror, the glass, and the reflection from a sheet.</li>
+<li>R. P. Feynman, R. B. Leighton, M. Sands, <i>The Feynman Lectures on Physics</i>, Vol. I, chapter 26 "Optics: the principle of least time" (free online at feynmanlectures.caltech.edu).</li>
+<li>M. Born, E. Wolf, <i>Principles of Optics</i>, section 7.6 on multiple-beam interference (the Airy formula).</li>
+<li>Related rooms: <a href="path-integral.html">path integral</a>, <a href="double-slit.html">double slit</a>, and <a href="feynman-diagrams.html">Feynman diagrams from a path integral</a>.</li>
+</ul>
+</section>
+</main>
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TAU=2*Math.PI;
+function sinc(x){return Math.abs(x)<1e-8?1:Math.sin(x)/x}
+/* ---- part 1: mirror (interface at y=0; S and P are {x,y} with y>0 above it) ---- */
+function mirrorL(x,S,P){return Math.hypot(x-S.x,S.y)+Math.hypot(P.x-x,P.y)}
+function mirrorDL(x,S,P){return (x-S.x)/Math.hypot(x-S.x,S.y)-(P.x-x)/Math.hypot(P.x-x,P.y)}
+function mirrorD2L(x,S,P){const a=Math.hypot(x-S.x,S.y),b=Math.hypot(P.x-x,P.y);return S.y*S.y/(a*a*a)+P.y*P.y/(b*b*b)}
+/* equal-angle point: the straight line from S to the mirror image of P */
+function mirrorStationary(S,P){return S.x+(P.x-S.x)*S.y/(S.y+P.y)}
+function taper(x,x0,x1,frac){const len=x1-x0,u=Math.min(x-x0,x1-x)/(frac*len);if(u>=1)return 1;if(u<=0)return 0;const s=Math.sin(Math.PI/2*u);return s*s}
+function makeStrips(N,x0,x1,soft){const w=(x1-x0)/N,x=new Float64Array(N),wt=new Float64Array(N);
+  for(let i=0;i<N;i++){x[i]=x0+(i+0.5)*w;wt[i]=soft?taper(x[i],x0,x1,0.25):1}
+  return{N,x0,x1,w,x,wt,soft:!!soft}}
+/* one arrow per strip: the sum of e^{ikL} over the strip, with L linear inside the strip */
+function mirrorArrows(st,S,P,k){const N=st.N,re=new Float64Array(N),im=new Float64Array(N),ph=new Float64Array(N),L=new Float64Array(N);
+  for(let i=0;i<N;i++){const x=st.x[i],l=mirrorL(x,S,P),d=mirrorDL(x,S,P),a=st.wt[i]*st.w*sinc(k*d*st.w/2);
+    L[i]=l;ph[i]=k*l;re[i]=a*Math.cos(k*l);im[i]=a*Math.sin(k*l)}
+  return{re,im,ph,L}}
+function sumArrows(re,im,keep){let r=0,m=0;for(let i=0;i<re.length;i++)if(!keep||keep[i]){r+=re[i];m+=im[i]}return{re:r,im:m,abs2:r*r+m*m}}
+/* stationary-phase answer for an infinite mirror: |A|^2 = 2 pi /(k L'') (times the edge weight at the equal-angle point) */
+function statPhaseAbs2(st,S,P,k){const xs=mirrorStationary(S,P);if(xs<st.x0||xs>st.x1)return 0;
+  const w=st.soft?taper(xs,st.x0,st.x1,0.25):1;return w*w*TAU/(k*mirrorD2L(xs,S,P))}
+/* scrape: keep only strips whose arrow points with the sum (score = projection on the sum) */
+function scrapeScore(arr){const s=sumArrows(arr.re,arr.im),sc=new Float64Array(arr.re.length);
+  for(let i=0;i<sc.length;i++)sc[i]=arr.re[i]*s.re+arr.im[i]*s.im;return sc}
+function scrapeMask(arr){const sc=scrapeScore(arr),keep=new Uint8Array(sc.length);for(let i=0;i<keep.length;i++)keep[i]=sc[i]>0?1:0;return keep}
+/* period d of the kept pattern near xRef (edges placed by linear interpolation of the score),
+   and m = d |sin(out) - sin(in)| / lambda (the grating law says m = 1) */
+function gratingMeasure(st,keep,S,P,lam,xRef,score){
+  const e=[];for(let i=1;i<st.N;i++)if(keep[i]&&!keep[i-1]){let x=st.x[i]-st.w/2;
+    if(score){const s0=score[i-1],s1=score[i];if(s1!==s0)x=st.x[i-1]+st.w*(-s0)/(s1-s0)}e.push(x)}
+  if(e.length<2)return{d:NaN,m:NaN,xc:NaN};
+  let best=0,bd=1e300;for(let j=0;j+1<e.length;j++){const q=Math.abs((e[j]+e[j+1])/2-xRef);if(q<bd){bd=q;best=j}}
+  const d=e[best+1]-e[best],xc=(e[best]+e[best+1])/2,
+    sin_in=(xc-S.x)/Math.hypot(xc-S.x,S.y),sin_out=(P.x-xc)/Math.hypot(P.x-xc,P.y);
+  return{d,xc,sin_in,sin_out,m:d*Math.abs(sin_out-sin_in)/lam}}
+/* ---- part 2: refraction (air above y=0, glass of index n below; S in air, P in glass with depth P.y>0) ---- */
+function refrT(x,S,P,n){return Math.hypot(x-S.x,S.y)+n*Math.hypot(P.x-x,P.y)}
+function refrDT(x,S,P,n){return (x-S.x)/Math.hypot(x-S.x,S.y)-n*(P.x-x)/Math.hypot(P.x-x,P.y)}
+/* least-time point by golden-section search on T only (no Snell law used) */
+function refrLeastTime(S,P,n){let a=Math.min(S.x,P.x)-1,b=Math.max(S.x,P.x)+1;const g=(Math.sqrt(5)-1)/2;
+  let c=b-g*(b-a),d=a+g*(b-a),fc=refrT(c,S,P,n),fd=refrT(d,S,P,n);
+  for(let i=0;i<200;i++){if(fc<fd){b=d;d=c;fd=fc;c=b-g*(b-a);fc=refrT(c,S,P,n)}else{a=c;c=d;fc=fd;d=a+g*(b-a);fd=refrT(d,S,P,n)}}
+  return (a+b)/2}
+function refrAngles(x,S,P){const r1=Math.hypot(x-S.x,S.y),r2=Math.hypot(P.x-x,P.y),s1=(x-S.x)/r1,s2=(P.x-x)/r2;return{s1,s2,ratio:s1/s2}}
+function refrArrows(st,S,P,n,k){const N=st.N,re=new Float64Array(N),im=new Float64Array(N),ph=new Float64Array(N),L=new Float64Array(N);
+  for(let i=0;i<N;i++){const x=st.x[i],l=refrT(x,S,P,n),d=refrDT(x,S,P,n),a=st.wt[i]*st.w*sinc(k*d*st.w/2);
+    L[i]=l;ph[i]=k*l;re[i]=a*Math.cos(k*l);im[i]=a*Math.sin(k*l)}
+  return{re,im,ph,L}}
+/* ---- part 3: sheet of glass in air, normal incidence ---- */
+function filmR(n){return (n-1)/(n+1)}
+function filmDelta(n,t,lam){return TAU*2*n*t/lam}
+/* Feynman's two arrows: front reversed (length r), back length r turned by delta */
+function filmTwoArrow(n,delta){const r=filmR(n),f={re:-r,im:0},b={re:r*Math.cos(delta),im:r*Math.sin(delta)};
+  const s={re:f.re+b.re,im:f.im+b.im};return{front:f,back:b,sum:s,R:s.re*s.re+s.im*s.im}}
+/* exact thin film (all bounces, closed form) */
+function filmAiry(n,delta){const r=filmR(n),s=Math.sin(delta/2),a=4*r*r*s*s;return a/((1-r*r)*(1-r*r)+a)}
+/* the same thing as a direct sum of the bounce arrows: -r, then (1-r^2) r (r^2)^(m-1) e^{i m delta} */
+function filmSeries(n,delta,terms){const r=filmR(n);let re=-r,im=0;
+  for(let m=1;m<=terms;m++){const a=(1-r*r)*r*Math.pow(r*r,m-1);re+=a*Math.cos(m*delta);im+=a*Math.sin(m*delta)}
+  return{re,im,R:re*re+im*im}}
+function filmTerms(n,delta,terms){const r=filmR(n),o=[{re:-r,im:0}];
+  for(let m=1;m<=terms;m++){const a=(1-r*r)*r*Math.pow(r*r,m-1);o.push({re:a*Math.cos(m*delta),im:a*Math.sin(m*delta)})}return o}
+/* PHYSICS-CORE END */
+
+/* ---------------- page code (DOM, drawing) ---------------- */
+const $=id=>document.getElementById(id);
+const fmt=(v,d=3)=>isFinite(v)?v.toFixed(d):"–";
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,H=+c.dataset.h0;
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(H*d)){c.width=Math.round(w*d);c.height=Math.round(H*d)}
+  c.style.height=H+"px";const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,H);return{g,w,h:H}}
+const hueOf=ph=>{const a=((ph/TAU)%1+1)%1;return Math.round(360*a)};
+const col=(ph,al=1,l=60)=>`hsla(${hueOf(ph)},85%,${l}%,${al})`;
+const TXT="rgba(255,255,255,.75)",GRID="rgba(255,255,255,.12)";
+function label(g,s,x,y,c){g.fillStyle=c||TXT;g.font="12px system-ui,sans-serif";g.fillText(s,x,y)}
+function arrow(g,x0,y0,x1,y1,color,wd){g.strokeStyle=color;g.fillStyle=color;g.lineWidth=wd;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),h=Math.min(10,Math.hypot(x1-x0,y1-y0)*0.5);if(h<2)return;
+  g.beginPath();g.moveTo(x1,y1);g.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));g.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));g.closePath();g.fill()}
+
+/* world-to-pixel map with equal scale in x and y */
+function mapper(w,h,xr,yr,pad){const sc=Math.min((w-2*pad)/(xr[1]-xr[0]),(h-2*pad)/(yr[1]-yr[0])),ox=(w-sc*(xr[1]-xr[0]))/2,oy=(h-sc*(yr[1]-yr[0]))/2;
+  return{sc,X:x=>ox+(x-xr[0])*sc,Y:y=>h-(oy+(y-yr[0])*sc)}}
+
+/* arrows added head to tail */
+function drawChain(c,arr,keep,note){
+  const {g,w,h}=fit(c),N=arr.re.length;let x=0,y=0,mnx=0,mxx=0,mny=0,mxy=0;const pts=[[0,0]];
+  for(let i=0;i<N;i++){if(keep&&!keep[i])continue;x+=arr.re[i];y+=arr.im[i];pts.push([x,y,i]);mnx=Math.min(mnx,x);mxx=Math.max(mxx,x);mny=Math.min(mny,y);mxy=Math.max(mxy,y)}
+  const m=mapper(w,h,[mnx,mxx+1e-9],[mny,mxy+1e-9],18);
+  g.lineWidth=2.2;g.lineCap="round";
+  for(let j=1;j<pts.length;j++){const i=pts[j][2];g.strokeStyle=col(arr.ph[i]);g.beginPath();g.moveTo(m.X(pts[j-1][0]),m.Y(pts[j-1][1]));g.lineTo(m.X(pts[j][0]),m.Y(pts[j][1]));g.stroke()}
+  g.lineCap="butt";
+  arrow(g,m.X(0),m.Y(0),m.X(x),m.Y(y),"#fff",2.6);
+  label(g,"sum",(m.X(0)+m.X(x))/2+6,(m.Y(0)+m.Y(y))/2-6);
+  label(g,note||"",8,h-8,"rgba(255,255,255,.55)");
+  return{x,y}}
+/* travel time graph: L/lambda against position */
+function drawTime(c,xr,fn,lam,st,arr,keep,xstar,xrView){
+  const {g,w,h}=fit(c),px0=36,px1=w-8,py0=12,py1=h-26;let mn=1e9,mx=-1e9;const M=240,ys=[];
+  for(let j=0;j<=M;j++){const v=fn(xr[0]+(xr[1]-xr[0])*j/M)/lam;ys.push(v);mn=Math.min(mn,v);mx=Math.max(mx,v)}
+  const X=x=>px0+(x-xr[0])/(xr[1]-xr[0])*(px1-px0),Y=v=>py1-(v-mn)/(mx-mn)*(py1-py0);
+  g.strokeStyle=GRID;g.lineWidth=1;g.beginPath();g.moveTo(px0,py1);g.lineTo(px1,py1);g.moveTo(px0,py0);g.lineTo(px0,py1);g.stroke();
+  g.strokeStyle="rgba(255,255,255,.6)";g.lineWidth=1.5;g.beginPath();ys.forEach((v,j)=>{const x=X(xr[0]+(xr[1]-xr[0])*j/M);j?g.lineTo(x,Y(v)):g.moveTo(x,Y(v))});g.stroke();
+  for(let i=0;i<st.N;i++){const on=!keep||keep[i];g.fillStyle=on?col(arr.ph[i]):"rgba(120,120,120,.35)";g.beginPath();g.arc(X(st.x[i]),Y(arr.L[i]/lam),on?3:2,0,7);g.fill()}
+  g.setLineDash([4,4]);g.strokeStyle="#fff";g.beginPath();g.moveTo(X(xstar),py0);g.lineTo(X(xstar),py1);g.stroke();g.setLineDash([]);
+  label(g,"time (periods)",4,10);label(g,"position on the surface →",px0+4,h-8);
+  label(g,mn.toFixed(1),2,py1);label(g,mx.toFixed(1),2,py0+10)}
+
+/* ================= part 1 ================= */
+const S1={x:-4,y:3};let mask1=null,maskInfo=null;
+function update1(){
+  const lam=+$("l1").value,N=+$("n1").value,px=+$("p1").value,soft=$("soft").checked,k=TAU/lam,P={x:px,y:3};
+  $("l1V").textContent=lam.toFixed(2);$("n1V").textContent=N;$("p1V").textContent=px.toFixed(1);
+  if(mask1&&mask1.length!==N){mask1=null;maskInfo=null}
+  const st=makeStrips(N,-8,8,soft),arr=mirrorArrows(st,S1,P,k),keep=mask1,sm=sumArrows(arr.re,arr.im,keep),xs=mirrorStationary(S1,P),ex=statPhaseAbs2(st,S1,P,k);
+  /* geometry */
+  {const {g,w,h}=fit($("c1geo")),m=mapper(w,h,[-9,11],[-0.7,4.6],8);
+   g.strokeStyle="rgba(255,255,255,.35)";g.lineWidth=1;g.beginPath();g.moveTo(m.X(-9),m.Y(0));g.lineTo(m.X(11),m.Y(0));g.stroke();
+   for(let i=0;i<N;i++){const on=!keep||keep[i],x=st.x[i];
+     g.strokeStyle=on?col(arr.ph[i],0.55):"rgba(150,150,150,.12)";g.lineWidth=1;g.beginPath();g.moveTo(m.X(S1.x),m.Y(S1.y));g.lineTo(m.X(x),m.Y(0));g.lineTo(m.X(P.x),m.Y(P.y));g.stroke();
+     g.fillStyle=on?col(arr.ph[i],1,55):"rgba(70,70,70,1)";g.fillRect(m.X(x-st.w/2)+0.5,m.Y(0),Math.max(1,m.sc*st.w-1),5)}
+   g.strokeStyle="#fff";g.lineWidth=2.4;g.beginPath();g.moveTo(m.X(S1.x),m.Y(S1.y));g.lineTo(m.X(xs),m.Y(0));g.lineTo(m.X(P.x),m.Y(P.y));g.stroke();
+   g.fillStyle="#ffd24a";g.beginPath();g.arc(m.X(S1.x),m.Y(S1.y),6,0,7);g.fill();label(g,"S lamp",m.X(S1.x)-14,m.Y(S1.y)-10);
+   g.fillStyle="#6ee7b7";g.beginPath();g.arc(m.X(P.x),m.Y(P.y),6,0,7);g.fill();label(g,"P detector",m.X(P.x)-24,m.Y(P.y)-10);
+   label(g,"mirror: "+N+" strips",m.X(-8),m.Y(0)+22)}
+  drawTime($("c1time"),[-8,8],x=>mirrorL(x,S1,P),lam,st,arr,keep,xs);
+  drawChain($("c1chain"),arr,keep,keep?"kept strips only":"all strips");
+  /* scan along the detector line */
+  {const {g,w,h}=fit($("c1scan")),x0=-6,x1=10,M=160,a=[],b=[];let mx=0;
+   for(let j=0;j<=M;j++){const Pj={x:x0+(x1-x0)*j/M,y:3},aj=mirrorArrows(st,S1,Pj,k),sa=sumArrows(aj.re,aj.im,keep).abs2,sb=keep?sumArrows(aj.re,aj.im).abs2:0;a.push(sa);b.push(sb);mx=Math.max(mx,sa,sb)}
+   const px0=30,px1=w-8,py0=12,py1=h-26,X=x=>px0+(x-x0)/(x1-x0)*(px1-px0),Y=v=>py1-v/mx*(py1-py0);
+   g.strokeStyle=GRID;g.beginPath();g.moveTo(px0,py1);g.lineTo(px1,py1);g.stroke();
+   if(keep){g.strokeStyle="rgba(180,180,180,.5)";g.lineWidth=1.2;g.beginPath();b.forEach((v,j)=>{const x=X(x0+(x1-x0)*j/M);j?g.lineTo(x,Y(v)):g.moveTo(x,Y(v))});g.stroke()}
+   g.strokeStyle="#7fb0ff";g.lineWidth=2;g.beginPath();a.forEach((v,j)=>{const x=X(x0+(x1-x0)*j/M);j?g.lineTo(x,Y(v)):g.moveTo(x,Y(v))});g.stroke();
+   g.setLineDash([4,4]);g.strokeStyle="#6ee7b7";g.beginPath();g.moveTo(X(px),py0);g.lineTo(X(px),py1);g.stroke();
+   if(maskInfo){g.strokeStyle="#ff9d3c";g.beginPath();g.moveTo(X(maskInfo.px),py0);g.lineTo(X(maskInfo.px),py1);g.stroke()}g.setLineDash([]);
+   label(g,"|sum|²",4,10);label(g,"detector x →",px0+4,h-8);label(g,keep?"blue now · grey before":"",px0+110,h-8,"rgba(255,255,255,.55)")}
+  /* numbers */
+  $("b1a").textContent=fmt(sm.abs2,3);
+  if(keep){$("b1b").textContent="– (mirror scraped)";$("b1c").textContent="–"}
+  else{$("b1b").textContent=fmt(ex,3);$("b1c").textContent=fmt(sm.abs2/ex,4)}
+  const si=(xs-S1.x)/Math.hypot(xs-S1.x,S1.y),so=(P.x-xs)/Math.hypot(P.x-xs,P.y),L0=mirrorL(xs,S1,P);
+  const full=sumArrows(arr.re,arr.im).abs2;
+  let html=`<div><span>equal-angle point </span><b>x = ${fmt(xs,2)}</b> <span>· angle in = angle out = </span><b>${fmt(Math.asin(si)*180/Math.PI,1)}° / ${fmt(Math.asin(so)*180/Math.PI,1)}°</b></div>
+  <div><span>shortest path </span><b>${fmt(L0/lam,1)} wavelengths</b></div>`;
+  if(keep){let kept=0;for(let i=0;i<N;i++)kept+=keep[i];
+    const Pt={x:maskInfo.px,y:3},g2=gratingMeasure(st,keep,S1,Pt,maskInfo.lam,0,maskInfo.score);
+    html+=`<div><span>strips kept </span><b>${kept} of ${N}</b></div><div><span>light at P: normal mirror </span><b>${fmt(full,3)}</b> <span>→ scraped </span><b>${fmt(sm.abs2,3)}</b> <span>(× ${fmt(sm.abs2/Math.max(full,1e-12),1)})</span></div>
+    <div><span>grating check near x = ${fmt(g2.xc,1)} (target detector x = ${fmt(maskInfo.px,1)}, λ = ${fmt(maskInfo.lam,2)}): period d = </span><b>${fmt(g2.d,2)}</b> <span>· d·(sin out − sin in)/λ = m = </span><b>${fmt(g2.m,2)}</b> <span>(law: m = 1)</span></div>`}
+  $("r1").innerHTML=html}
+$("scrape").onclick=()=>{const lam=+$("l1").value,N=+$("n1").value,px=+$("p1").value,st=makeStrips(N,-8,8,$("soft").checked),arr=mirrorArrows(st,S1,{x:px,y:3},TAU/lam);
+  mask1=scrapeMask(arr);maskInfo={px,lam,score:scrapeScore(arr)};update1()};
+$("restore").onclick=()=>{mask1=null;maskInfo=null;update1()};
+["l1","n1","p1","soft"].forEach(id=>$(id).addEventListener("input",update1));
+
+/* ================= part 2 ================= */
+const S2={x:-3,y:3};
+function update2(){
+  const n=+$("n2").value,lam=+$("l2").value,px=+$("p2").value,k=TAU/lam,P={x:px,y:3};
+  $("n2V").textContent=n.toFixed(2);$("l2V").textContent=lam.toFixed(2);$("p2V").textContent=px.toFixed(1);
+  const st=makeStrips(80,-10,10,true),arr=refrArrows(st,S2,P,n,k),xs=refrLeastTime(S2,P,n),q=refrAngles(xs,S2,P),sm=sumArrows(arr.re,arr.im);
+  {const {g,w,h}=fit($("c2geo")),m=mapper(w,h,[-10,10],[-4.2,4.2],8);
+   g.fillStyle="rgba(80,140,255,.16)";g.fillRect(0,m.Y(0),w,h-m.Y(0));
+   g.strokeStyle="rgba(255,255,255,.4)";g.lineWidth=1;g.beginPath();g.moveTo(0,m.Y(0));g.lineTo(w,m.Y(0));g.stroke();
+   label(g,"air (index 1)",8,m.Y(0)-8);label(g,"glass (index n = "+n.toFixed(2)+")",8,m.Y(0)+16);
+   for(let i=0;i<st.N;i++){const x=st.x[i];g.strokeStyle=col(arr.ph[i],0.5);g.lineWidth=1;g.beginPath();g.moveTo(m.X(S2.x),m.Y(S2.y));g.lineTo(m.X(x),m.Y(0));g.lineTo(m.X(P.x),m.Y(-P.y));g.stroke();
+     g.fillStyle=col(arr.ph[i],1,55);g.fillRect(m.X(x-st.w/2)+0.5,m.Y(0)-2,Math.max(1,m.sc*st.w-1),4)}
+   g.setLineDash([3,4]);g.strokeStyle="rgba(255,255,255,.5)";g.beginPath();g.moveTo(m.X(xs),m.Y(3.8));g.lineTo(m.X(xs),m.Y(-3.8));g.stroke();g.setLineDash([]);
+   g.strokeStyle="#fff";g.lineWidth=2.6;g.beginPath();g.moveTo(m.X(S2.x),m.Y(S2.y));g.lineTo(m.X(xs),m.Y(0));g.lineTo(m.X(P.x),m.Y(-P.y));g.stroke();
+   g.fillStyle="#ffd24a";g.beginPath();g.arc(m.X(S2.x),m.Y(S2.y),6,0,7);g.fill();label(g,"S lamp",m.X(S2.x)-14,m.Y(S2.y)-10);
+   g.fillStyle="#6ee7b7";g.beginPath();g.arc(m.X(P.x),m.Y(-P.y),6,0,7);g.fill();label(g,"P detector",m.X(P.x)-24,m.Y(-P.y)+20);
+   label(g,"θ₁ = "+fmt(Math.asin(q.s1)*180/Math.PI,1)+"°",m.X(xs)-70,m.Y(1.5));label(g,"θ₂ = "+fmt(Math.asin(q.s2)*180/Math.PI,1)+"°",m.X(xs)+8,m.Y(-1.8))}
+  drawTime($("c2time"),[-10,10],x=>refrT(x,S2,P,n),lam,st,arr,null,xs);
+  drawChain($("c2chain"),arr,null,"all 80 strips");
+  $("b2a").textContent=fmt(q.ratio,6);$("b2b").textContent=fmt(n,6);$("b2c").textContent=(q.ratio-n).toExponential(1);
+  const near=new Uint8Array(st.N);for(let i=0;i<st.N;i++)near[i]=Math.abs(st.x[i]-xs)<1.5?1:0;
+  const f=sumArrows(arr.re,arr.im,near).abs2/Math.max(sm.abs2,1e-12);
+  $("r2").innerHTML=`<div><span>least-time point </span><b>x = ${fmt(xs,3)}</b></div><div><span>sin θ₁ = </span><b>${fmt(q.s1,4)}</b> <span>· sin θ₂ = </span><b>${fmt(q.s2,4)}</b></div>
+   <div><span>strips within 1.5 of that point give </span><b>${fmt(f,2)}</b> <span>× the full sum (|sum|² ratio)</span></div>`}
+["n2","l2","p2"].forEach(id=>$(id).addEventListener("input",update2));
+
+/* ================= part 3 ================= */
+function update3(){
+  const n=+$("n3").value,lam=+$("l3").value,t=+$("t3").value,r=filmR(n),d=filmDelta(n,t,lam);
+  $("t3V").textContent=t+" nm";$("l3V").textContent=lam+" nm";$("n3V").textContent=n.toFixed(2);
+  const two=filmTwoArrow(n,d),ex=filmAiry(n,d),terms=filmTerms(n,d,6),ser=filmSeries(n,d,60);
+  /* sheet */
+  {const {g,w,h}=fit($("c3sheet")),th=14+t/1500*70,y0=h*0.5-th/2,y1=y0+th,x1=w*0.30;
+   g.fillStyle="rgba(120,180,255,.28)";g.fillRect(0,y0,w,th);g.strokeStyle="rgba(255,255,255,.5)";g.lineWidth=1;g.strokeRect(0.5,y0,w-1,th);
+   const incline=0.18,xb=x1+th*0.5*0+ (y1-y0)*incline*0;
+   // rays drawn at a small angle so that they can be told apart
+   const xf=w*0.30,xbk=xf+0.0,sh=th*0.55*incline*2;
+   arrow(g,xf-60*incline,y0-70,xf,y0,"rgba(255,255,255,.85)",2);
+   arrow(g,xf,y0,xf+70*incline,y0-70,col(Math.PI+4,1,60).replace(/hsla\(\d+/,"hsla(215"),2.2);
+   g.strokeStyle="rgba(255,255,255,.5)";g.lineWidth=1.4;g.beginPath();g.moveTo(xf,y0);g.lineTo(xf+sh,y1);g.stroke();
+   arrow(g,xf+sh,y1,xf+2*sh,y0,"rgba(255,255,255,.5)",1.4);
+   arrow(g,xf+2*sh,y0,xf+2*sh+70*incline,y0-70,"hsla(30,95%,60%,1)",2.2);
+   label(g,"front: arrow −r",xf+12+70*incline,y0-52,"hsl(215,85%,70%)");label(g,"back: arrow +r, turned by 2nt",xf+2*sh+70*incline+8,y0-30,"hsl(30,95%,70%)");
+   label(g,"glass, thickness t = "+t+" nm (drawn "+(t<30?"thin":"stretched")+")",8,y1+22);
+   label(g,"drawn at an angle; maths: normal incidence",8,h-8,"rgba(255,255,255,.5)")}
+  /* arrows */
+  {const {g,w,h}=fit($("c3arrows"));let x=0,y=0,mnx=0,mxx=0,mny=0,mxy=0;const pts=[[0,0]];
+   terms.forEach(a=>{x+=a.re;y+=a.im;pts.push([x,y]);mnx=Math.min(mnx,x);mxx=Math.max(mxx,x);mny=Math.min(mny,y);mxy=Math.max(mxy,y)});
+   const pad=Math.max(mxx-mnx,mxy-mny)*0.15+1e-6,m=mapper(w,h,[mnx-pad,mxx+pad],[mny-pad,mxy+pad],14);
+   for(let j=2;j<pts.length;j++)arrow(g,m.X(pts[j-1][0]),m.Y(pts[j-1][1]),m.X(pts[j][0]),m.Y(pts[j][1]),"rgba(190,190,190,.8)",1.2);
+   arrow(g,m.X(0),m.Y(0),m.X(pts[1][0]),m.Y(pts[1][1]),"hsl(215,85%,62%)",3);
+   arrow(g,m.X(pts[1][0]),m.Y(pts[1][1]),m.X(pts[2][0]),m.Y(pts[2][1]),"hsl(30,95%,60%)",3);
+   arrow(g,m.X(0),m.Y(0),m.X(two.sum.re),m.Y(two.sum.im),"rgba(255,255,255,.55)",2);
+   g.setLineDash([4,3]);arrow(g,m.X(0),m.Y(0),m.X(ser.re),m.Y(ser.im),"#6ee7b7",1.6);g.setLineDash([]);
+   label(g,"blue: front · orange: back · white: sum of two",6,13);label(g,"green dashed: exact sum of all bounces",6,h-8,"#6ee7b7")}
+  /* curve */
+  {const {g,w,h}=fit($("c3curve")),px0=34,px1=w-8,py0=14,py1=h-28,ymax=4*r*r*1.12,M=300;
+   const X=v=>px0+v/1500*(px1-px0),Y=v=>py1-v/ymax*(py1-py0);
+   g.strokeStyle=GRID;g.lineWidth=1;g.beginPath();g.moveTo(px0,py1);g.lineTo(px1,py1);g.moveTo(px0,py0);g.lineTo(px0,py1);g.stroke();
+   for(let tt=0;tt<=1500;tt+=500){label(g,String(tt),X(tt)-(tt===1500?24:8),py1+14)}
+   const ticks=[0.05,0.1,0.15,0.2,0.3,0.4];ticks.forEach(v=>{if(v<ymax){g.strokeStyle=GRID;g.beginPath();g.moveTo(px0,Y(v));g.lineTo(px1,Y(v));g.stroke();label(g,Math.round(v*100)+"%",2,Y(v)+4)}});
+   g.setLineDash([5,4]);g.strokeStyle="hsl(40,95%,62%)";g.lineWidth=1.8;g.beginPath();
+   for(let j=0;j<=M;j++){const tt=1500*j/M,v=filmTwoArrow(n,filmDelta(n,tt,lam)).R;j?g.lineTo(X(tt),Y(v)):g.moveTo(X(tt),Y(v))}g.stroke();g.setLineDash([]);
+   g.strokeStyle="#6ee7b7";g.lineWidth=2;g.beginPath();
+   for(let j=0;j<=M;j++){const tt=1500*j/M,v=filmAiry(n,filmDelta(n,tt,lam));j?g.lineTo(X(tt),Y(v)):g.moveTo(X(tt),Y(v))}g.stroke();
+   g.fillStyle="#fff";g.beginPath();g.arc(X(t),Y(ex),5,0,7);g.fill();
+   label(g,"thickness t (nm) →",px0+60,h-4);label(g,"dashed: 2 arrows · solid: exact",px0+8,py0+10,"rgba(255,255,255,.65)")}
+  const mx2=4*r*r,mxA=4*r*r/((1+r*r)*(1+r*r));
+  $("b3a").textContent=(100*two.R).toFixed(2)+" %";$("b3b").textContent=(100*ex).toFixed(2)+" %";$("b3c").textContent=(100*mx2).toFixed(2)+" % / "+(100*mxA).toFixed(2)+" %";
+  $("r3").innerHTML=`<div><span>front arrow length r = (n−1)/(n+1) = </span><b>${fmt(r,4)}</b> <span>→ one surface alone reflects r² = </span><b>${(100*r*r).toFixed(2)} %</b></div>
+   <div><span>back arrow turn δ = 4πnt/λ = </span><b>${fmt(d/TAU,3)} turns</b></div>
+   <div><span>first maximum at t = λ/(4n) = </span><b>${fmt(lam/(4*n),1)} nm</b> <span>· period λ/(2n) = </span><b>${fmt(lam/(2*n),1)} nm</b></div>
+   <div><span>exact (closed form) − sum of 60 bounces = </span><b>${(ex-ser.R).toExponential(1)}</b></div>`}
+["t3","l3","n3"].forEach(id=>$(id).addEventListener("input",update3));
+
+function all(){update1();update2();update3()}
+let rt=0;window.addEventListener("resize",()=>{cancelAnimationFrame(rt);rt=requestAnimationFrame(all)});
+all();
+</script>
+</body>
+</html>

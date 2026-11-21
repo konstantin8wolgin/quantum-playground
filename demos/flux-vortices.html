@@ -49,6 +49,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -56,6 +77,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Vortices That Trap Flux</h1>
 <p class="sub">A superconductor pushes magnetic field out. But in a tiny whirl of the quantum phase, a thin tube of field gets trapped. The tube holds exactly one packet of flux, never a fraction. Switch off the gauge field and the same whirl costs more and more energy.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Watch the big number at the top, "Φ/2π", while the picture relaxes. It climbs and stops at a whole number (1 for the start setting). The orange spot on the right is the trapped magnetic flux.</li>
+<li>Press <i>Gauge field: on</i> to turn the gauge field off. The orange energy curve is replaced by a blue one that never stops climbing. Press the button again to switch it back on.</li>
+<li>Press <i>Two vortices, type II</i> and then <i>Two vortices, type I</i>. Watch the distance between them (bottom right plot). Change <i>winding n</i> to 2 or −1 to see other whole numbers.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <div class="big" id="big"></div>
@@ -119,6 +148,80 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p><b>Edges.</b> The grid has open edges. A vortex near an edge is pulled out, as the field can leave there. The centred vortex is safe, because the edge is many λ<sub>L</sub> away. If you make e small, λ<sub>L</sub> grows and the edge matters. The page warns you. A vortex with |n| &gt; 1 at κ &lt; 1 is unstable in principle: it wants to split into n vortices. The round-off breaks the symmetry only slowly, so it holds for a while.</p>
 <p><b>Link to the other rooms.</b> The phase on a link is the same U(1) phase as in the Aharonov–Bohm room and in Phases Around a Loop. There the flux inside a loop was a phase around it. Here the loop is the edge of the grid. The vortex is the Broken Symmetry vortex, now with its energy cured by a gauge field.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>A <a class="term" href="../glossary.html#superconductor">superconductor</a> pushes a magnetic field out of itself. But the field can sneak in through thin tubes. Inside each tube, the material is not superconducting any more, and the quantum phase of the material turns once around the tube. This is a <a class="term" href="../glossary.html#vortex">vortex</a>. Each tube carries exactly one packet of magnetic <a class="term" href="../glossary.html#flux">flux</a>. It never carries half a packet or 1.3 packets. The packet is called the <a class="term" href="../glossary.html#flux-quantum">flux quantum</a>.</p>
+<p>Why is the number whole? The phase of the material is an angle. Going once around the tube, an angle can only turn a whole number of times. Far from the tube, the gauge field follows the turning phase. So the flux inside the tube is fixed by this whole number. You can see it in the big readout: it settles at n, to better than one part in a thousand.</p>
+<p>Now the contrast. Switch the gauge field (the magnetic field) off. The same whirl of phase is still there, but nothing cancels its energy. The energy keeps growing with the size of the picture. With the gauge field, the energy stops growing. This is the idea behind the <a class="term" href="../glossary.html#higgs">Higgs mechanism</a>: a gauge field that meets a condensate gets a short range.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Big number "Φ/2π"</dt><dd>The total magnetic flux in the picture, divided by 2π. Next to it, n: how many times the phase of φ turns around the outer edge. When the two agree to 10⁻³ and the picture has settled, a green tick appears.</dd>
+<dt>Left picture: the matter field φ</dt><dd>One complex number φ at each of 96 × 96 sites. Brightness is the size |φ| (full brightness is the normal value 1). Colour is the phase, with the same colour wheel as the room <a href="xy-vortices.html">Broken Symmetry</a>: red → yellow → green → cyan → blue → magenta → red. The dark spot in the middle is the vortex core, where φ must be zero. The colours change if you change the gauge choice. The brightness does not.</dd>
+<dt>Right picture: the flux</dt><dd>The magnetic flux through each small square of four sites. Orange means positive and blue means negative. Brighter means more. The brightness scale grows with the largest value seen in this run, so the number "brightest square" in the corner is the scale. With the gauge field off, the picture is black: there is no flux.</dd>
+<dt>Energy plot (left, below)</dt><dd>The energy that sits inside a circle of radius r around the vortex, against r. Orange: gauge field on. Blue: gauge field off. The curve you are not running stays as a dotted "ghost". Teal dashed line: the exact lower limit 2π|n|.</dd>
+<dt>Relaxation plot (right, below), one vortex</dt><dd>Blue: the flux Φ/2π. Orange: the energy divided by 2π|n|. Teal dashed line: the value 1. The horizontal axis is the time of a gradient flow, which is a cartoon. For |n| &gt; 1 the blue line goes to |n|, so read the big number for the exact result.</dd>
+<dt>Plot for two vortices</dt><dd>The orange curve is the distance between the two vortices, in sites. The white dashed line is the starting distance. If the curve goes up, they repel. If it goes down, they attract.</dd>
+<dt>Lines of numbers</dt><dd>The energy in its three parts, the energy per vortex compared with 2π, the slope of the energy against ln r, the coupling constants and lengths, and a status line (it warns you if the grid is too coarse).</dd>
+</dl>
+<p><b>The controls.</b> <i>winding n</i> is the number of turns of the phase at the start (negative means turning the other way). <i>gauge coupling e</i> sets how strong the gauge field is. <i>κ</i> is the ratio of two masses: the Higgs and the photon. The slider has a mark at κ = 1. <i>speed</i> is the number of relaxation steps per frame. <i>A click adds</i>: a click on either picture imprints one more vortex or anti-vortex there.</p>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Set n = 2 and press Restart. Watch Φ/2π. <details><summary>What happens and why</summary>The flux grows from zero and settles at 2.000. At the start there is no gauge field, so the phase gradient costs a lot of energy. The gauge field grows until it follows the phase, and the cost goes away far from the core. The flux then equals the winding of the phase at the edge, which is a whole number: 2. Try n = −1: the flux is negative (blue).</details></li>
+<li>Press "Gauge field: on" to turn it off. Will the energy curve level off, or keep rising? <details><summary>What happens and why</summary>It keeps rising, like a logarithm: the blue curve has a constant slope against ln r. The slope is 2πn², and the readout shows it. Nothing can cancel the gradient of the phase, so each ring of radius r costs the same extra energy. Turn the gauge field on again. The orange curve flattens out after about one screening length.</details></li>
+<li>Press the two type II vortices (a heavy Higgs, κ = 2). Which pair moves apart? <details><summary>What happens and why</summary>For κ &gt; 1 (type II), the two vortices push apart: the orange distance curve goes up slowly. The magnetic part of the force repels and reaches farther than the Higgs part. The motion is slow, and it looks like sliding in honey, because the program only runs downhill.</details></li>
+<li>Press the two type I vortices (a light Higgs, κ = 0.5). Which pair moves together? <details><summary>What happens and why</summary>For κ &lt; 1 (type I) they attract, and the distance goes down. The Higgs part of the force attracts and reaches farther. One big vortex costs less than two small ones, so they merge. The readout may say "merged".</details></li>
+<li>Set κ = 1 and add two vortices with clicks. <details><summary>What happens and why</summary>At the special value κ = 1 the two forces cancel. Every vortex costs the same energy, 2π, wherever it is. There is no force. On this grid the cancellation is only close, not exact.</details></li>
+<li>Make e small (0.1). <details><summary>What happens and why</summary>The screening length 1/(√2 e) grows. The flux tube becomes wide, and the open edge of the grid comes close. The status line warns you that flux may leak out. Then the flux may no longer equal n.</details></li>
+<li>Click on a picture with "an anti-vortex (−1)" selected. <details><summary>What happens and why</summary>You add a winding −1 near the click. The flux map then shows blue next to orange. The flux of the two cancels in the sum. Compare the total flux with the winding at the edge.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>The matter field φ is the same complex field as in the Mexican hat of the room <a href="xy-vortices.html">Broken Symmetry</a>. It sits in the valley, with |φ| = 1, and has a phase. In a superconductor, φ describes the pairs of electrons that move together.</p>
+<p>The gauge field A is the vector potential of electromagnetism. On a grid it lives on the links between sites, as a phase. The phase around a small square is the magnetic flux F through it. The theory has a <a class="term" href="../glossary.html#gauge-symmetry">gauge symmetry</a>: you may turn φ by a different phase at every site, if you shift the links to match. The energy does not change, so the colours of φ have no meaning on their own. Only |φ| and F are physical.</p>
+<p>Outside the core, the gauge field cancels the phase gradient. Then the matter field has no energy there, and the magnetic field must go to zero too. The magnetic field decays over the screening length. This is the <a class="term" href="../glossary.html#higgs">Higgs mechanism</a>: the photon gets a mass, and its field cannot reach far. The Goldstone mode of the room <a href="xy-vortices.html">Broken Symmetry</a> does not appear as a separate particle: it is eaten by the gauge field. The radial mode of φ stays: this is the true Higgs particle of this model.</p>
+<p>The flux tube was first found by Abrikosov for superconductors, and by Nielsen and Olesen for the relativistic field theory. The tube is a model for the "strings" of other theories. The link to a loop of phase is the one of the room <a href="aharonov-bohm.html">A Phase Without a Force</a>: the phase around a loop equals the flux inside.</p>
+<p>In a real superconductor the charge carriers are pairs of electrons with charge 2e, so the flux quantum is h/(2e). This room uses units where the quantum is 2π.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">E = Σ<sub>links</sub> |φ<sub>x+μ</sub> − e<sup>iA</sup> φ<sub>x</sub>|² + Σ<sub>squares</sub> F²/(2e²) + Σ<sub>sites</sub> (λ/4)(|φ|² − 1)²</span>
+<span>The energy. The three terms: the matter gradient, the magnetic field energy, and the Mexican hat. The vacuum value is v = 1.</span>
+<span class="eq">φ → e<sup>iα(x)</sup> φ, &nbsp; A<sub>x→x+μ</sub> → A<sub>x→x+μ</sub> + α(x+μ) − α(x)</span>
+<span>The gauge transformation. The first term and F do not change. This is why the phase colours are not physical.</span>
+<span class="eq">Φ = Σ<sub>squares</sub> F = Σ<sub>edge links</sub> A</span>
+<span>The flux through all squares equals the sum of A around the outer edge. The inner links cancel in pairs. This is exact on the grid.</span>
+<span class="eq">far away: &nbsp; e<sup>iA</sup> φ<sub>x</sub> ≈ φ<sub>x+μ</sub> &nbsp; ⇒ &nbsp; Σ<sub>edge</sub> A ≈ 2π n &nbsp; ⇒ &nbsp; Φ/2π = n</span>
+<span>Far from the core the gradient energy is zero, so A follows the phase of φ. The phase turns n times around the edge. The leftover is about e<sup>−R/λ<sub>L</sub></sup>.</span>
+<span class="eq">global vortex (no A): &nbsp; |∇θ|² = n²/r² &nbsp; ⇒ &nbsp; E(R) ≈ 2π n² ln(R/ξ)</span>
+<span>The energy in a ring of radius r and width dr is 2π r dr · n²/r², so it grows as ln R without limit. The slope against ln R is 2πn².</span>
+<span class="eq">E = ∫ |(D<sub>x</sub> ± iD<sub>y</sub>)φ|² + (1/2e²)(F ∓ e²(1−|φ|²))² ± Φ &nbsp; (λ = 2e²)</span>
+<span>Bogomolny's trick: write E as squares plus a boundary term. The squares are never negative.</span>
+<span class="eq">E ≥ 2π|n| &nbsp; (equality for κ = 1)</span>
+<span>The least energy of a vortex with winding n. At κ = 1 the squares can be zero, so each vortex costs exactly 2π, wherever it sits.</span>
+<span class="eq">λ<sub>L</sub> = 1/(√2 e), &nbsp; ξ<sub>H</sub> = 1/√λ, &nbsp; κ = √(λ/2)/e = λ<sub>L</sub>/ξ<sub>H</sub> = m<sub>H</sub>/m<sub>A</sub></span>
+<span>The screening length of the gauge field and the length of the Higgs field. Their ratio is κ. In the code λ = 2κ²e².</span>
+<span class="eq">κ &gt; 1: repel (type II) &nbsp; κ &lt; 1: attract (type I) &nbsp; κ = 1: no force</span>
+<span>The photon part of the force repels with range 1/m<sub>A</sub>. The Higgs part attracts with range 1/m<sub>H</sub>. The longer-ranged part wins.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">This is a classical field on a 96 × 96 grid with open edges, relaxed downhill. It shows the energy and the shapes of the field. It is not a real superconductor and it is not a quantum calculation. The time axis is a cartoon: the vortices slide with friction. Close to the edge, flux can leak out. The flux Φ/2π = n holds on the grid up to the small screening leftover. The bound E ≥ 2π|n| is exact in the continuum. At κ = 1 the grid gives a value that is close to 2π but not equal, because the core is only a few sites wide. A vortex with |n| &gt; 1 at κ &lt; 1 would split into n vortices, but the round-off holds it together for a while. The non-compact form of F is used (no cosines), which differs from the usual lattice gauge theory.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>A. A. Abrikosov, "On the magnetic properties of superconductors of the second group", Sov. Phys. JETP 5, 1174 (1957).</li>
+<li>H. B. Nielsen and P. Olesen, "Vortex-line models for dual strings", Nucl. Phys. B 61, 45 (1973).</li>
+<li>A. Zee, <i>Quantum Field Theory in a Nutshell</i>, the chapters on the Higgs mechanism and on superconductivity.</li>
+<li>D. Tong, lecture notes on gauge theory and on quantum field theory (free on the web).</li>
+<li>Next room: <a href="string-breaking.html">Pull Two Charges Apart</a> shows another flux tube, between two charges in a confining theory.</li>
+</ul>
 </section>
 </main>
 
@@ -326,7 +429,7 @@ function drawTrace(){
   const P=plotFrame(g,w,h,tmax,ymax,"relaxation time (cartoon)","ratio",[0,tmax/2,tmax],[0,1,2,3,4,5,6].filter(v=>v<=ymax));
   g.setLineDash([5,4]);g.strokeStyle="#5eead4";g.lineWidth=1.5;g.beginPath();g.moveTo(P.Lm,P.Y(1));g.lineTo(P.Rm,P.Y(1));g.stroke();g.setLineDash([]);
   g.lineWidth=2;
-  g.strokeStyle="#93c5fd";g.beginPath();hist.forEach((q,i)=>{const x=P.X(q[0]),y=P.Y(Math.min(ymax,q[1]*Math.sign(wind.n||1)/1));i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();
+  g.strokeStyle="#93c5fd";g.beginPath();hist.forEach((q,i)=>{const x=P.X(q[0]),y=P.Y(Math.min(ymax,q[1]*Math.sign(wind.n||1)/nAbs));i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();
   g.strokeStyle="#ffaa3c";g.beginPath();hist.forEach((q,i)=>{const x=P.X(q[0]),y=P.Y(Math.min(ymax,q[2]/bpsE));i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();
   g.textAlign="right";g.fillStyle="#93c5fd";g.fillText("Φ/(2π n)",P.Rm-4,P.Tm+12);g.fillStyle="#ffaa3c";g.fillText("E / (2π|n|)",P.Rm-4,P.Tm+26);g.fillStyle="#5eead4";g.fillText("exact: 1",P.Rm-4,P.Tm+40);g.textAlign="start"}
 

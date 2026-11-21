@@ -37,6 +37,9 @@ that give intuition for:
    instantons with Metropolis (local, block and kink-pair moves), ΔE from the
    correlator vs exact diagonalisation.
 
+Every room: a "How to use this room" box (3 steps) at the top, and a guide at the bottom with the fixed headings In one minute / What you see / Things to try (with hidden answers) / The physics / The math / Honest limits / Go further, styled by `notes/guide-template.css`. Technical words link to `glossary.html#id`.
+6. Feynman. "Light takes every path": arrows for light on a mirror, a grating made by scraping the mirror, Snell's law by stationary phase, thin-film reflection (two arrows vs the exact Airy result). "Feynman diagrams from a path integral": Z(g) = ∫dφ e^(−φ²/2 − gφ⁴/4!), Wick pairings as diagrams with symmetry factors, the divergent asymptotic series vs the exact integral, ln Z = connected diagrams, QED cartoons.
+
 Landing page `index.html`: the story "nature adds up phases" and one card per room.
 
 Rules: label every panel as exact, simulation, interpretation or cartoon; sliders for the physics parameters (ħ, constant force, β, potential, flux, temperature); every demo

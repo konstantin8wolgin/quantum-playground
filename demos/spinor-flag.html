@@ -43,6 +43,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -50,6 +71,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>The Spinor Flag</h1>
 <p class="sub">Turn an electron once around (360°). It is not back where it started. Turn it twice (720°), and it is. Here are four views of the same turn.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Press <i>Play 0 → 720°</i>. Watch all four pictures at once. Look for what is the same at 360° and what is not.</li>
+<li>Press <i>360°</i>. Drag the <i>untangle the belt</i> slider. A message tells you if the box had to move. Then press <i>720°</i> and drag it again.</li>
+<li>Drag with the mouse on the belt or on the sphere to look from another side. Move the <i>turn of the box θ</i> slider by hand to stop at any angle.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h3>1 · The belt <span class="chip c-exact">exact</span></h3>
@@ -79,6 +108,89 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p>The flag follows Penrose: the pole is <span class="eq">ψ†σψ</span>, the flag is the real part of <span class="eq">ψᵀ(iσ<sub>y</sub>)σψ</span>. A phase <span class="eq">e<sup>iχ</sup></span> turns the flag by 2χ, so the sign −1 turns it by 360° and is invisible.</p>
 <p>Interference: the output brightness is <span class="eq">I = (1 + Re⟨ψ|U|ψ⟩)/2 = (1 + cos(θ/2))/2</span>. Neutron experiments in 1975 (Rauch et al.; Werner et al.) saw this 720° period.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Turn a ball by 360° (one full turn) and it is back where it started. An electron is different. Its quantum state is multiplied by −1 after one full turn. Only after 720° (two full turns) is the state the same as before.</p>
+<p>You cannot see a minus sign on a single electron, because the probabilities do not change. But you can see it if you split a beam of electrons (or neutrons), turn the <a class="term" href="../glossary.html#spin">spin</a> in one arm only, and join the beams again. The two arms then add up or cancel. The picture repeats after 720°, not after 360°. Physicists did this with neutrons in 1975.</p>
+<p>The belt is an ordinary-object picture of the same fact. A belt from a wall to a box, with the box turned by one full turn, has a twist you cannot remove without moving the box. With two full turns, you can remove the twist. The four panels show this from four sides.</p>
+
+<h3>What you see</h3>
+<p><b>Panel 1: the belt</b></p>
+<dl>
+<dt>Dark square at the left</dt><dd>The wall. The belt is fixed to it. It does not turn.</dd>
+<dt>Row of small plates</dt><dd>The belt: 37 plates. The first plate (at the wall) has no turn. The last plate (at the box) has the full turn θ. Each plate in between shows the rotation on the way from 0 to θ. An orange plate shows its front side, a blue plate its back side. (The legend is at the top right.)</dd>
+<dt>Coloured box</dt><dd>The box at the end of the belt. Its six faces have six colours, so you can see how it is turned. It always has the same orientation as the last plate.</dd>
+<dt>Buttons and sliders</dt><dd><i>Play</i> turns the box from 0° to 720° in about 8 seconds. <i>Turn of the box θ</i> sets the angle. <i>Untangle</i> deforms the belt in the middle while the end points are supposed to stay fixed.</dd>
+<dt>Message and bottom line</dt><dd>The message tells you if the box had to move. The line of numbers shows the overlap of the start and end states, the brightness of the interferometer at 360° and 720°, and how far the box is from its start orientation.</dd>
+</dl>
+<p><b>Panel 2: spin and its flag</b></p>
+<dl>
+<dt>Three grey circles</dt><dd>A sphere, drawn by its three great circles (the Bloch sphere). The letters x, y, z mark the axes.</dd>
+<dt>White line with a dot</dt><dd>The spin direction (the "pole"). It starts along +y and turns about the x axis.</dd>
+<dt>Orange curve</dt><dd>The path that the tip of the spin has taken so far.</dd>
+<dt>Red triangle</dt><dd>The "flag" fixed to the pole. It shows the phase of the state. The flag also turns, but it cannot show a minus sign.</dd>
+</dl>
+<p><b>Panel 3: two arrows</b></p>
+<dl>
+<dt>Two circles</dt><dd>The state of a spin-½ particle is two complex numbers: a "spin-up part" and a "spin-down part". Each is drawn as an arrow in a circle.</dd>
+<dt>Orange arrow and dashed arrow</dt><dd>The orange arrow is the value now. The faint dashed arrow is the value at the start. At 360° the orange arrow points exactly opposite to the dashed one. At 720° they agree again.</dd>
+<dt>Small circle at the bottom, "SU(2)"</dt><dd>The blue arc and the white dot show the rotation as a point on a circle. It starts at +1 at the top. The dot moves only half as fast as the box: at 360° it is at −1 (bottom), and at 720° it has gone once round.</dd>
+</dl>
+<p><b>Panel 4: interference</b></p>
+<dl>
+<dt>Horizontal axis</dt><dd>The turn of the spin in one arm of the interferometer, from 0° to 720°.</dd>
+<dt>Vertical axis</dt><dd>The brightness of the output beam, from 0 (dark) to 1 (full).</dd>
+<dt>Orange curve</dt><dd>The quantum result: bright at 0°, dark at 360°, bright again at 720°.</dd>
+<dt>Grey dashed curve</dt><dd>What an ordinary object would give. It repeats every 360°.</dd>
+<dt>White dot</dt><dd>The angle that you have set now.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Set 360° and move <i>untangle</i>. Can the belt get flat while the box stays still? Then try 720°. <details><summary>What happens and why</summary>At 360° it cannot. While you drag the slider, the red message shows that the box has to turn away from its start orientation (by up to 180° in the middle of the slider). That is not allowed: the box must stay still. At 720° the box never moves for any setting of the slider, and the belt becomes flat. So one full turn leaves a twist that you cannot remove. Two full turns do not. A path of rotations that goes once round cannot be shrunk to nothing. A path that goes twice round can.</details></li>
+<li>Press Play and watch panels 2 and 3 together. <details><summary>What happens and why</summary>At 360° the spin and the flag in panel 2 are back at their start. But the two arrows in panel 3 point the other way, and the circle in the bottom has the dot at −1. The pole and the flag cannot see the minus sign. The state does. At 720° everything is back.</details></li>
+<li>Set 180° and then 360° in panel 4. <details><summary>What happens and why</summary>At 180° the brightness is 0.5. At 360° it is 0. A neutron whose spin is turned by 360° in one arm cancels the beam of the other arm. A normal object would give full brightness at 360°. This is the experiment: the sign −1 is real, because it is a relative sign between two arms.</details></li>
+<li>Drag the mouse on the belt. <details><summary>What happens and why</summary>You see the belt from other sides. The orange and blue plates show how each plate is turned. The twist is a property of the whole belt. It does not depend on the view.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>An electron has <a class="term" href="../glossary.html#spin">spin</a> ½. Its state is a <a class="term" href="../glossary.html#spinor">spinor</a>: two complex numbers. A rotation acts on a spinor with a 2 × 2 matrix. The set of these matrices is the <a class="term" href="../glossary.html#lie-group">Lie group</a> <a class="term" href="../glossary.html#su2">SU(2)</a>. It is a three-dimensional sphere. Every ordinary rotation in space is covered <i>twice</i> by SU(2): the matrices U and −U give the same rotation. A path from +1 to −1 in SU(2) is a closed path of ordinary rotations (one full turn) but not a closed path of matrices.</p>
+<p>The direction of the spin is a point on a sphere, the <a class="term" href="../glossary.html#bloch-sphere">Bloch sphere</a>. It comes back after 360°. The spinor itself does not. A global sign changes no probability, so one electron alone cannot show it. Only a comparison with a part that was not turned can. That is what the interferometer does. The same idea is behind the fact that particles with half-integer spin (fermions) behave differently from particles with integer spin.</p>
+<p>The same kind of group appears in particle physics: SU(2) in the weak force (a different symmetry, not a turn of space) and SU(3) in the strong force. The room <a href="su3-colours.html">Three Colours</a> shows what SU(3) does. The room <a href="order-matters.html">Order Matters</a> shows another feature of spin: rotations about different axes do not commute.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">U(n, θ) = e<sup>−iθ n·σ/2</sup> = cos(θ/2) · 1 − i sin(θ/2) · (n·σ)</span>
+<span>The rotation of a spin-½ state by angle θ about the axis n. The σ are the three 2 × 2 Pauli matrices. The half angle is the key.</span>
+<span class="eq">U(n, 2π) = −1, &nbsp; U(n, 4π) = +1</span>
+<span>One full turn gives −1. Two full turns give +1.</span>
+<span class="eq">ψ = (a, b), &nbsp; s = ψ†σψ = (2 Re a*b, &nbsp;2 Im a*b, &nbsp;|a|² − |b|²)</span>
+<span>The direction of the spin (the pole). Replace ψ by −ψ and s does not change, because the minus sign cancels.</span>
+<span class="eq">ψ(θ) = U(x, θ) ψ(0)</span>
+<span>In the room, the start state points along +y, and the turn is about the x axis. The pole then goes round a circle in the y–z plane.</span>
+<span class="eq">I(θ) = ½ (1 + Re⟨ψ|U|ψ⟩) = ½ (1 + cos(θ/2))</span>
+<span>The brightness of the interferometer. The beams add as ½(ψ + Uψ), and I is its squared length. The result has period 720°, not 360°.</span>
+<span class="eq">R(s, u) = rot(x, θs/2) · rot(b(u), θs/2), &nbsp; b(u) = (cos πu, sin πu, 0)</span>
+<span>The belt in the room: s runs from 0 (wall) to 1 (box) and u is the untangle slider. The axis b swings from +x to −x. At θ = 720° the end s = 1 stays at the identity for every u. At θ = 360° the end moves, and so it is not allowed.</span>
+<span class="eq">SU(2) → SO(3), &nbsp; 2 to 1; &nbsp; π<sub>1</sub>(SO(3)) = ℤ<sub>2</sub></span>
+<span>The topology behind the belt. A loop of rotations that goes once round cannot be shrunk. Going twice round can.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">All four panels use one idealised spin-½ state, with no noise and no environment. The belt is a way to draw a path of rotations. It is not a real belt with thickness and friction. The "flag" follows Penrose's picture and is a visual aid. The interferometer is an ideal one: a real neutron experiment (Rauch et al., Werner et al., 1975) turns the spin in a magnetic field and sees the same 720° period, but with imperfect contrast. The "untangle" slider is a demonstration of why the twist stays at 360°. It is not a proof. The proof is the topology in the last formula. At 360° and slider 1, the belt looks flat and the box is back at its start; but the box had to swing away for the settings in between.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman, R. B. Leighton and M. Sands, <i>The Feynman Lectures on Physics</i>, Vol. III, chapter 6 "Spin one-half" (free online at feynmanlectures.caltech.edu).</li>
+<li>R. Penrose, <i>The Road to Reality</i> (2004), chapter 11 "Hypercomplex numbers" (quaternions and rotations) and the later chapters on spinors (the flag picture).</li>
+<li>H. Rauch et al., "Verification of coherent spinor rotation of fermions", Physics Letters A 54, 425 (1975); S. A. Werner, R. Colella, A. W. Overhauser and C. F. Eagen, "Observation of the phase shift of a neutron due to precession in a magnetic field", Physical Review Letters 35, 1053 (1975).</li>
+<li>Next room: <a href="su3-colours.html">Three Colours</a> shows what the bigger group SU(3) does to the colour of a quark.</li>
+</ul>
 </section>
 </main>
 
@@ -229,6 +341,7 @@ function render(){
     if(moved>1)msg=`<span class="warn">The box had to turn by ${moved.toFixed(0)}° to untangle. Not allowed.</span>`;
     else if(near(thd,720))msg=u>0.995?"Flat belt, and the box never moved: two full turns count as no turn.":"The box stays still while the belt untangles.";
     else if(near(thd,0))msg="No turn, nothing to untangle.";
+    else if(near(thd,360))msg=u<0.995?"Keep moving the slider and watch the box.":`<span class="warn">The belt is flat now, but on the way the box had to turn (by up to 180° in the middle of the slider). With one full turn you cannot untangle the belt and keep the box still.</span>`;
     else msg="";
   } else if(near(thd,360))msg="One full turn. The box looks the same, but the belt has a twist. Try to untangle it.";
   else if(near(thd,720))msg="Two full turns. Now move the untangle slider.";

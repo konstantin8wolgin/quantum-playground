@@ -40,8 +40,29 @@ select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px soli
 .read span{color:var(--muted)}
 .read b{font-variant-numeric:tabular-nums}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
-.try{border-left:3px solid var(--accent);padding:4px 12px;margin-top:12px;font-size:14px}
-.try li{margin:2px 0}
+div.try{border-left:3px solid var(--accent);padding:4px 12px;margin-top:12px;font-size:14px}
+div.try li{margin:2px 0}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -50,18 +71,26 @@ select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px soli
 <h1>Path Integral Playground</h1>
 <p class="sub">A particle goes from A to B. Quantum mechanics adds up <i>every</i> path. Two views: real time (arrows that cancel) and imaginary time (a random walk you can sample).</p>
 
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>In part 1, move the <i>ħ</i> slider to the left. The pale band of surviving paths gets thin around the dashed line. Move it back to the right and the band grows.</li>
+<li>Move the <i>highlight one path</i> slider. The big dot walks along the spiral on the right. Paths in the middle make the spiral grow. Paths far away curl up and cancel.</li>
+<li>In part 2, choose the <i>double well</i> and wait. The bold loop jumps between two valleys. The blue bars slowly grow towards the black curve.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
 <section id="s1">
 <h2>1 · Real time: every path is an arrow</h2>
 <p>Each path gets an arrow of length 1 that turns by the angle <span class="eq">S/ħ</span>, where <span class="eq">S</span> is the action of the path. The amplitude is the sum of all arrows. A particle feels a constant force F (for example a charge in an electric field). It starts at A and arrives at B after time T = 1.</p>
 <div class="row">
   <div><canvas id="paths" height="360"></canvas>
-  <div class="cap">Paths, colored by phase relative to the classical path (dashed). The band shows paths whose phase is within π of the classical phase.</div></div>
+  <div class="cap">Paths, colored by phase relative to the classical path (dashed). The band shows the paths whose arrow points within half a turn (π) of the best arch. The best arch is close to, but not exactly on, the dashed classical path, because all paths here are arches of one shape.</div></div>
   <div><canvas id="spiral" height="360"></canvas>
   <div class="cap">Arrows added head to tail, in order of path height. The bold line is the total.</div></div>
 </div>
 <div class="controls">
   <label>ħ (quantumness) <b id="hbarV"></b><input id="hbar" type="range" min="-1.3" max="0.5" step="0.01" value="-0.5"></label>
-  <label>constant force F (like an electric field) <b id="gV"></b><input id="g" type="range" min="0" max="15" step="0.1" value="9.8"></label>
+  <label>constant force F, pulling down (like gravity or an electric field) <b id="gV"></b><input id="g" type="range" min="0" max="15" step="0.1" value="9.8"></label>
   <label>roughness of paths <b id="rV"></b><input id="rough" type="range" min="0" max="1" step="0.01" value="0"></label>
   <label>highlight one path <b id="hiV"></b><input id="hi" type="range" min="0" max="1200" step="1" value="600"></label>
 </div>
@@ -80,7 +109,7 @@ select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px soli
   <div><canvas id="loop" height="340"></canvas>
   <div class="cap">The current sampled path x(τ). Faint lines are earlier samples.</div></div>
   <div><canvas id="hist" height="340"></canvas>
-  <div class="cap">Bars: where the path spends time. Line: exact answer |ψ|² (transfer matrix). Gray: the potential V(x).</div></div>
+  <div class="cap">Bars: where the path spends time. Line: exact answer (transfer matrix): the probability density for this β. For large β it is |ψ|² of the ground state. Gray: the potential V(x).</div></div>
 </div>
 <div class="controls">
   <label>potential <select id="pot"><option value="ho">harmonic (spring)</option><option value="dw">double well</option></select></label>
@@ -95,6 +124,90 @@ select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px soli
   <li>Double well with ħ = 0.2: the line shows two peaks, but the bars show one. The sampler is stuck, because a jump is too rare. This is a real problem of the method.</li>
   <li>Make β small (hot). The loop gets short and the quantum spread turns into thermal spread.</li>
 </ul></div>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>A ball goes from A to B. In everyday life it takes one path. In quantum mechanics, a particle takes <i>every</i> path. Each path gets a small arrow (an <a class="term" href="../glossary.html#amplitude">amplitude</a>). The arrow turns by an angle that depends on the path. You add all the arrows head to tail. The squared length of the total gives the <a class="term" href="../glossary.html#probability">probability</a>.</p>
+<p>Almost all paths cancel each other, because their arrows point in all directions. Only the paths close to the classical one add up. This is why a big object seems to follow one path. Part 1 of this room lets you see this cancellation, and shows what happens when you make the world "less quantum".</p>
+<p>Part 2 uses a trick: it runs time in an imaginary direction. The turning arrows become plain positive weights. Now a computer can pick random paths with the right weights, and count. This finds the lowest energy state and also shows quantum tunnelling.</p>
+
+<h3>What you see</h3>
+<p><b>Part 1: real time</b></p>
+<dl>
+<dt>Thin coloured lines (left)</dt><dd>Paths from A (left dot) to B (right dot). Time runs to the right and position goes up. Every path is a smooth arch of height <i>a</i> (the highest point), plus extra wiggles if you raise "roughness". The picture draws about 300 of the 1201 paths in the sum.</dd>
+<dt>Colour of a path</dt><dd>The <a class="term" href="../glossary.html#phase">phase</a> of its arrow, compared with the classical path: red means the same phase. The colour then cycles red, yellow, green, cyan, blue, magenta, red for each full turn of the arrow.</dd>
+<dt>Dashed line</dt><dd>The classical path. A constant force pulls the particle down, like gravity. So the classical path is a thrown ball: it goes up and comes down again by time T = 1.</dd>
+<dt>Pale blue band</dt><dd>The paths whose arrow is less than half a turn (π) away from the best arch. These paths add up. Outside the band they cancel.</dd>
+<dt>Thick coloured path</dt><dd>The path you choose with the highlight slider.</dd>
+<dt>Spiral (right)</dt><dd>The arrows of all paths, laid head to tail in order of arch height <i>a</i>, from low to high. Each piece has the colour of its path. The bold black arrow is the sum of all arrows. The coloured dot marks the highlighted path.</dd>
+<dt>Numbers below</dt><dd>The height of the best arch, the width of the band, the length of the total arrow, and the height and phase of the highlighted path (in units of π).</dd>
+</dl>
+<p><b>Part 2: imaginary time</b></p>
+<dl>
+<dt>Bold line (left)</dt><dd>One sampled path x(τ). The horizontal axis is imaginary time τ, from 0 to β. The path is a closed loop: its end joins its start.</dd>
+<dt>Faint blue lines</dt><dd>The last eight earlier samples. They show how much the path moves from step to step.</dd>
+<dt>Blue bars (right)</dt><dd>How often the sampled path visits each height x. The bars start after 150 warm-up sweeps and keep growing.</dd>
+<dt>Black curve</dt><dd>The exact answer from a different method (a matrix calculation). For a long loop (large β) it equals |ψ|² of the <a class="term" href="../glossary.html#ground-state">ground state</a>.</dd>
+<dt>Grey curve</dt><dd>The potential V(x): a bowl (spring) or two valleys (double well).</dd>
+<dt>Numbers below</dt><dd>The number of sweeps, the average of x² from the random paths and from the exact method, and (double well only) how many jumps between the valleys you have seen.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: move <i>ħ</i> to the left. <details><summary>What happens and why</summary>The pale band gets thin and only paths very close to the dashed line survive. The arrow turns by S/ħ. A smaller ħ means that a small change of the path gives a large change of phase, so neighbouring paths cancel quickly. The band width goes like √ħ. In the limit of small ħ, only the classical path is left. This is how classical physics comes out of quantum physics (the <a class="term" href="../glossary.html#classical-limit">classical limit</a>).</details></li>
+<li>Part 1: move the highlight slider to the end. <details><summary>What happens and why</summary>The dot sits in a tight curl of the spiral. The phase changes with the square of the height <i>a</i>. Far from the best arch the arrows turn faster and faster, so they go round in small circles and add almost nothing. Near the middle the arrows turn slowly and add up in a nearly straight line.</details></li>
+<li>Part 1: set the force to 0. <details><summary>What happens and why</summary>The surviving paths move to a straight line (the best arch has height 0). With no force, the classical particle moves in a straight line at constant speed.</details></li>
+<li>Part 2, harmonic spring: watch the bars. <details><summary>What happens and why</summary>The bars converge to the black curve. The random paths, with weights e<sup>−S/ħ</sup>, give the exact ground state. At the start the bars are noisy, because few samples exist. The two numbers ⟨x²⟩ also come together.</details></li>
+<li>Part 2, double well, ħ about 0.5. <details><summary>What happens and why</summary>The path stays in one valley for a long time. Then it jumps to the other valley. Each jump is an <a class="term" href="../glossary.html#instanton">instanton</a>. This is the picture of <a class="term" href="../glossary.html#tunnelling">tunnelling</a> in imaginary time. The counter shows the jumps. A jump costs an action of about 1.89 in these units. So it has a weight of about e<sup>−1.89/ħ</sup>, which is 0.02 for ħ = 0.5.</details></li>
+<li>Part 2, double well, ħ = 0.2. <details><summary>What happens and why</summary>The black curve has two peaks, but the bars show only one. The sampler is stuck in one valley. The jump weight is now e<sup>−1.89/0.2</sup>, about 10<sup>−4</sup>, so the computer almost never sees a jump. This is a real problem of the Monte Carlo method. It is not a property of nature. A longer run, or a smarter method, would fill the second peak.</details></li>
+<li>Part 2: make β small (hot). <details><summary>What happens and why</summary>The loop gets short. The path has little time to move, so it stays close to one point. The quantum spread turns into the ordinary thermal spread: for the spring, ⟨x²⟩ goes to 1/β, the classical value.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>The usual way to describe a particle is the <a class="term" href="../glossary.html#wavefunction">wave function</a> and the <a class="term" href="../glossary.html#schrodinger">Schrödinger equation</a>. Feynman found an equivalent way: the <a class="term" href="../glossary.html#path-integral">path integral</a>. The amplitude to go from A to B is the sum over all paths of an arrow that turns by <a class="term" href="../glossary.html#action">action</a> S divided by <a class="term" href="../glossary.html#hbar">ħ</a>. The action is the integral of (kinetic energy − potential energy) along the path. The room <a href="double-slit.html">Double slit flow</a> uses the same sum for just two families of paths.</p>
+<p>Why do big things follow one path? For a big object, S is much larger than ħ, so the phase S/ħ changes very fast from path to path. Only near a path where S does not change at first order, the arrows stay together. This is called <a class="term" href="../glossary.html#stationary-phase">stationary phase</a>. The paths where S is stationary obey Newton's law. So the classical path is the winner of the sum. Part 1 shows this with the band: it is the stationary-phase region.</p>
+<p>Part 2 uses <a class="term" href="../glossary.html#imaginary-time">imaginary time</a>. You replace the time t by −iτ (a <a class="term" href="../glossary.html#wick-rotation">Wick rotation</a>). Then e<sup>iS/ħ</sup> becomes e<sup>−S<sub>E</sub>/ħ</sup>, a positive number. Paths with a low "Euclidean action" S<sub>E</sub> are more likely. A computer can now draw random paths with these weights. This is a <a class="term" href="../glossary.html#monte-carlo">Monte Carlo</a> method (here: the Metropolis algorithm). A long loop selects the <a class="term" href="../glossary.html#ground-state">ground state</a>. A short loop gives a hot system. The same method, on a <a class="term" href="../glossary.html#lattice">lattice</a>, is how physicists compute with quarks and gluons. The room <a href="tunnelling.html">Tunnelling in imaginary time</a> goes further with the double well.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">K(B,A) = ∫ 𝒟x &nbsp;e<sup>iS[x]/ħ</sup>, &nbsp; S = ∫₀<sup>T</sup> (½ m ẋ² − V(x)) dt</span>
+<span>The path integral: a sum over all paths from A to B. Here V = m g x (a constant force −m g), with m = 1 and T = 1.</span>
+<span class="eq">x(t) = a sin(πt/T) &nbsp; ⇒ &nbsp; S(a) = m π² a² / (4T) − 2 m g T a / π</span>
+<span>The paths in part 1 are arches of height a. This is a family of paths, not all paths. S is a parabola in a.</span>
+<span class="eq">dS/da = 0 &nbsp; ⇒ &nbsp; a* = 4 g T² / π³, &nbsp; S″ = m π² / (2T)</span>
+<span>The best arch a*. It is close to the classical height g T²/8, but not the same: the classical path is a parabola, not a sine.</span>
+<span class="eq">S(a) ≈ S(a*) + ½ S″ (a − a*)²; &nbsp; ½ S″ δ² / ħ = π &nbsp; ⇒ &nbsp; δ = 2 √(ħT / (π m))</span>
+<span>The band half-width δ. Outside it, the phase differs by more than half a turn from the best arch. It grows like √ħ.</span>
+<span class="eq">∫ e<sup>i S″ δ² / 2ħ</sup> dδ = √(2π i ħ / S″)</span>
+<span>The Fresnel integral. It gives the size of the total arrow: about 2√(ħ/π) divided by the range of a (7.5 in the room). The spiral is a Cornu spiral.</span>
+<span class="eq">t → −iτ: &nbsp; e<sup>iS/ħ</sup> → e<sup>−S<sub>E</sub>/ħ</sup>, &nbsp; S<sub>E</sub> = ∫₀<sup>β</sup> (½ m ẋ² + V(x)) dτ</span>
+<span>Imaginary time. The sign of V flips and the weight becomes real and positive.</span>
+<span class="eq">S<sub>E</sub> ≈ Σⱼ [ m (xⱼ₊₁ − xⱼ)² / (2a) + a V(xⱼ) ], &nbsp; a = β/N, &nbsp; N = 128</span>
+<span>The path on a grid of 128 time steps, with xₙ = x₀ (closed loop).</span>
+<span class="eq">accept a move with probability min(1, e<sup>−ΔS<sub>E</sub>/ħ</sup>)</span>
+<span>The Metropolis rule. Many such moves give paths with weight e<sup>−S<sub>E</sub>/ħ</sup>.</span>
+<span class="eq">⟨x²⟩ = (ħ / 2mω) coth(βħω / 2) &nbsp; (spring, m = ω = 1)</span>
+<span>The exact answer that the readout compares with. For large β it goes to ħ/2, the ground state. For small β it goes to 1/β.</span>
+<span class="eq">jump weight ∼ e<sup>−S₀/ħ</sup>, &nbsp; S₀ = ∫ √(2mV) dx = 4√2 / 3 ≈ 1.89</span>
+<span>The cost of one instanton for V = (x² − 1)². The integral runs between the two valley bottoms x = −1 and x = +1.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">Part 1 does not sum over all paths. It sums over one family of smooth arches, and (with roughness) a few more wiggles. The real path integral has infinitely many jagged paths. Part 1 also leaves out the normalisation constant. So the picture shows how the cancellation works, not a complete calculation. Part 2 is real Monte Carlo, but the loop has only 128 steps, the samples are correlated, and imaginary time is not real time: the jumps happen in τ, and do not tell you how long tunnelling takes in real time. The black "exact" curve is a numerical matrix calculation. For small β it is the thermal density, not the ground state.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman and A. R. Hibbs, <i>Quantum Mechanics and Path Integrals</i> (McGraw-Hill, 1965), chapters 1 to 3.</li>
+<li>R. P. Feynman, <i>QED: The Strange Theory of Light and Matter</i> (Princeton University Press, 1985): the arrows, with no formulas.</li>
+<li>R. P. Feynman, "Space-time approach to non-relativistic quantum mechanics", Reviews of Modern Physics 20, 367 (1948): the original paper.</li>
+<li>A. Zee, <i>Quantum Field Theory in a Nutshell</i>, chapter I.2, "Path integral formulation of quantum physics".</li>
+<li>S. Coleman, "The uses of instantons", in <i>Aspects of Symmetry</i> (Cambridge University Press, 1985): the double well and the jumps.</li>
+<li>Next room: <a href="tunnelling.html">Tunnelling in imaginary time</a> follows a random path between two valleys.</li>
+</ul>
 </section>
 </main>
 

@@ -47,6 +47,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -54,6 +75,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Phases Around a Loop</h1>
 <p class="sub">A phase sits on every link of a grid. The phase around a closed loop is the field inside it. Pull two charges apart, and the cost grows with the distance, like a string.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Look at the coloured grid. It changes all the time: the computer shakes the field at random. Drag the white loop to a new place. Drag its small corner square to make it bigger.</li>
+<li>Look at the plot on the right. The blue dots fall on a straight line. The horizontal axis is the loop <i>area</i>. Make β smaller (rougher field) and the line gets steeper.</li>
+<li>Press "gauge transformation". The little dials change a lot, but the colours do not. Only the loops carry meaning.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h3>The field on a grid <span class="chip c-sim">simulation</span></h3>
@@ -95,6 +124,82 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p>The gauge transformation adds α(x) − α(x+μ̂) to every link, with a random α at every site. The terms cancel around any closed loop. So all θ<sub>P</sub> and all Wilson loops stay the same. Only the link phases change. Only loops carry physical meaning. This is the same U(1) phase as in the Aharonov–Bohm room. There, the phase around a loop around a solenoid was the effect. Here, the phase lives on a grid. It is the museum story again: nature adds up phases.</p>
 <p>In QCD, the links carry SU(3) matrices instead of phases. The loop value is a trace of their product. Computers simulate this on a 4D lattice. They find the same area law for the loops of heavy quarks. In 4D it is a numerical result, not an exact formula. The exact result here holds only in 2D.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Take a flat grid, like graph paper. Put one angle on every edge of the grid. An angle is a <a class="term" href="../glossary.html#phase">phase</a>: a direction on a circle. Now walk around a closed loop of edges and add up the angles. The total is the "field" that the loop encloses. This is the same idea as the Aharonov–Bohm room: the phase around a loop is what counts.</p>
+<p>The <a class="term" href="../glossary.html#wilson-loop">Wilson loop</a> is a number that you build from this total. Think of two opposite charges, held still for a while. Their paths in space and time make a loop. The average value of the loop tells you what it costs to keep the two charges apart. In this room the average falls with the <i>area</i> of the loop. That means the cost grows in proportion to the distance, like the pull of a string. Physicists call this <a class="term" href="../glossary.html#confinement">confinement</a>.</p>
+<p>Be careful: this is a toy world with two dimensions. Here the area law is easy and always true. In the real world it is a hard result, and it holds for quarks, not for electrons. See "Honest limits" below.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Big coloured grid</dt><dd>96 × 96 small squares. The colour of one square is the phase around its four edges: the <a class="term" href="../glossary.html#flux">field strength</a> θ<sub>P</sub> in that square. Light colour: zero. Dark: half a turn (+π or −π). Orange: positive. Blue: negative. The edges wrap around: the right edge joins the left edge, and the top joins the bottom.</dd>
+<dt>White rectangle with a white corner square</dt><dd>Your loop. Drag it to move it. Drag the small square at its bottom-right corner to change its size (1 to 12 squares on each side). You can also click the grid, then use the arrow keys to move the loop. Shift and the arrow keys change its size.</dd>
+<dt>Plot, horizontal axis</dt><dd>The loop area R·T, in small squares (0 to 36).</dd>
+<dt>Plot, vertical axis</dt><dd>ln ⟨W⟩: the natural logarithm of the average loop value. Zero is at the top. Lower is smaller. A straight line on this plot means that ⟨W⟩ falls like e<sup>−σ·area</sup>.</dd>
+<dt>Plot, teal line</dt><dd>The exact answer: a straight line with slope −σ. It starts at zero.</dd>
+<dt>Plot, blue dots with bars</dt><dd>Measured values for square loops 1×1, 2×2, … 6×6 (areas 1, 4, 9, … 36). The bars are error bars. A blue triangle at the bottom means: the value is too small to measure with this much noise.</dd>
+<dt>Small picture "The links" (a cartoon)</dt><dd>A zoom on 8 × 8 sites near the corner of your loop. Grey dots are sites. Grey lines are links (edges), going right and down from each site. Each small circle on a link is a dial. The line in the dial shows the link phase as an angle: it points right for zero and turns anti-clockwise for positive angles. Its colour comes from the same colour map as the big grid. The white square is your loop.</dd>
+<dt>Numbers below</dt><dd>The measured ⟨plaquette⟩ (the average of cos θ<sub>P</sub> over single squares) next to its exact value I<sub>1</sub>/I<sub>0</sub>. The same for a 2×2 loop. The string tension σ. The whole-number charge Q. The value of your own loop, live and as a running average. After a gauge transformation: the largest change of any θ<sub>P</sub>.</dd>
+<dt>Controls</dt><dd><i>coupling β</i>: high β keeps the field smooth, low β lets it wander. <i>sweeps per frame</i>: how many random updates of the whole grid happen in each step of the animation. <i>Pause</i>/<i>Play</i>. <i>gauge transformation</i>. <i>restart</i>: start again from a random grid.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Set β near 1. Make the loop bigger. Does ⟨W⟩ fall with the edge length or with the area? Compare a 1×4 loop with a 2×2 loop.
+<details><summary>What happens and why</summary>It falls with the area. A 1×4 loop and a 2×2 loop have the same area, so they have the same average (watch the running average of your loop). Each small square inside the loop adds an independent factor I<sub>1</sub>/I<sub>0</sub> (about 0.446 at β = 1). A loop with A squares gets this factor A times. On the plot the dots lie on the teal line, and the line is straight. A perimeter law would show up as a curve on this plot.</details></li>
+<li>Press "gauge transformation". What happens to the colours and to the dials?
+<details><summary>What happens and why</summary>The dials change a lot, because every link phase changes. The colours do not change, and the numbers do not change. The text below shows that the largest change of any θ<sub>P</sub> is about 10<sup>−15</sup> radian: that is rounding error only. The reason: the transformation adds α(x) − α(x+1) to each link, with a random α at each site. When you walk around a closed loop, every α is added once and taken away once. So only closed loops, not single links, have physical meaning. This freedom is the <a class="term" href="../glossary.html#gauge-symmetry">gauge symmetry</a>.</details></li>
+<li>Move β from 2 to 6, then to 0.5.
+<details><summary>What happens and why</summary>At β = 6 the field is smooth: the grid is almost uniformly light. The string tension σ is small (about 0.09, and about 1/(2β) for large β). The dots fall slowly. At β = 0.5 the field is rough and the grid is full of colour. σ is large (about 1.4), and large loops are lost in the noise (blue triangles). A small β means strong coupling: the phases on neighbouring squares are almost random, so a loop averages to nearly zero.</details></li>
+<li>Press "restart", then watch the status line.
+<details><summary>What happens and why</summary>The grid starts with random link phases. The status says "Settling…" for about 20 sweeps, and then the averages restart. After that, the numbers come back to the same values as before. The start does not matter. The simulation only picks typical grids, with the right weights (see "The math").</details></li>
+<li>Look at the whole-number charge Q while you change β.
+<details><summary>What happens and why</summary>Q is always a whole number: it counts how many whole turns of field the grid holds. It can only change when one square jumps across the "half turn" colour. At high β that is rare, so Q stays fixed. At low β it jumps often.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>Nature uses phases in a clever way. A charged particle has a phase that can be turned by a different amount at each point, and nothing physical changes, as long as the <a class="term" href="../glossary.html#gauge-field">gauge field</a> turns with it. This is <a class="term" href="../glossary.html#gauge-symmetry">gauge symmetry</a>. On a grid the gauge field is the set of link phases, the <a class="term" href="../glossary.html#lattice">lattice</a> version of the <a class="term" href="../glossary.html#vector-potential">vector potential</a>. The group of all phases is <a class="term" href="../glossary.html#u1">U(1)</a>. The room <a href="aharonov-bohm.html">A phase without a force</a> showed the same phase around a loop.</p>
+<p>The computer picks random grids with a weight: grids with a smooth field are more likely. A high β makes a smooth field more likely. This is a <a class="term" href="../glossary.html#monte-carlo">Monte Carlo</a> method, and the weight is the "imaginary time" form of the <a class="term" href="../glossary.html#path-integral">path integral</a>. Each random grid is one "path" of the field.</p>
+<p>The Wilson loop is a probe for heavy charges. Hold a charge and an opposite charge still, a distance R apart, for a time T. The loop has area R·T. If ⟨W⟩ falls like e<sup>−σRT</sup>, the energy of the pair is σR. This energy grows with R without end. You can never pull the charges free: this is <a class="term" href="../glossary.html#confinement">confinement</a>, and σ is the <a class="term" href="../glossary.html#string-tension">string tension</a>. The next room, <a href="string-breaking.html">Pull two charges apart</a>, adds matter and shows what ends the string.</p>
+<p>In QCD the links carry <a class="term" href="../glossary.html#su3">SU(3)</a> matrices, not phases, and the heavy charges are <a class="term" href="../glossary.html#quark">quarks</a>. The room <a href="su3-colours.html">Three colours</a> shows what SU(3) does. Computers simulate the Wilson loops of <a class="term" href="../glossary.html#qcd">QCD</a> on a 4D lattice. They find an area law, and a string tension of about one GeV per femtometre.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">θ<sub>P</sub> = θ<sub>1</sub>(x) + θ<sub>2</sub>(x+1̂) − θ<sub>1</sub>(x+2̂) − θ<sub>2</sub>(x)</span>
+<span>The phase around one small square. Add the link phases along the walk. Each θ is an angle, so θ<sub>P</sub> is wrapped into the range −π … π.</span>
+<span class="eq">S = β Σ<sub>P</sub> (1 − cos θ<sub>P</sub>), &nbsp; weight of a grid = e<sup>−S</sup></span>
+<span>The Wilson action. Each square costs nothing if θ<sub>P</sub> = 0. A large β makes any cost large, so θ<sub>P</sub> stays near zero.</span>
+<span class="eq">θ<sub>μ</sub>(x) → θ<sub>μ</sub>(x) + α(x) − α(x+μ̂)</span>
+<span>A gauge transformation. Around any closed loop the α terms cancel, so S and all loops stay the same.</span>
+<span class="eq">W = cos(Σ link phases around the loop) = cos(Σ θ<sub>P</sub> inside the loop)</span>
+<span>The loop total equals the sum of the small-square fields inside it. This is the grid form of "the circulation equals the flux inside".</span>
+<span class="eq">⟨cos θ<sub>P</sub>⟩ = ∫ cos θ e<sup>β cos θ</sup> dθ / ∫ e<sup>β cos θ</sup> dθ = I<sub>1</sub>(β) / I<sub>0</sub>(β)</span>
+<span>I<sub>0</sub> and I<sub>1</sub> are Bessel functions, defined by I<sub>n</sub>(β) = (1/2π) ∫ cos(nθ) e<sup>β cos θ</sup> dθ.</span>
+<span class="eq">⟨W⟩ = (I<sub>1</sub>/I<sub>0</sub>)<sup>A</sup> = e<sup>−σA</sup>, &nbsp; σ = −ln(I<sub>1</sub>/I<sub>0</sub>)</span>
+<span>In 2D the squares are independent (after a gauge choice), so each one gives its own factor. The result is exact. For β = 2: I<sub>1</sub>/I<sub>0</sub> = 0.6978.</span>
+<span class="eq">σ ≈ 1/(2β) for large β, &nbsp; σ ≈ ln(2/β) for small β</span>
+<span>Smooth fields cost little. Rough fields cost a lot.</span>
+<span class="eq">⟨W⟩ ∼ e<sup>−V(R)·T</sup> &nbsp; ⇒ &nbsp; V(R) = σ R</span>
+<span>For a loop of size R × T, with T large. V(R) is the energy of the pair of static charges: a linear potential.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">This is two-dimensional compact U(1). In that world the area law holds at every β, so it "confines" in a trivial way. There are no photons to carry the field away, and the squares do not talk to each other. Four-dimensional QED is different: at weak coupling it follows a perimeter law, and the charges are free. Real confinement is a statement about QCD (SU(3) in 4D). There it is a numerical result from lattice simulations. It is not an exact formula, and nobody has a short proof. This room also has no matter: there are only static test charges and no fermions that can make pairs. So the string never breaks here. The plot uses block averages for the error bars, and the blocks are only roughly independent. The grid is finite (96 × 96 with wrap-around), so loops larger than 12 squares are not allowed.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>K. G. Wilson, "Confinement of quarks", Physical Review D 10, 2445 (1974): the paper that defines this lattice and the loop.</li>
+<li>J. Kogut and L. Susskind, "Hamiltonian formulation of Wilson's lattice gauge theories", Physical Review D 11, 395 (1975).</li>
+<li>M. Creutz, <i>Quarks, Gluons and Lattices</i> (Cambridge University Press, 1983): the classic book on Monte Carlo for gauge fields.</li>
+<li>C. Gattringer and C. B. Lang, <i>Quantum Chromodynamics on the Lattice</i> (Springer, 2010).</li>
+<li>David Tong, lecture notes "Gauge Theory" (University of Cambridge, free online).</li>
+<li>Next room: <a href="string-breaking.html">Pull two charges apart</a> adds matter to the story, so the string can break.</li>
+</ul>
 </section>
 </main>
 

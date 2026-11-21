@@ -49,6 +49,27 @@ details{margin-top:12px}
 summary{cursor:pointer;color:var(--accent)}
 .eq{font-family:ui-serif,Georgia,serif;font-style:italic}
 a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -56,6 +77,14 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <a class="back" href="../index.html">← all rooms</a>
 <h1>Pull Two Charges Apart</h1>
 <p class="sub">Hold a positive and a negative charge in a row of sites. Between them the electric field makes a tube, and the tube costs energy for every step. Pull harder, and the tube does not stretch for ever. The vacuum makes a new pair, and the string breaks. This is a toy world with one space dimension (the Schwinger model, 1+1D QED). It is a cousin of QCD, not QCD itself.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Press "break it". Wait a moment for the numbers ("computing…"). Then slide the <i>separation r</i> from 2 up to its largest value. Watch the blue curve on the right. Does it keep rising?</li>
+<li>Press "q = 0.5" and slide r again. This time the string does not break.</li>
+<li>Press "strong coupling (w = 0)". The big number must match J·q². Then raise <i>hopping w</i> slowly and see what happens to it.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
 
 <section>
 <h3>The chain and its field tube <span class="chip c-sim">simulation</span><span class="chip c-cartoon">cartoon: 1+1D</span></h3>
@@ -110,6 +139,85 @@ a.back{font-size:13px;color:var(--accent);text-decoration:none}
 <p>The plateau is not 2 × the meson mass. The meson mass M (the lowest excitation of the empty chain, shown below) is a different object: a light pair. The plateau is two fixed charges, each bound to one light fermion, so it is two "heavy-light" masses. We show the plateau as computed from the data, and M for comparison.</p>
 <p>Limits: N is small (8 to 14) and the chain has open ends, so V(r) bends up at the largest r. The two charges must sit on the same sublattice (r even); on the other sublattice the staggering of the lattice gives a zig-zag, which is a lattice effect. We keep J = 1 and vary w, which is the same as changing the lattice spacing.</p>
 </details>
+</section>
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Take two opposite electric charges and pull them apart. In normal 3D space the force gets weaker with distance. But in a world with only one space dimension, the electric field cannot spread out. It stays a thin tube between the charges. The tube holds energy for each step of its length. So the energy grows in proportion to the distance, like a stretched rubber band. A band like this is a "string".</p>
+<p>A real string snaps if you pull it far enough. Here it snaps in a quantum way. The energy of the tube becomes larger than the energy that it costs to make a new pair: a charge and an opposite charge from the <a class="term" href="../glossary.html#vacuum">vacuum</a>. The new charges sit at the two ends of the tube and cancel the fixed charges. The tube is gone. Two separate pairs remain, and each pair is neutral. This is why nobody sees a free <a class="term" href="../glossary.html#quark">quark</a>: when you pull a quark away, the string between quarks breaks and makes new quarks.</p>
+<p>The world in this room has one space dimension and one time dimension. It is called the <a class="term" href="../glossary.html#schwinger-model">Schwinger model</a>, or 1+1D <a class="term" href="../glossary.html#qed">QED</a>. It is a small, solvable cousin of <a class="term" href="../glossary.html#qcd">QCD</a>, not QCD itself.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Row of rings (left picture)</dt><dd>The sites of the chain, N of them (8 to 14). Charged particles (fermions) can sit on the sites or hop between them. The two ends of the chain are open.</dd>
+<dt>Orange square (+q) and blue square (−q)</dt><dd>The two fixed charges that you hold in place. They sit below the chain, joined by a thin line to their sites. The number below each is its charge. They are r sites apart, in the middle of the chain.</dd>
+<dt>Tube between two sites</dt><dd>The electric field ⟨L⟩ on that link. A thick tube is a strong field. Orange: the field points one way (positive). Blue: it points the other way (negative). A thin grey line: the field is almost zero. When the field is at least 0.1, its value is written below the tube.</dd>
+<dt>Coloured halo around a site</dt><dd>Charge that the vacuum has made on that site, compared with the empty chain. Orange: positive. Blue: negative. A larger halo means a larger charge. The number above it appears when the charge is at least 0.12.</dd>
+<dt>Line of text at the bottom of the left picture</dt><dd>The total made charge within one site of each fixed charge. When the string has broken, the value near +q is close to −1 and the value near −q is close to +1: each fixed charge is "screened".</dd>
+<dt>Right plot: blue curve and dots</dt><dd>V(r): the extra energy that the two fixed charges cost when they are r sites apart. Horizontal: r. Vertical: V in units of J (the energy of one unit of field per link). The dots are exact results for r = 0 (zero by definition), 2, 4, … The large white dot is the r that you set with the slider.</dd>
+<dt>Right plot: dashed teal line</dt><dd>What a pure string would cost: V = J·q²·r. A straight line from zero.</dd>
+<dt>Right plot: dotted yellow line</dt><dd>The value of V at the largest r that the chain allows. If the blue curve runs flat there, this line shows the level of the flat part. (It is not a separate calculation.)</dd>
+<dt>Big number</dt><dd>The string tension σ, found from the first two links (V(2)/2), next to the exact strong-coupling value J·q².</dd>
+<dt>Lines of numbers below</dt><dd>V at your r, and the slopes of the curve at small and at large r. A verdict says whether the string has broken (slope at large r below 20 % of the slope at small r). The meson gap M (the cheapest excitation of the empty chain) is also shown. It is not the plateau.</dd>
+<dt>Controls</dt><dd><i>separation r</i>: the distance between the fixed charges, in sites (even numbers only). <i>external charge q</i>: the size of the fixed charges (1 = one full unit). <i>fermion mass m</i>: the cost to make a charged particle. <i>hopping w</i>: how easily charges jump between neighbour sites. <i>number of sites N</i>. The three buttons set typical values.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Press "break it" (q = 1, m = 0.5, w = 1). Slide r from 2 to the largest value. Where does the line stop rising?
+<details><summary>What happens and why</summary>With N = 12 the values are about 1.68, 2.72, 2.86 and 2.97 for r = 2, 4, 6, 8. The curve rises at first (the slope is about 0.5 per site) and then flattens (the slope drops below 0.1). The string breaks near r = 4. Look at the left picture for r = 8. The tube in the middle is very thin (the field is below 0.2 on each link). Blue halos sit next to the orange +q, and orange halos sit next to the blue −q. Near each fixed charge the made charge adds up to about 0.9 with the opposite sign: it screens that fixed charge. (The sum is spread over the site and its two neighbours.) For a longer string it is cheaper to make a pair than to pay for more tube.</details></li>
+<li>Press "q = 0.5". Slide r. Will the string break?
+<details><summary>What happens and why</summary>No. V rises on a nearly straight line (0.43, 0.84, 1.24, 1.66). The vacuum can only make whole charges. A whole charge changes the field from +0.5 to −0.5. The field is as large as before, so the energy is the same, and nothing is saved. A fractional charge stays confined for ever. A charge of 1 changes the field from +1 to 0, and that saves energy. In this toy, a string breaks only when q is more than 0.5.</details></li>
+<li>Press "strong coupling (w = 0)". Compare the big number with J·q². Then raise w slowly.
+<details><summary>What happens and why</summary>At w = 0 (and m = 2) nothing hops. The two numbers agree to about 10<sup>−15</sup>. The tube holds a field of exactly q on each link, so V = J·q²·r. When you raise w, σ falls below J·q². The string gets cheaper. Hopping lets the vacuum fluctuate, and its small pairs partly screen the field. (With m = 0.5, w = 1, the value is about 0.84.)</details></li>
+<li>Press "break it", then raise the fermion mass m to 3.
+<details><summary>What happens and why</summary>V now rises all the way (about 1.98, 3.96, 5.94, then 7.39 at r = 8). The break moves out to a longer string: the curve is almost straight up to r = 6 and only starts to bend at r = 8. A heavy particle is expensive to make, so the vacuum waits until the tube holds more energy.</details></li>
+<li>Press "strong coupling (w = 0)" and lower m to 0.2.
+<details><summary>What happens and why</summary>The big number is now lower than J·q². The label below it tells you why. When a pair is cheap (2m is less than the energy saved), the vacuum makes pairs even at r = 2. The exact value J·q² holds only when the fermions are heavy enough. For q = 1, this means m of about 0.5 or more.</details></li>
+<li>Change the number of sites N (8, 10, 12, 14).
+<details><summary>What happens and why</summary>The curve changes a little. A larger N gives more points on the plot and a longer string. The chain has open ends and is small, so the last points bend upward. You are seeing an edge effect of the small chain, not new physics.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>Electric field has no freedom of its own in one space dimension. <a class="term" href="../glossary.html#gauge-symmetry">Gauss's law</a> fixes it: the field on a link equals the total charge to the left of it. So a charge pair always has a constant field between them, whatever the distance. A constant field has an energy that grows with the length. This is <a class="term" href="../glossary.html#confinement">confinement</a> in the simplest form, with a <a class="term" href="../glossary.html#string-tension">string tension</a> σ = J·q². The room <a href="wilson-loops.html">Phases around a loop</a> shows the same law as an area law.</p>
+<p>The charged particles are fermions on a <a class="term" href="../glossary.html#lattice">lattice</a>. The trick of "staggered" fermions puts one kind of particle on every site. A site on an even position holds charge 0 or +1. A site on an odd position holds charge 0 or −1. The computer keeps the whole quantum state of N sites (it has 2<sup>N</sup> possible patterns, and only the neutral ones count). It finds the lowest-energy state, the <a class="term" href="../glossary.html#ground-state">ground state</a>, with the Lanczos method. This is exact diagonalisation. There is no random sampling and no <a class="term" href="../glossary.html#monte-carlo">Monte Carlo</a> noise.</p>
+<p>The new charges come from the <a class="term" href="../glossary.html#vacuum">vacuum</a>. In quantum field theory the vacuum is not empty: it holds pairs that can appear when there is energy to pay for them. Here the ground state itself is a mix of the "no pair" and "pair" patterns. When the string is long, the "pair" pattern gets the larger weight. This is the same <a class="term" href="../glossary.html#superposition">superposition</a> idea as in the other rooms.</p>
+<p>In QCD the same thing happens. The tube is a tube of colour field, the fixed charges are heavy quarks, and the pieces after the break are two mesons. Lattice QCD calculations have seen this effect. Here the field has one component only, and space has one dimension. In QCD the field has three colours (<a class="term" href="../glossary.html#su3">SU(3)</a>) and space has three dimensions. See <a href="su3-colours.html">Three colours</a>.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">ρ<sub>k</sub> = ( σ<sup>z</sup><sub>k</sub> + (−1)<sup>k</sup> ) / 2</span>
+<span>The charge on site k. The spin σ<sup>z</sup> = ±1 says whether the site is filled. The term (−1)<sup>k</sup> is the staggering.</span>
+<span class="eq">L<sub>n</sub> = Σ<sub>k ≤ n</sub> ρ<sub>k</sub> + ε<sub>n</sub></span>
+<span>Gauss's law in 1D. The field on link n is the charge to the left, plus the field ε<sub>n</sub> of the fixed charges (equal to q on the r links between them).</span>
+<span class="eq">H = −w Σ (σ⁺<sub>n</sub>σ⁻<sub>n+1</sub> + h.c.) + (m/2) Σ (−1)<sup>n</sup> σ<sup>z</sup><sub>n</sub> + J Σ L<sub>n</sub>²</span>
+<span>Hopping, mass and field energy. "h.c." means the reverse hop. J = 1 sets the unit of energy.</span>
+<span class="eq">w = 0: &nbsp; V(r) = J q² r</span>
+<span>With no hopping, the cheapest state has no dynamic charge. The field is q on r links, so the energy is J q² per link. This is exact.</span>
+<span class="eq">J q² &nbsp; → &nbsp; J (1 − q)² &nbsp; on each link that a new unit charge cancels</span>
+<span>A new charge of size 1 changes the field on a link from q to q − 1. It saves energy only if (1 − q)² &lt; q², that is, q &gt; ½. At q = ½ it saves nothing.</span>
+<span class="eq">breaking pays when &nbsp; J q² r &gt; 2m + J</span>
+<span>A rough rule for q = 1 and w = 0. A pair costs about 2m. One link keeps a field of 1, because the two fixed charges sit on the same sublattice. For m = 2 this gives r &gt; 2.5: V(4) = 4, V(6) = 5.</span>
+<span class="eq">V(r) = E<sub>0</sub>(r) − E<sub>0</sub>(no charges)</span>
+<span>The energy that the fixed charges add to the ground state, found from the Lanczos method.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The chain is tiny: N is 8 to 14 and the ends are open. So V(r) has only two to four points, the "plateau" is only the last of them, and the curve bends up at the largest r. This is exact for this small chain, but it is not the limit of a long chain. The fixed charges are put in by hand, and r is even so that both sit on the same sublattice. Odd r gives a zig-zag (a lattice effect). The check at w = 0 holds only when the mass is large enough that a pair does not pay at r = 2. The fractional charge q = 0.5 is a toy: in QCD the colour charge of a heavy quark is a fixed whole unit. And this is 1+1D QED: it has one kind of field and one space dimension, so it is not QCD.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>J. Schwinger, "Gauge invariance and mass. II", Physical Review 128, 2425 (1962): the original solvable 1+1D model.</li>
+<li>J. Kogut and L. Susskind, "Hamiltonian formulation of Wilson's lattice gauge theories", Physical Review D 11, 395 (1975): the lattice and the staggered fermions.</li>
+<li>S. Coleman, R. Jackiw and L. Susskind, "Charge shielding and quark confinement in the massive Schwinger model", Annals of Physics 93, 267 (1975): whole charges are screened, fractional ones are confined.</li>
+<li>S. Coleman, "More about the massive Schwinger model", Annals of Physics 101, 239 (1976).</li>
+<li>G. S. Bali et al. (SESAM collaboration), "Observation of string breaking in QCD", Physical Review D 71, 114513 (2005).</li>
+<li>David Tong, lecture notes "Gauge Theory" (University of Cambridge, free online).</li>
+<li>Next room: <a href="su3-colours.html">Three colours</a> shows what the real QCD charge looks like.</li>
+</ul>
 </section>
 </main>
 
@@ -320,7 +428,7 @@ function readouts(){
   const V=cur.V,sl=curveSlopes(V),sol=cur.sol[S.r],Vr=cur.E[S.r]-cur.none.E0;
   const diff=Math.abs(sl.small-ss);
   $("bigNum").innerHTML=`σ = ${sl.small.toFixed(4)}`;
-  $("bigLab").innerHTML=`J·q² = ${ss.toFixed(4)} · difference ${diff.toExponential(1)}${S.w===0?" · w = 0: the two must agree":" · w > 0: hopping lets the vacuum fluctuate, so σ differs"}`;
+  $("bigLab").innerHTML=`J·q² = ${ss.toFixed(4)} · difference ${diff.toExponential(1)}${S.w===0?(S.m>=0.5*S.q*S.q?" · w = 0 and heavy fermions: the two must agree":" · w = 0, but the fermions are light: pairs form even at r = 2, so σ is lower"):" · w > 0: hopping lets the vacuum fluctuate, so σ differs"}`;
   const ratio=sl.mid!==0&&isFinite(sl.large)?sl.large/sl.mid:NaN;
   let verdict="";
   if(S.q<0.01)verdict="No external charge: nothing to break.";

@@ -28,6 +28,9 @@ a.card:hover{border-color:var(--accent)}
 .card.soon{opacity:.6}
 .card.soon h3{color:var(--soon)}
 @media (max-width:480px){header h1{font-size:26px}header .title{left:16px;right:16px}}
+.route{margin:-4px 0 10px;color:var(--muted);font-size:14.5px}
+.lvl{text-transform:none;letter-spacing:0;font-weight:600}
+.lvl-e{color:#0f9f6e}.lvl-s{color:#c27c0e}.lvl-t{color:#a855f7}
 footer{margin-top:36px;font-size:13px;color:var(--muted)}
 </style>
 </head>
@@ -37,20 +40,40 @@ footer{margin-top:36px;font-size:13px;color:var(--muted)}
 
 <p class="story">One idea runs through every room: <b>nature adds up phases</b>. A particle takes every path, and each path turns a small arrow. A charge in a field picks up an extra turn on its way. In the Standard Model, the arrow becomes a small rotation in U(1), SU(2) or SU(3). Move the sliders and watch what the sum does.</p>
 
-<h2>Open rooms</h2>
+<h2>How to visit</h2>
+<p class="story" style="font-size:15px">Follow a route from left to right, or pick any room. Every room has a short <i>How to use</i> box at the top and a full guide at the bottom. Unknown words are in the <a href="glossary.html">glossary</a>. The tag on each card says who the room is for.</p>
+<h2>Route 1 · Paths and arrows</h2>
+<p class="route">Start here. Feynman's idea: a particle goes every way at once, and each way is a turning arrow.</p>
 <div class="grid">
-  <a class="card" href="demos/path-integral.html"><div class="room">Paths</div><h3>Every path is an arrow</h3><p>Sum over all paths, see the classical path appear when ħ gets small. Then switch to imaginary time and watch a random walk find the ground state and tunnel.</p></a>
-  <a class="card" href="demos/double-slit.html"><div class="room">Quantum basics</div><h3>Double slit flow</h3><p>A wave goes through two slits. Flow lines bunch into stripes, single dots build the pattern, and the path sum predicts it.</p></a>
-  <a class="card" href="demos/spinor-flag.html"><div class="room">Groups</div><h3>The spinor flag</h3><p>Turn an electron by 360° and it is not the same. Turn it by 720° and it is. A belt, a flag on a sphere, two arrows and an interferometer show why: SU(2).</p></a>
-  <a class="card" href="demos/xy-vortices.html"><div class="room">Breaking</div><h3>Broken symmetry</h3><p>A ball on a Mexican hat swings up the wall (Higgs mode) but rolls freely along the valley (Goldstone mode). Then a grid of little compasses: cool it down and vortices freeze in.</p></a>
-  <a class="card" href="demos/su3-colours.html"><div class="room">Groups</div><h3>Three colours</h3><p>What SU(3) does to the colour of a quark: three turning arrows, eight ways to mix them, and the hexagon of mesons.</p></a>
-  <a class="card" href="demos/wilson-loops.html"><div class="room">Fields</div><h3>Phases around a loop</h3><p>Put a phase on every link of a grid. The phase around a loop is the field inside, and its average falls with the area: confinement, in two dimensions.</p></a>
-  <a class="card" href="demos/order-matters.html"><div class="room">Quantum basics</div><h3>Order matters</h3><p>Ask spin up, then sideways, then up again: the first answer is gone. See why x·p is not p·x, and a map of a state in phase space that can go negative.</p></a>
-  <a class="card" href="demos/aharonov-bohm.html"><div class="room">Fields</div><h3>A phase without a force</h3><p>A hidden magnet sits between two slits. The electron never touches its field, yet the stripes move. The field does not push; it turns the arrow of each path.</p></a>
-  <a class="card" href="demos/restless-vacuum.html"><div class="room">Fluctuations</div><h3>The restless vacuum</h3><p>Take a field at its lowest energy. It still shakes. Put two walls close together, and the shaking leaves a tiny pull between them: the Casimir effect.</p></a>
-  <a class="card" href="demos/tunnelling.html"><div class="room">Paths</div><h3>Tunnelling in imaginary time</h3><p>Turn time by 90° and the spinning arrows become plain weights. Then watch a random path jump between two valleys: each jump is an instanton.</p></a>
-  <a class="card" href="demos/flux-vortices.html"><div class="room">Breaking</div><h3>Vortices that trap flux</h3><p>The whirl from the broken-symmetry room, now with a magnetic field. The field gets trapped in a thin tube, always one whole packet of flux.</p></a>
-  <a class="card" href="demos/string-breaking.html"><div class="room">Fields</div><h3>Pull two charges apart</h3><p>Between two charges the field makes a tube that costs energy for every step. Pull harder and the vacuum makes a new pair: the string breaks.</p></a>
+  <a class="card" href="demos/feynman-mirror.html"><div class="room">Paths · <span class="lvl lvl-e">for everybody</span></div><h3>Light takes every path</h3><p>Light reflects from every point of a mirror, not only the middle. Scrape the mirror in the right places, and it reflects at a strange angle.</p></a>
+  <a class="card" href="demos/double-slit.html"><div class="room">Quantum basics · <span class="lvl lvl-e">for everybody</span></div><h3>Double slit flow</h3><p>A wave goes through two slits. Flow lines bunch into stripes, single dots build the pattern, and the path sum predicts it.</p></a>
+  <a class="card" href="demos/path-integral.html"><div class="room">Paths · <span class="lvl lvl-s">some physics</span></div><h3>Every path is an arrow</h3><p>Sum over all paths, see the classical path appear when ħ gets small. Then switch to imaginary time and watch a random walk find the ground state and tunnel.</p></a>
+  <a class="card" href="demos/feynman-diagrams.html"><div class="room">Paths · <span class="lvl lvl-t">for students</span></div><h3>Feynman diagrams from a path integral</h3><p>Where the famous diagrams come from: expand a path integral, and each term is a way to pair up lines. Count them, add them, and see the series fail in a beautiful way.</p></a>
+  <a class="card" href="demos/tunnelling.html"><div class="room">Paths · <span class="lvl lvl-t">for students</span></div><h3>Tunnelling in imaginary time</h3><p>Turn time by 90° and the spinning arrows become plain weights. Then watch a random path jump between two valleys: each jump is an instanton.</p></a>
+</div>
+
+<h2>Route 2 · Strange quantum facts</h2>
+<p class="route">What a measurement does, why spin needs two turns, and why empty space is never still.</p>
+<div class="grid">
+  <a class="card" href="demos/order-matters.html"><div class="room">Quantum basics · <span class="lvl lvl-s">some physics</span></div><h3>Order matters</h3><p>Ask spin up, then sideways, then up again: the first answer is gone. See why x·p is not p·x, and a map of a state in phase space that can go negative.</p></a>
+  <a class="card" href="demos/spinor-flag.html"><div class="room">Groups · <span class="lvl lvl-e">for everybody</span></div><h3>The spinor flag</h3><p>Turn an electron by 360° and it is not the same. Turn it by 720° and it is. A belt, a flag on a sphere, two arrows and an interferometer show why: SU(2).</p></a>
+  <a class="card" href="demos/restless-vacuum.html"><div class="room">Fluctuations · <span class="lvl lvl-s">some physics</span></div><h3>The restless vacuum</h3><p>Take a field at its lowest energy. It still shakes. Put two walls close together, and the shaking leaves a tiny pull between them: the Casimir effect.</p></a>
+</div>
+
+<h2>Route 3 · Forces are phases</h2>
+<p class="route">In the Standard Model a force tells a particle how to turn its arrow along the way.</p>
+<div class="grid">
+  <a class="card" href="demos/aharonov-bohm.html"><div class="room">Fields · <span class="lvl lvl-e">for everybody</span></div><h3>A phase without a force</h3><p>A hidden magnet sits between two slits. The electron never touches its field, yet the stripes move. The field does not push; it turns the arrow of each path.</p></a>
+  <a class="card" href="demos/wilson-loops.html"><div class="room">Fields · <span class="lvl lvl-t">for students</span></div><h3>Phases around a loop</h3><p>Put a phase on every link of a grid. The phase around a loop is the field inside, and its average falls with the area: confinement, in two dimensions.</p></a>
+  <a class="card" href="demos/su3-colours.html"><div class="room">Groups · <span class="lvl lvl-s">some physics</span></div><h3>Three colours</h3><p>What SU(3) does to the colour of a quark: three turning arrows, eight ways to mix them, and the hexagon of mesons.</p></a>
+  <a class="card" href="demos/string-breaking.html"><div class="room">Fields · <span class="lvl lvl-s">some physics</span></div><h3>Pull two charges apart</h3><p>Between two charges the field makes a tube that costs energy for every step. Pull harder and the vacuum makes a new pair: the string breaks.</p></a>
+</div>
+
+<h2>Route 4 · Broken symmetry</h2>
+<p class="route">How a symmetric law can give a lopsided world, and what the Higgs has to do with superconductors.</p>
+<div class="grid">
+  <a class="card" href="demos/xy-vortices.html"><div class="room">Breaking · <span class="lvl lvl-e">for everybody</span></div><h3>Broken symmetry</h3><p>A ball on a Mexican hat swings up the wall (Higgs mode) but rolls freely along the valley (Goldstone mode). Then a grid of little compasses: cool it down and vortices freeze in.</p></a>
+  <a class="card" href="demos/flux-vortices.html"><div class="room">Breaking · <span class="lvl lvl-s">some physics</span></div><h3>Vortices that trap flux</h3><p>The whirl from the broken-symmetry room, now with a magnetic field. The field gets trapped in a thin tube, always one whole packet of flux.</p></a>
 </div>
 
 <footer>Each page labels its panels: <i>exact</i>, <i>simulation</i>, <i>interpretation</i> or <i>cartoon</i>. Each page also shows one number that the code checks against a known answer. Open any file in a browser; nothing to install.</footer>
