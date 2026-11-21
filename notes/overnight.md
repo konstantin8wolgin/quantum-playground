@@ -12,5 +12,10 @@ Rules for the night:
 2. [x] (0477485) New room "Paths that meet again": harmonic-oscillator propagator (all paths refocus at half a period, Mehler kernel) and the quantum carpet in a box (Talbot revivals). File `demos/quantum-carpet.html`.
 3. [x] (74b6117) New room "Watching the slits": double slit with a which-path marker of adjustable strength; stripe visibility = |⟨χ₁|χ₂⟩|; the quantum eraser. File `demos/which-path.html`.
 4. [x] (e1b5c03) QA pass: every room at 375 px width and in light theme; fix layout and contrast problems.
-5. [x] Add the new rooms to `index.html` routes, README, PROMPT, decisions; glossary entries for any new terms.
+5. [x] (4b5a86b) Add the new rooms to `index.html` routes, README, PROMPT, decisions; glossary entries for any new terms.
 6. [ ] Final check: all node tests pass, all links resolve, commit and push (private).
+
+## Backlog round 2 (added 23:45, optional, same rules)
+7. [ ] New room "Feynman's checkerboard": a particle zig-zags at light speed on a space-time grid; each turn multiplies the amplitude by −iεm. The sum over zig-zag paths gives the 1+1D Dirac propagator. Check: path count/sum by dynamic programming vs exact Bessel-function propagator as ε → 0. File `demos/checkerboard.html`.
+8. [ ] New room "From paths to Schrödinger": slice time into N steps, multiply short-time kernels (the path integral as a product), watch the result converge to the exact propagator (free particle, harmonic trap); error ∝ 1/N (Trotter). File `demos/time-slicing.html`.
+9. [ ] Integrate rooms 7–8: index cards, glossary, README, PROMPT, decisions; all tests; commit and push (private).
