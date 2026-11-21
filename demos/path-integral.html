@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Path Integral Playground</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;
+  --accent:#2563eb;--canvas:#fbfaf7;--grid:#e7e4dc;--strong:#111111;--tube:rgba(37,99,235,.12);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;
+    --accent:#7fb0ff;--canvas:#0a0c10;--grid:#1c2029;--strong:#ffffff;--tube:rgba(127,176,255,.13);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;
+  --accent:#7fb0ff;--canvas:#0a0c10;--grid:#1c2029;--strong:#ffffff;--tube:rgba(127,176,255,.13);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:19px;margin:0 0 6px}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:20px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:12px}
+@media (max-width:760px){.row{grid-template-columns:1fr}}
+canvas{width:100%;display:block;background:var(--canvas);border:1px solid var(--line);border-radius:8px}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 18px;margin-top:14px}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+.read{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+.try{border-left:3px solid var(--accent);padding:4px 12px;margin-top:12px;font-size:14px}
+.try li{margin:2px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>Path Integral Playground</h1>
+<p class="sub">A particle goes from A to B. Quantum mechanics adds up <i>every</i> path. Two views: real time (arrows that cancel) and imaginary time (a random walk you can sample).</p>
+
+<section id="s1">
+<h2>1 · Real time: every path is an arrow</h2>
+<p>Each path gets an arrow of length 1 that turns by the angle <span class="eq">S/ħ</span>, where <span class="eq">S</span> is the action of the path. The amplitude is the sum of all arrows. A ball goes up and comes down again in time T = 1 (start and end at height 0).</p>
+<div class="row">
+  <div><canvas id="paths" height="360"></canvas>
+  <div class="cap">Paths, colored by phase relative to the classical path (dashed). The band shows paths whose phase is within π of the classical phase.</div></div>
+  <div><canvas id="spiral" height="360"></canvas>
+  <div class="cap">Arrows added head to tail, in order of path height. The bold line is the total.</div></div>
+</div>
+<div class="controls">
+  <label>ħ (quantumness) <b id="hbarV"></b><input id="hbar" type="range" min="-1.3" max="0.5" step="0.01" value="-0.5"></label>
+  <label>gravity g <b id="gV"></b><input id="g" type="range" min="0" max="15" step="0.1" value="9.8"></label>
+  <label>roughness of paths <b id="rV"></b><input id="rough" type="range" min="0" max="1" step="0.01" value="0"></label>
+  <label>highlight one path <b id="hiV"></b><input id="hi" type="range" min="0" max="1200" step="1" value="600"></label>
+</div>
+<div class="read" id="read1"></div>
+<div class="try"><b>Try:</b><ul>
+  <li>Move ħ to the left. The band gets thin and only the classical parabola survives. This is how classical physics comes out of quantum physics.</li>
+  <li>Move the highlight slider to the end. The far paths sit in the tight curls of the spiral: they cancel.</li>
+  <li>Set gravity to 0. The surviving paths move to a straight line.</li>
+</ul></div>
+</section>
+
+<section id="s2">
+<h2>2 · Imaginary time: the path becomes a random walk</h2>
+<p>Replace time <span class="eq">t</span> by <span class="eq">−iτ</span>. The turning arrow <span class="eq">e<sup>iS/ħ</sup></span> becomes a positive weight <span class="eq">e<sup>−S<sub>E</sub>/ħ</sup></span>. Now it is a probability, and a computer can draw random paths with this weight (Metropolis algorithm). The path is a closed loop of length <span class="eq">β = 1/temperature</span>.</p>
+<div class="row">
+  <div><canvas id="loop" height="340"></canvas>
+  <div class="cap">The current sampled path x(τ). Faint lines are earlier samples.</div></div>
+  <div><canvas id="hist" height="340"></canvas>
+  <div class="cap">Bars: where the path spends time. Line: exact answer |ψ|² (transfer matrix). Gray: the potential V(x).</div></div>
+</div>
+<div class="controls">
+  <label>potential <select id="pot"><option value="ho">harmonic (spring)</option><option value="dw">double well</option></select></label>
+  <label>ħ (size of fluctuations) <b id="h2V"></b><input id="h2" type="range" min="0.1" max="2" step="0.01" value="1"></label>
+  <label>β (1/temperature) <b id="betaV"></b><input id="beta" type="range" min="0.5" max="16" step="0.1" value="8"></label>
+  <label>sweeps per frame <b id="spfV"></b><input id="spf" type="range" min="1" max="60" step="1" value="10"></label>
+</div>
+<div class="read" id="read2"></div>
+<div class="try"><b>Try:</b><ul>
+  <li>Harmonic: watch the bars converge to the line. The random walk gives the exact ground state.</li>
+  <li>Double well with ħ ≈ 0.5: the path stays in one well for a long time, then jumps. These jumps are instantons: quantum tunneling.</li>
+  <li>Double well with ħ = 0.2: the line shows two peaks, but the bars show one. The sampler is stuck, because a jump is too rare. This is a real problem of the method.</li>
+  <li>Make β small (hot). The loop gets short and the quantum spread turns into thermal spread.</li>
+</ul></div>
+</section>
+</main>
+
+<script>
+"use strict";
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0,v=0;while(u===0)u=r();v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function fitCanvas(c){const d=window.devicePixelRatio||1;const w=c.clientWidth;const h=+c.getAttribute("height");c.width=Math.round(w*d);c.height=Math.round(h*d);c.style.height=h+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return {ctx:x,w,h}}
+const $ = id => document.getElementById(id);
+
+/* ---------- Section 1: real-time sum over paths ---------- */
+const S1 = {N:1201, steps:80, T:1, m:1, amin:-2.5, amax:5, K:7};
+const roughR = (()=>{const r=mulberry32(12345);const out=[];for(let i=0;i<S1.N;i++){const a=new Float64Array(S1.K);for(let k=0;k<S1.K;k++)a[k]=gauss(r);out.push(a)}return out})();
+let s1 = null;
+
+function computeS1(){
+  const hbar = 10**(+$("hbar").value), g=+$("g").value, R=+$("rough").value;
+  const {N,steps,T,m,amin,amax,K} = S1, dt=T/steps;
+  const paths=[], S=new Float64Array(N);
+  const sinTab=[];
+  for(let k=1;k<=K+1;k++){const a=new Float64Array(steps+1);for(let j=0;j<=steps;j++)a[j]=Math.sin(k*Math.PI*j/steps);sinTab.push(a)}
+  for(let i=0;i<N;i++){
+    const A = amin+(amax-amin)*i/(N-1);
+    const y=new Float64Array(steps+1);
+    for(let j=0;j<=steps;j++){
+      let v=A*sinTab[0][j];
+      if(R>0) for(let k=0;k<K;k++) v+=R*0.6*roughR[i][k]/(k+2)*sinTab[k+1][j];
+      y[j]=v;
+    }
+    let s=0;
+    for(let j=0;j<steps;j++){const vel=(y[j+1]-y[j])/dt;s+=(0.5*m*vel*vel - m*g*0.5*(y[j]+y[j+1]))*dt}
+    S[i]=s; paths.push({A,y});
+  }
+  // classical path: y = g/2 t (T - t)
+  const yc=new Float64Array(steps+1);let Sc=0;
+  for(let j=0;j<=steps;j++){const t=j*dt;yc[j]=0.5*g*t*(T-t)}
+  for(let j=0;j<steps;j++){const vel=(yc[j+1]-yc[j])/dt;Sc+=(0.5*m*vel*vel-m*g*0.5*(yc[j]+yc[j+1]))*dt}
+  const phase=new Float64Array(N);let re=0,im=0;const cum=[[0,0]];
+  for(let i=0;i<N;i++){phase[i]=(S[i]-Sc)/hbar;re+=Math.cos(S[i]/hbar)/N;im+=Math.sin(S[i]/hbar)/N;cum.push([re,im])}
+  // stationary point of the family A*sin(pi t): dS/dA = 0
+  const aStar = 4*g*T*T/Math.PI**3;
+  const w = 2*Math.sqrt(hbar*T/Math.PI);
+  // reference: same sum without roughness, exact Fresnel estimate magnitude
+  s1={hbar,g,R,paths,S,phase,cum,yc,aStar,w,re,im,steps};
+}
+
+function hue(ph){let h=((ph%(2*Math.PI))+2*Math.PI)%(2*Math.PI);return h/(2*Math.PI)*360}
+
+function drawS1(){
+  if(!s1) return;
+  const hi=+$("hi").value;
+  // paths panel
+  {const c=fitCanvas($("paths")),x=c.ctx,W=c.w,H=c.h,pad=34;
+   const ymin=-2.8,ymax=5.4;
+   const X=t=>pad+(W-pad-10)*t, Y=v=>H-pad-(H-pad-10)*(v-ymin)/(ymax-ymin);
+   x.fillStyle=css("--canvas");x.fillRect(0,0,W,H);
+   x.strokeStyle=css("--grid");x.lineWidth=1;
+   for(let v=-2;v<=5;v++){x.beginPath();x.moveTo(X(0),Y(v));x.lineTo(X(1),Y(v));x.stroke()}
+   x.fillStyle=css("--muted");x.font="11px system-ui";
+   for(let v=-2;v<=5;v+=1)x.fillText(v,6,Y(v)+4);
+   x.fillText("time →",W-52,H-10);x.fillText("height",4,14);
+   // tube of stationary paths
+   x.fillStyle=css("--tube");x.beginPath();
+   for(let j=0;j<=s1.steps;j++){const t=j/s1.steps;x.lineTo(X(t),Y((s1.aStar+s1.w)*Math.sin(Math.PI*t)))}
+   for(let j=s1.steps;j>=0;j--){const t=j/s1.steps;x.lineTo(X(t),Y((s1.aStar-s1.w)*Math.sin(Math.PI*t)))}
+   x.closePath();x.fill();
+   const step=4;x.lineWidth=1;x.globalAlpha=.55;
+   for(let i=0;i<s1.paths.length;i+=step){
+     const p=s1.paths[i];x.strokeStyle=`hsl(${hue(s1.phase[i])},80%,55%)`;x.beginPath();
+     for(let j=0;j<=s1.steps;j++)x.lineTo(X(j/s1.steps),Y(p.y[j]));x.stroke();
+   }
+   x.globalAlpha=1;
+   // classical
+   x.setLineDash([6,5]);x.strokeStyle=css("--strong");x.lineWidth=2;x.beginPath();
+   for(let j=0;j<=s1.steps;j++)x.lineTo(X(j/s1.steps),Y(s1.yc[j]));x.stroke();x.setLineDash([]);
+   // highlight
+   const p=s1.paths[hi];x.strokeStyle=`hsl(${hue(s1.phase[hi])},90%,50%)`;x.lineWidth=3.5;x.beginPath();
+   for(let j=0;j<=s1.steps;j++)x.lineTo(X(j/s1.steps),Y(p.y[j]));x.stroke();
+   x.fillStyle=css("--strong");x.beginPath();x.arc(X(0),Y(0),4,0,7);x.arc(X(1),Y(0),4,0,7);x.fill();
+   x.fillText("A",X(0)+6,Y(0)+14);x.fillText("B",X(1)-14,Y(0)+14);
+  }
+  // spiral panel
+  {const c=fitCanvas($("spiral")),x=c.ctx,W=c.w,H=c.h;
+   x.fillStyle=css("--canvas");x.fillRect(0,0,W,H);
+   let mnx=0,mxx=0,mny=0,mxy=0;for(const [a,b] of s1.cum){if(a<mnx)mnx=a;if(a>mxx)mxx=a;if(b<mny)mny=b;if(b>mxy)mxy=b}
+   const span=Math.max(mxx-mnx,mxy-mny,1e-6)*1.12,cx=(mnx+mxx)/2,cy=(mny+mxy)/2,sc=Math.min(W,H)/span;
+   const X=v=>W/2+(v-cx)*sc, Y=v=>H/2-(v-cy)*sc;
+   x.lineWidth=1.4;
+   for(let i=0;i<s1.paths.length;i++){const a=s1.cum[i],b=s1.cum[i+1];x.strokeStyle=`hsl(${hue(s1.phase[i])},80%,55%)`;x.beginPath();x.moveTo(X(a[0]),Y(a[1]));x.lineTo(X(b[0]),Y(b[1]));x.stroke()}
+   const e=s1.cum[s1.cum.length-1];
+   x.strokeStyle=css("--strong");x.lineWidth=3;x.beginPath();x.moveTo(X(0),Y(0));x.lineTo(X(e[0]),Y(e[1]));x.stroke();
+   const ang=Math.atan2(-(Y(e[1])-Y(0)),X(e[0])-X(0));x.save();x.translate(X(e[0]),Y(e[1]));x.rotate(-ang);x.fillStyle=css("--strong");x.beginPath();x.moveTo(0,0);x.lineTo(-11,5);x.lineTo(-11,-5);x.fill();x.restore();
+   const h=s1.cum[hi+1];x.fillStyle=`hsl(${hue(s1.phase[hi])},90%,50%)`;x.strokeStyle=css("--strong");x.lineWidth=1.5;x.beginPath();x.arc(X(h[0]),Y(h[1]),6,0,7);x.fill();x.stroke();
+  }
+  const mag=Math.hypot(s1.re,s1.im);
+  $("read1").innerHTML=`<div><span>classical height parameter a* = </span><b>${s1.aStar.toFixed(2)}</b></div>
+  <div><span>width of surviving band ≈ </span><b>±${s1.w.toFixed(2)}</b></div>
+  <div><span>|total arrow| = </span><b>${mag.toFixed(4)}</b></div>
+  <div><span>highlighted path: a = </span><b>${s1.paths[hi].A.toFixed(2)}</b>, <span>phase − classical = </span><b>${(s1.phase[hi]/Math.PI).toFixed(1)}π</b></div>`;
+}
+function updS1(){
+  $("hbarV").textContent=(10**+$("hbar").value).toFixed(3);$("gV").textContent=(+$("g").value).toFixed(1);
+  $("rV").textContent=(+$("rough").value).toFixed(2);$("hiV").textContent="#"+$("hi").value;
+  computeS1();drawS1();
+}
+["hbar","g","rough"].forEach(id=>$(id).addEventListener("input",updS1));
+$("hi").addEventListener("input",()=>{$("hiV").textContent="#"+$("hi").value;drawS1()});
+
+/* ---------- Section 2: Euclidean path integral, Metropolis ---------- */
+const S2={N:128,xmin:-3,xmax:3,bins:120};
+const rng=mulberry32(99);
+let st=null;
+const pots={
+  ho:{V:x=>0.5*x*x, label:"V = x²/2"},
+  dw:{V:x=>{const u=x*x-1;return u*u}, label:"V = (x² − 1)²"}
+};
+function resetS2(){
+  const beta=+$("beta").value,hbar=+$("h2").value,pot=$("pot").value;
+  const N=S2.N,a=beta/N;
+  const x=new Float64Array(N);
+  for(let i=0;i<N;i++)x[i]=(pot==="dw"?1:0)+0.1*gauss(rng);
+  st={beta,hbar,pot,V:pots[pot].V,N,a,x,delta:Math.sqrt(hbar*a)*2,acc:0,tries:0,sweeps:0,
+      hist:new Float64Array(S2.bins),hcount:0,x2sum:0,x2n:0,trail:[],exact:null,exactX2:NaN,jumps:0,side:Math.sign(x[0])||1};
+  st.exact=transferMatrix(beta,hbar,st.V);
+}
+function transferMatrix(beta,hbar,V){
+  const M=161,xmn=-3.2,xmx=3.2,dx=(xmx-xmn)/(M-1);
+  const n=Math.max(8,Math.ceil(beta/0.08)),a=beta/n;
+  const xs=new Float64Array(M);for(let i=0;i<M;i++)xs[i]=xmn+i*dx;
+  let K=new Float64Array(M*M);
+  for(let i=0;i<M;i++)for(let j=0;j<M;j++){const d=xs[i]-xs[j];K[i*M+j]=Math.exp(-(d*d/(2*a)+a*(V(xs[i])+V(xs[j]))/2)/hbar)}
+  const mul=(A,B)=>{const C=new Float64Array(M*M);let mx=0;
+    for(let i=0;i<M;i++)for(let k=0;k<M;k++){const aik=A[i*M+k];if(aik===0)continue;const ro=k*M,ri=i*M;for(let j=0;j<M;j++)C[ri+j]+=aik*B[ro+j]}
+    for(let i=0;i<M*M;i++)if(C[i]>mx)mx=C[i];if(mx>0)for(let i=0;i<M*M;i++)C[i]/=mx;return C};
+  const norm=A=>{let mx=0;for(const v of A)if(v>mx)mx=v;return A.map(v=>v/mx)};
+  K=norm(K);
+  let R=null,P=K,e=n;
+  while(e>0){if(e&1)R=R?mul(R,P):P;e>>=1;if(e)P=mul(P,P)}
+  const rho=new Float64Array(M);let s=0;for(let i=0;i<M;i++){rho[i]=R[i*M+i];s+=rho[i]*dx}
+  let x2=0;for(let i=0;i<M;i++){rho[i]/=s;x2+=xs[i]*xs[i]*rho[i]*dx}
+  return {xs,rho,x2};
+}
+function sweep(){
+  const {N,a,x,hbar,V}=st;
+  for(let j=0;j<N;j++){
+    const xl=x[(j-1+N)%N],xr=x[(j+1)%N],xo=x[j],xn=xo+st.delta*(2*rng()-1);
+    const kin=(u)=>((u-xl)*(u-xl)+(xr-u)*(xr-u))/(2*a);
+    const dS=kin(xn)-kin(xo)+a*(V(xn)-V(xo));
+    st.tries++;
+    if(dS<=0||rng()<Math.exp(-dS/hbar)){x[j]=xn;st.acc++}
+  }
+  // global move: shift the whole loop (kinetic part unchanged); this speeds up slow drift
+  {const sh=0.3*Math.sqrt(hbar/st.beta)*(2*rng()-1);let dV=0;for(let j=0;j<N;j++)dV+=V(x[j]+sh)-V(x[j]);
+   if(dV<=0||rng()<Math.exp(-a*dV/hbar))for(let j=0;j<N;j++)x[j]+=sh}
+  st.sweeps++;
+  if(st.sweeps%25===0){const r=st.acc/st.tries;st.delta*=r>0.5?1.1:0.9;st.acc=0;st.tries=0}
+  if(st.sweeps>150){
+    const B=S2.bins,w=(S2.xmax-S2.xmin)/B;
+    for(let j=0;j<N;j++){const b=Math.floor((x[j]-S2.xmin)/w);if(b>=0&&b<B)st.hist[b]++;st.hcount++;st.x2sum+=x[j]*x[j];st.x2n++}
+    let m=0;for(let j=0;j<N;j++)m+=x[j];m/=N;
+    if(st.pot==="dw"){const sd=Math.sign(m);if(Math.abs(m)>0.5&&sd!==st.side){st.jumps++;st.side=sd}}
+  }
+}
+function drawS2(){
+  const {x,N,beta}=st;
+  {const c=fitCanvas($("loop")),g=c.ctx,W=c.w,H=c.h,pad=30;
+   const X=t=>pad+(W-pad-10)*t/beta, Y=v=>H/2-(H/2-12)*v/3;
+   g.fillStyle=css("--canvas");g.fillRect(0,0,W,H);
+   g.strokeStyle=css("--grid");for(let v=-3;v<=3;v++){g.beginPath();g.moveTo(pad,Y(v));g.lineTo(W-10,Y(v));g.stroke()}
+   g.fillStyle=css("--muted");g.font="11px system-ui";for(let v=-3;v<=3;v++)g.fillText(v,8,Y(v)+4);
+   g.fillText("imaginary time τ →",W-120,H-8);g.fillText("x",14,14);
+   g.lineWidth=1;
+   st.trail.forEach((p,k)=>{g.strokeStyle=css("--accent");g.globalAlpha=0.06+0.03*k;g.beginPath();for(let j=0;j<=N;j++)g.lineTo(X(j*beta/N),Y(p[j%N]));g.stroke()});
+   g.globalAlpha=1;g.strokeStyle=css("--strong");g.lineWidth=1.6;g.beginPath();
+   for(let j=0;j<=N;j++)g.lineTo(X(j*beta/N),Y(x[j%N]));g.stroke();
+  }
+  {const c=fitCanvas($("hist")),g=c.ctx,W=c.w,H=c.h;
+   const Y=v=>H/2-(H/2-12)*v/3;
+   g.fillStyle=css("--canvas");g.fillRect(0,0,W,H);
+   const B=S2.bins,w=(S2.xmax-S2.xmin)/B;
+   let pmax=0;for(const r of st.exact.rho)if(r>pmax)pmax=r;pmax*=1.15;
+   const Xd=d=>8+(W-16)*d/pmax;
+   // potential
+   g.strokeStyle=css("--muted");g.globalAlpha=.5;g.lineWidth=1;g.beginPath();
+   for(let v=-3;v<=3;v+=0.02){const Vv=st.V(v);g.lineTo(8+(W-16)*Math.min(Vv/6,1.2),Y(v))}g.stroke();g.globalAlpha=1;
+   if(st.hcount>0){g.fillStyle=css("--accent");g.globalAlpha=.45;
+     for(let b=0;b<B;b++){const d=st.hist[b]/(st.hcount*w);const y0=Y(S2.xmin+b*w),y1=Y(S2.xmin+(b+1)*w);g.fillRect(8,y1,Xd(d)-8,y0-y1)}
+     g.globalAlpha=1}
+   g.strokeStyle=css("--strong");g.lineWidth=2;g.beginPath();
+   st.exact.xs.forEach((xv,i)=>{if(xv>=-3&&xv<=3)g.lineTo(Xd(st.exact.rho[i]),Y(xv))});g.stroke();
+  }
+  const x2=st.x2n?st.x2sum/st.x2n:NaN;
+  let extra="";
+  if(st.pot==="ho"){const ex=st.hbar/2/Math.tanh(st.beta*st.hbar/2);extra=`<div><span>⟨x²⟩ formula ħ/2·coth(βħ/2) = </span><b>${ex.toFixed(4)}</b></div>`}
+  else extra=`<div><span>tunneling jumps seen: </span><b>${st.jumps}</b></div>`;
+  $("read2").innerHTML=`<div><span>sweeps: </span><b>${st.sweeps}</b></div>
+  <div><span>⟨x²⟩ from random paths = </span><b>${isNaN(x2)?"…":x2.toFixed(4)}</b></div>
+  <div><span>⟨x²⟩ exact (transfer matrix) = </span><b>${st.exact.x2.toFixed(4)}</b></div>${extra}`;
+}
+let pending=null;
+function updS2(){
+  $("h2V").textContent=(+$("h2").value).toFixed(2);$("betaV").textContent=(+$("beta").value).toFixed(1);$("spfV").textContent=$("spf").value;
+  clearTimeout(pending);pending=setTimeout(resetS2,120);
+}
+["h2","beta","pot"].forEach(id=>$(id).addEventListener("input",updS2));
+$("spf").addEventListener("input",()=>$("spfV").textContent=$("spf").value);
+
+function loop(){
+  if(st){const n=+$("spf").value;for(let i=0;i<n;i++)sweep();
+    if(st.sweeps%2===0){st.trail.push(Float64Array.from(st.x));if(st.trail.length>8)st.trail.shift()}
+    drawS2()}
+  requestAnimationFrame(loop);
+}
+window.addEventListener("resize",()=>{drawS1()});
+updS1();
+$("h2V").textContent=(+$("h2").value).toFixed(2);$("betaV").textContent=(+$("beta").value).toFixed(1);$("spfV").textContent=$("spf").value;
+resetS2();loop();
+</script>
+</body>
+</html>
