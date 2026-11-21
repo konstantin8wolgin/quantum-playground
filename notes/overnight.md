@@ -27,5 +27,5 @@ Rules for the night:
 
 ## Round 4 (added 00:20): MVP readiness, no new rooms
 13. [ ] Independent review of the 7 overnight rooms (which-path, born-series, quantum-carpet, time-slicing, checkerboard, winding-ring, berry-phase): physics errors, wrong claims, confusing text for a non-expert, broken controls. Reviewers report only; I check each finding and fix the real ones.
-14. [ ] Index with 21 cards: check that the routes still read as a story; add a short "start here" path for a first visit.
+14. [x] (3cea7a6) Index with 21 cards: check that the routes still read as a story; add a short "start here" path for a first visit.
 15. [ ] Final: all tests, link check, 375 px check, commit and push (private).
