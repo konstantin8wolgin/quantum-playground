@@ -26,6 +26,10 @@ scope, because visuals can teach them better than the usual formalism.
 | Q6 | Format | Single-file HTML (most accessible). Maybe a website and YouTube videos later. |
 | Q7 | Gravity slider | User asked to remove gravity. Note: the slider was a plain Newton force (a thrown ball), not gravity theory. Relabelled as "constant force F". |
 
+## Research (2026-11-21)
+- Report: `reports/Visualizing quantum physics landscape.md`. Notes: `research_notes/`.
+- Main result: fill the gaps (gauge fields as phases on paths, live Higgs step, spinor flag, SU(3) action), do not copy old applets. Write raw WebGL2. Reuse ideas, not code.
+
 ## Next
 - Deep research: existing visual projects, reusable open-source code, the most striking ideas. Report in `reports/`.
 - Grill round 2 after the research.
