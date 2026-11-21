@@ -30,7 +30,10 @@ a.card:hover{border-color:var(--accent)}
 @media (max-width:480px){header h1{font-size:26px}header .title{left:16px;right:16px}}
 .route{margin:-4px 0 10px;color:var(--muted);font-size:14.5px}
 .lvl{text-transform:none;letter-spacing:0;font-weight:600}
-.lvl-e{color:#0f9f6e}.lvl-s{color:#c27c0e}.lvl-t{color:#a855f7}
+.lvl-e{color:#047857}.lvl-s{color:#92400e}.lvl-t{color:#7e22ce}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lvl-e{color:#34d399}:root:not([data-theme="light"]) .lvl-s{color:#fbbf24}:root:not([data-theme="light"]) .lvl-t{color:#c4a1ff}}
+:root[data-theme="dark"] .lvl-e{color:#34d399}:root[data-theme="dark"] .lvl-s{color:#fbbf24}:root[data-theme="dark"] .lvl-t{color:#c4a1ff}
+a{color:var(--accent)}
 footer{margin-top:36px;font-size:13px;color:var(--muted)}
 </style>
 </head>
