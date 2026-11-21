@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quantum Playground</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--soon:#9a9a9a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--soon:#5c6170}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--soon:#5c6170}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:0 16px 64px}
+header{position:relative;height:300px;margin:0 -16px 8px;overflow:hidden}
+header canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:#05060a}
+header .title{position:absolute;left:24px;bottom:22px;color:#fff;text-shadow:0 1px 8px #000}
+header h1{margin:0;font-size:34px;letter-spacing:.2px}
+header p{margin:2px 0 0;opacity:.85}
+.story{font-size:17px;max-width:720px}
+.story b{color:var(--accent)}
+h2{font-size:18px;margin:28px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+a.card,.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;color:inherit;text-decoration:none}
+a.card:hover{border-color:var(--accent)}
+.card .room{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.card h3{margin:4px 0 6px;font-size:17px}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.card.soon{opacity:.6}
+.card.soon h3{color:var(--soon)}
+@media (max-width:480px){header h1{font-size:26px}header .title{left:16px;right:16px}}
+footer{margin-top:36px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<header><canvas id="hero"></canvas><div class="title"><h1>Quantum Playground</h1><p>Simulations you can touch: paths, phases and the symmetries of nature.</p></div></header>
+
+<p class="story">One idea runs through every room: <b>nature adds up phases</b>. A particle takes every path, and each path turns a small arrow. A charge in a field picks up an extra turn on its way. In the Standard Model, the arrow becomes a small rotation in U(1), SU(2) or SU(3). Move the sliders and watch what the sum does.</p>
+
+<h2>Open rooms</h2>
+<div class="grid">
+  <a class="card" href="demos/path-integral.html"><div class="room">Paths</div><h3>Every path is an arrow</h3><p>Sum over all paths, see the classical path appear when ħ gets small. Then switch to imaginary time and watch a random walk find the ground state and tunnel.</p></a>
+  <a class="card" href="demos/double-slit.html"><div class="room">Quantum basics</div><h3>Double slit flow</h3><p>A wave goes through two slits. Flow lines bunch into stripes, single dots build the pattern, and the path sum predicts it.</p></a>
+</div>
+
+<h2>Rooms in preparation</h2>
+<div class="grid">
+  <div class="card soon"><div class="room">Groups</div><h3>The spinor flag</h3><p>Turn an electron by 360° and it is not the same. Turn it by 720° and it is. SU(2) on a sphere with a flag.</p></div>
+  <div class="card soon"><div class="room">Breaking</div><h3>Vortices and the Mexican hat</h3><p>Cool a field of little compass needles and watch vortices freeze in. Goldstone and Higgs modes as motions on a hat.</p></div>
+  <div class="card soon"><div class="room">Basics</div><h3>Order matters</h3><p>Measure spin up, then sideways, then up again. Commutators you can see.</p></div>
+  <div class="card soon"><div class="room">Groups</div><h3>Three colours</h3><p>What SU(3) does to the colour of a quark: three turning wheels, eight ways to mix them.</p></div>
+  <div class="card soon"><div class="room">Fields</div><h3>Phases around a loop</h3><p>Put a phase on every link of a grid. The phase around a loop is the field. Confinement in two dimensions.</p></div>
+</div>
+
+<footer>Each page labels its panels: <i>exact</i>, <i>simulation</i>, <i>interpretation</i> or <i>cartoon</i>. Each page also shows one number that the code checks against a known answer. Open any file in a browser; nothing to install.</footer>
+</main>
+<script>
+/* hero: a slowly turning field of phase arrows, summed along paths from left to right */
+const c=document.getElementById("hero"),g=c.getContext("2d");
+function size(){const d=Math.min(devicePixelRatio||1,2);c.width=c.clientWidth*d;c.height=c.clientHeight*d;g.setTransform(d,0,0,d,0,0)}
+size();addEventListener("resize",size);
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t0=performance.now();
+function frame(now){
+  const W=c.clientWidth,H=c.clientHeight,t=reduce?0:(now-t0)/1000;
+  g.fillStyle="#05060a";g.fillRect(0,0,W,H);
+  const n=40,ay=H*0.55;
+  for(let p=0;p<n;p++){
+    const bend=(p/(n-1)-0.5)*2.4;
+    const S=bend*bend*9;                       /* action grows away from the classical path */
+    const hue=((S+t*0.6)%(2*Math.PI))/(2*Math.PI)*360;
+    g.strokeStyle=`hsla(${hue},85%,60%,${0.75-0.5*Math.min(1,Math.abs(bend))})`;g.lineWidth=1.3;
+    g.beginPath();
+    for(let i=0;i<=80;i++){const x=i/80,y=ay-Math.sin(Math.PI*x)*bend*H*0.32+Math.sin(x*9+p+t)*1.5;g.lineTo(24+x*(W-48),y)}
+    g.stroke();
+  }
+  g.fillStyle="#fff";g.beginPath();g.arc(24,ay,4,0,7);g.arc(W-24,ay,4,0,7);g.fill();
+  if(!reduce)requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

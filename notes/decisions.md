@@ -30,6 +30,17 @@ scope, because visuals can teach them better than the usual formalism.
 - Report: `reports/Visualizing quantum physics landscape.md`. Notes: `research_notes/`.
 - Main result: fill the gaps (gauge fields as phases on paths, live Higgs step, spinor flag, SU(3) action), do not copy old applets. Write raw WebGL2. Reuse ideas, not code.
 
+## Round 2 (2026-11-21)
+
+| # | Question | Decision |
+|---|---|---|
+| Q8 | Next demo | Double slit with flow lines first, then the spinor flag. XY vortices and the Mexican hat are a plan for later. Simple things first; check that they work. |
+| Q9 | One story for all rooms | Not answered. Default: "nature adds up phases" is the front-door story of the landing page. |
+| Q10 | Visitor | Everybody, in layers. Like planes and rockets: fascination for outsiders, depth for educated people. |
+| Q11 | Honesty labels | Yes. Each panel says "exact", "simulation", "interpretation" or "cartoon". |
+| Q12 | Going public | Only after the user reviews the simulations personally. Stay private until then. |
+
 ## Next
-- Deep research: existing visual projects, reusable open-source code, the most striking ideas. Report in `reports/`.
-- Grill round 2 after the research.
+- Demo 2: double slit (split-operator Schrödinger, phase colours, Bohmian flow lines, sum-over-paths curve).
+- Demo 1: spinor flag and 720°.
+- Landing page `index.html`.

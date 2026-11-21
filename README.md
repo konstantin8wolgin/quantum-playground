@@ -9,14 +9,16 @@ Not research. The aim: change parameters, watch what happens, understand it.
 | Demo | What it shows |
 |---|---|
 | [`demos/path-integral.html`](demos/path-integral.html) | Real-time sum over paths (arrows, Cornu spiral, classical limit) and imaginary-time Monte Carlo (harmonic oscillator, double well, tunneling) |
+| [`demos/double-slit.html`](demos/double-slit.html) | Schrödinger wave through two slits (phase colours), Bohm flow lines, single arrival dots, path-sum prediction |
 
-Open any demo file in a browser. No install, no server.
+Start at [`index.html`](index.html). Open any file in a browser. No install, no server.
 
 ## Checks
 
 Each demo compares the simulation with an exact answer on the page.
 Example: `<x²>` from random paths (0.496) vs. transfer matrix (0.4995) for the
-harmonic oscillator at β = 8, ħ = 1.
+harmonic oscillator at β = 8, ħ = 1. Double slit at λ = 8, d = 40: stripe
+distance 73.5 (simulation) vs. 72.0 (path sum) vs. 71.2 (λL/d).
 
 ## Rebuild it yourself
 

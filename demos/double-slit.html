@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Double Slit Flow</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;}
+}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:18px;margin:0 0 6px}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+.stage{display:grid;grid-template-columns:4fr 1fr;gap:10px}
+@media (max-width:700px){.stage{grid-template-columns:3fr 1fr}}
+canvas{width:100%;display:block;background:#05060a;border-radius:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html" style="font-size:13px;color:var(--accent);text-decoration:none">← all rooms</a>
+<h1>Double Slit Flow</h1>
+<p class="sub">One electron wave goes through two slits. Colour shows the phase, brightness shows the probability. The thin lines show how the probability flows. Dots on the screen are single arrivals.</p>
+
+<section>
+<div class="stage">
+  <canvas id="sim"></canvas>
+  <canvas id="screen"></canvas>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>wave: Schrödinger equation on a 600×360 grid</div>
+  <div><span class="chip c-exact">exact</span>orange curve: sum over paths through the slits</div>
+  <div><span class="chip c-int">interpretation</span>lines and dots: de Broglie–Bohm flow lines (dots start from |ψ|² behind the slits)</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="run" class="primary">Pause</button><button id="restart">Restart</button></div>
+  <label>slits <select id="mode"><option value="both">both open</option><option value="top">top only</option><option value="bot">bottom only</option></select></label>
+  <label>view <select id="view"><option value="phase">phase colours</option><option value="prob">probability only</option></select></label>
+  <label><input type="checkbox" id="lines" checked> flow lines</label>
+  <label>wavelength λ <b id="lamV"></b><input id="lam" type="range" min="7" max="14" step="0.1" value="8"></label>
+  <label>slit distance d <b id="dV"></b><input id="d" type="range" min="20" max="80" step="1" value="40"></label>
+  <label>slit width <b id="wV"></b><input id="w" type="range" min="4" max="14" step="1" value="8"></label>
+  <label>speed <b id="spV"></b><input id="sp" type="range" min="1" max="8" step="1" value="3"></label>
+</div>
+<div class="read" id="read"></div>
+<div class="predict"><b>Predict, then test:</b> close one slit. Do the stripes on the screen stay? Then make d larger. Do the stripes get closer or wider apart?</div>
+<details><summary>What the numbers mean</summary>
+<p>The wave obeys <span class="eq">iħ ∂ψ/∂t = −(ħ²/2m)∇²ψ + Vψ</span>. The code uses the Visscher scheme: the real and the imaginary part of ψ are updated in turn, each from its neighbours on the grid. The total probability stays at 1 (to about 0.1 %) until the wave reaches the soft absorbing border. The walls are hard: ψ = 0 inside them.</p>
+<p>The orange curve does not use the simulation. It adds one arrow for every straight path from a slit point to a screen point, each turned by <span class="eq">k·r</span> (the action divided by ħ). This is the path sum from the first demo, applied to the slits.</p>
+<p>The flow lines follow the probability current <span class="eq">v = (ħ/m)·Im(∇ψ/ψ)</span>. In the de Broglie–Bohm interpretation a particle really moves on such a line. Standard quantum mechanics gives the same dot statistics without the lines. The lines never cross, so a line that starts in the upper half stays in the upper half.</p>
+<p>Check: the far-field stripe distance is about <span class="eq">λL/d</span>, where L is the distance from the slits to the screen.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+/* grid and geometry (cell size 1, hbar = m = 1) */
+const NX=600,NY=360,N=NX*NY,DT=0.25;
+const X0=90,SX=14,SY=34,WX=200,WT=4,XS=560,B=24;
+let R=new Float32Array(N),I=new Float32Array(N),wall=new Uint8Array(N),absorb=new Float32Array(N);
+let seeded=false,tSeed=0,seededL=false,tSeedL=0,k0=1,acc=new Float64Array(NY),pathSum=new Float64Array(NY),t=0,running=true,hits=[],parts=[],rho0=1,stepCount=0;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let q=Math.imul(a^a>>>15,1|a);q=q+Math.imul(q^q>>>7,61|q)^q;return((q^q>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0;while(u===0)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r())}
+
+function slitRanges(){
+  const d=+$("d").value,w=+$("w").value,c=NY/2,mode=$("mode").value,r=[];
+  if(mode!=="bot")r.push([c-d/2-w/2,c-d/2+w/2]);
+  if(mode!=="top")r.push([c+d/2-w/2,c+d/2+w/2]);
+  return r;
+}
+/* H psi with the 5-point Laplacian; wall cells are hard (psi = 0) */
+function applyH(f,i){const N2=2*NX;return 2.5*f[i]-(16*(f[i-1]+f[i+1]+f[i-NX]+f[i+NX])-(f[i-2]+f[i+2]+f[i-N2]+f[i+N2]))/24}
+function setup(){
+  k0=2*Math.PI/(+$("lam").value);
+  const slits=slitRanges();
+  for(let y=0;y<NY;y++)for(let x=0;x<NX;x++){
+    const i=y*NX+x;let w=x>=WX&&x<WX+WT;
+    if(w)for(const [a,b] of slits)if(y>=a&&y<b)w=false;
+    if(x<2||y<2||x>NX-3||y>NY-3)w=true;
+    wall[i]=w?1:0;
+    const dd=Math.min(x,NX-1-x,y,NY-1-y);
+    absorb[i]=dd<B?1-0.03*Math.pow((B-dd)/B,2):1;
+  }
+  let nrm=0;
+  for(let y=0;y<NY;y++)for(let x=0;x<NX;x++){
+    const i=y*NX+x,a=wall[i]?0:Math.exp(-((x-X0)**2)/(4*SX*SX)-((y-NY/2)**2)/(4*SY*SY));
+    R[i]=a*Math.cos(k0*x);I[i]=a*Math.sin(k0*x);nrm+=a*a}
+  const f=1/Math.sqrt(nrm);for(let i=0;i<N;i++){R[i]*=f;I[i]*=f}
+  /* Visscher scheme: imaginary part lives half a step later */
+  const tmp=new Float32Array(N);
+  for(let i=0;i<N;i++)if(!wall[i])tmp[i]=I[i]-0.5*DT*applyH(R,i);
+  I=tmp;
+  rho0=1/(2*Math.PI*SX*SY);acc.fill(0);t=0;stepCount=0;hits=[];seeded=false;tSeed=Math.round((WX+WT+100-X0)/k0);seededL=false;tSeedL=Math.round((WX+WT+25-X0)/k0);
+  parts=[];const rng=mulberry32(7);
+  for(let p=0;p<1500;p++)parts.push({x:X0+SX*gauss(rng),y:NY/2+SY*gauss(rng),alive:true,trail:[]});
+  computePathSum(slits);
+}
+/* sum over straight paths: plane wave at the slits, arrow e^{ikr}/sqrt(r) to each screen point */
+function computePathSum(slits){
+  let mx=0;
+  for(let y=0;y<NY;y++){let ar=0,ai=0;
+    for(const [a,b] of slits)for(let s=a+0.25;s<b;s+=0.5){
+      const env=Math.exp(-((s-NY/2)**2)/(4*SY*SY));
+      const r=Math.hypot(XS-(WX+WT),y-s),amp=env/Math.sqrt(r);
+      ar+=amp*Math.cos(k0*r);ai+=amp*Math.sin(k0*r)}
+    pathSum[y]=ar*ar+ai*ai;if(pathSum[y]>mx)mx=pathSum[y]}
+  for(let y=0;y<NY;y++)pathSum[y]/=mx||1;
+}
+function step(){
+  /* 4th-order Laplacian: H = -(1/2) * (-f[-2] + 16 f[-1] - 30 f + 16 f[+1] - f[+2]) / 12, in x and in y */
+  const N2=2*NX;
+  for(let y=2;y<NY-2;y++){const o=y*NX;for(let x=2;x<NX-2;x++){const i=o+x;if(wall[i])continue;
+    R[i]+=DT*(2.5*I[i]-(16*(I[i-1]+I[i+1]+I[i-NX]+I[i+NX])-(I[i-2]+I[i+2]+I[i-N2]+I[i+N2]))/24)}}
+  for(let y=2;y<NY-2;y++){const o=y*NX;for(let x=2;x<NX-2;x++){const i=o+x;if(wall[i])continue;
+    I[i]-=DT*(2.5*R[i]-(16*(R[i-1]+R[i+1]+R[i-NX]+R[i+NX])-(R[i-2]+R[i+2]+R[i-N2]+R[i+N2]))/24)}}
+  for(let y=0;y<NY;y++){const o=y*NX;
+    for(let x=0;x<B;x++){const i=o+x;R[i]*=absorb[i];I[i]*=absorb[i]}
+    for(let x=NX-B;x<NX;x++){const i=o+x;R[i]*=absorb[i];I[i]*=absorb[i]}}
+  for(let y=0;y<B;y++)for(let x=B;x<NX-B;x++){let i=y*NX+x;R[i]*=absorb[i];I[i]*=absorb[i];i=(NY-1-y)*NX+x;R[i]*=absorb[i];I[i]*=absorb[i]}
+  for(let y=0;y<NY;y++){const i=y*NX+XS;acc[y]+=(R[i]*R[i]+I[i]*I[i])*DT}
+  stepCount++;t+=DT;
+  if(!seededL&&t>=tSeedL){seededL=true;seedAfterSlits(160,true)}
+  if(!seeded&&t>=tSeed){seeded=true;seedAfterSlits(2500,false)}
+  if(stepCount%2===0)moveParticles(2*DT);
+}
+/* Bohm particles are |psi|^2-distributed at every time, so new particles can be drawn
+   from |psi|^2 behind the slits. Only these make the dots on the screen. */
+function seedAfterSlits(count,line){
+  const xa=WX+WT+2,xb=XS-4,cum=[],cells=[];let tot=0;
+  for(let y=B;y<NY-B;y++)for(let x=xa;x<xb;x++){const i=y*NX+x;tot+=R[i]*R[i]+I[i]*I[i];cum.push(tot);cells.push(i)}
+  const rng=mulberry32(line?13:11);
+  for(let p=0;p<count;p++){const u=rng()*tot;let lo=0,hi=cum.length-1;
+    while(lo<hi){const m=(lo+hi)>>1;if(cum[m]<u)lo=m+1;else hi=m}
+    const c=cells[lo];parts.push({x:c%NX+rng(),y:Math.floor(c/NX)+rng(),alive:true,trail:[],dot:!line,line})}
+}
+let vx=0,vy=0;
+function velAt(x,y){
+  if(x<1||x>=NX-1||y<1||y>=NY-1){vx=vy=0;return}
+  const i=y*NX+x,r=R[i],m=I[i],rho=r*r+m*m;
+  if(rho<1e-14){vx=vy=0;return}
+  vx=(r*(I[i+1]-I[i-1])-m*(R[i+1]-R[i-1]))/(2*rho);
+  vy=(r*(I[i+NX]-I[i-NX])-m*(R[i+NX]-R[i-NX]))/(2*rho);
+}
+function velocity(px,py){
+  const x=Math.floor(px),y=Math.floor(py),fx=px-x,fy=py-y;let ax=0,ay=0;
+  velAt(x,y);ax+=vx*(1-fx)*(1-fy);ay+=vy*(1-fx)*(1-fy);
+  velAt(x+1,y);ax+=vx*fx*(1-fy);ay+=vy*fx*(1-fy);
+  velAt(x,y+1);ax+=vx*(1-fx)*fy;ay+=vy*(1-fx)*fy;
+  velAt(x+1,y+1);ax+=vx*fx*fy;ay+=vy*fx*fy;
+  const s=Math.hypot(ax,ay);if(s>2){ax*=2/s;ay*=2/s}
+  vx=ax;vy=ay;
+}
+function moveParticles(h){
+  for(let k=0;k<parts.length;k++){const p=parts[k];if(!p.alive)continue;
+    velocity(p.x,p.y);p.x+=vx*h;p.y+=vy*h;
+    if((k<100||p.line)&&stepCount%8===0)p.trail.push(p.x,p.y);
+    const c=Math.floor(p.y)*NX+Math.floor(p.x);
+    if(p.x>=XS){p.alive=false;if(p.dot)hits.push(p.y)}
+    else if(p.x<B||p.y<B||p.y>NY-B||wall[c]){p.alive=false}
+  }
+}
+
+/* drawing */
+const off=document.createElement("canvas");off.width=NX;off.height=NY;
+const octx=off.getContext("2d"),img=octx.createImageData(NX,NY);
+const pal=new Uint8Array(256*3);
+for(let h=0;h<256;h++){const H=h/256*6,Xc=1-Math.abs(H%2-1);let r=0,g=0,b=0;
+  if(H<1){r=1;g=Xc}else if(H<2){r=Xc;g=1}else if(H<3){g=1;b=Xc}else if(H<4){g=Xc;b=1}else if(H<5){r=Xc;b=1}else{r=1;b=Xc}
+  pal[h*3]=r*255;pal[h*3+1]=g*255;pal[h*3+2]=b*255}
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,h=Math.round(w*(c.dataset.aspect?+c.dataset.aspect:NY/NX));
+  const H=+c.getAttribute("data-h")||h;
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(H*d)){c.width=Math.round(w*d);c.height=Math.round(H*d)}c.style.height=H+"px";
+  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h:H}}
+function draw(){
+  const D=img.data,phase=$("view").value==="phase";
+  let pm=1e-30;for(let i=0;i<N;i++){const q=R[i]*R[i]+I[i]*I[i];if(q>pm)pm=q}
+  /* brightness = (density / frame maximum)^0.3, so weak waves behind the slits stay visible */
+  const inv=1/Math.max(pm,0.01*rho0);
+  for(let i=0;i<N;i++){const o=i*4;
+    if(wall[i]){D[o]=D[o+1]=D[o+2]=120;D[o+3]=255;continue}
+    const r=R[i],m=I[i],b=Math.min(1,Math.pow((r*r+m*m)*inv,0.3));
+    if(phase){const h=((Math.atan2(m,r)*0.15915494+1)%1*256)|0;D[o]=pal[h*3]*b;D[o+1]=pal[h*3+1]*b;D[o+2]=pal[h*3+2]*b}
+    else{D[o]=255*Math.min(1,b*b*1.3);D[o+1]=255*Math.min(1,b*1.05);D[o+2]=255*Math.min(1,0.3*Math.sqrt(b)+b)}
+    D[o+3]=255}
+  octx.putImageData(img,0,0);
+  const sim=$("sim");const {x:g,w:W,h:H}=fit(sim),sx=W/NX,sy=H/NY;
+  g.imageSmoothingEnabled=true;g.drawImage(off,0,0,W,H);
+  g.strokeStyle="rgba(255,255,255,.5)";g.setLineDash([4,4]);g.beginPath();g.moveTo(XS*sx,0);g.lineTo(XS*sx,H);g.stroke();g.setLineDash([]);
+  if($("lines").checked){g.lineWidth=1;
+    for(let k=0;k<parts.length;k++){const p=parts[k];if(k>=100&&!p.line)continue;const tr=p.trail;if(tr.length<4)continue;
+      g.strokeStyle=p.line?"rgba(255,255,255,.8)":"rgba(255,255,255,.3)";
+      g.beginPath();g.moveTo(tr[0]*sx,tr[1]*sy);for(let j=2;j<tr.length;j+=2)g.lineTo(tr[j]*sx,tr[j+1]*sy);g.stroke()}
+    g.fillStyle="#fff";for(let k=0;k<parts.length;k++){const p=parts[k];if((k<100||p.line)&&p.alive){g.beginPath();g.arc(p.x*sx,p.y*sy,1.6,0,7);g.fill()}}}
+  g.fillStyle="rgba(255,255,255,.7)";g.font="12px system-ui";g.fillText("screen",XS*sx-44,14);
+  const sc=$("screen");sc.dataset.h=H;const s=fit(sc),q=s.x,SW=s.w,SH=s.h;
+  q.fillStyle="#05060a";q.fillRect(0,0,SW,SH);
+  let mx=0;for(let y=0;y<NY;y++)if(acc[y]>mx)mx=acc[y];
+  if(mx>0){q.fillStyle="rgba(125,170,255,.45)";for(let y=0;y<NY;y++)q.fillRect(0,y*SH/NY,acc[y]/mx*SW*0.9,SH/NY+0.5)}
+  q.fillStyle="#fff";const rr=mulberry32(3);for(const y of hits){q.beginPath();q.arc((0.08+0.84*rr())*SW,y*SH/NY,1.6,0,7);q.fill()}
+  q.strokeStyle="#ff9d3c";q.lineWidth=2;q.beginPath();for(let y=0;y<NY;y++)q.lineTo(pathSum[y]*SW*0.9,y*SH/NY);q.stroke();
+  readout(mx);
+}
+function peaks(arr){let mx=0;for(const v of arr)if(v>mx)mx=v;const out=[];
+  for(let y=B+2;y<NY-B-2;y++)if(arr[y]>0.2*mx&&arr[y]>=arr[y-1]&&arr[y]>arr[y+1]&&arr[y]>=arr[y-2]&&arr[y]>arr[y+2])out.push(y);return out}
+function spacing(arr){const p=peaks(arr);if(p.length<2)return NaN;
+  p.sort((a,b)=>Math.abs(a-NY/2)-Math.abs(b-NY/2));const c=p.slice(0,3).sort((a,b)=>a-b);
+  let s=0;for(let i=1;i<c.length;i++)s+=c[i]-c[i-1];return s/(c.length-1)}
+function readout(mx){
+  let n=0;for(let i=0;i<N;i++)n+=R[i]*R[i]+I[i]*I[i];
+  const lam=+$("lam").value,d=+$("d").value,L=XS-(WX+WT),two=$("mode").value==="both";
+  const sim=mx>0&&t>900?spacing(acc):NaN,ps=spacing(pathSum);
+  $("read").innerHTML=`<div><span>time </span><b>${t.toFixed(0)}</b></div>
+   <div><span>total probability on grid </span><b>${n.toFixed(3)}</b></div>
+   <div><span>stripe distance: simulation </span><b>${two&&!isNaN(sim)?sim.toFixed(1):"…"}</b> <span>· path sum </span><b>${two&&!isNaN(ps)?ps.toFixed(1):"–"}</b> <span>· λL/d </span><b>${two?(lam*L/d).toFixed(1):"–"}</b></div>
+   <div><span>dots on screen </span><b>${hits.length}</b></div>`;
+}
+function loop(){
+  if(running&&t<1300){const n=+$("sp").value*12;for(let i=0;i<n;i++)step()}
+  draw();requestAnimationFrame(loop);
+}
+function labels(){$("lamV").textContent=(+$("lam").value).toFixed(1);$("dV").textContent=$("d").value;$("wV").textContent=$("w").value;$("spV").textContent=$("sp").value}
+["lam","d","w","mode"].forEach(id=>$(id).addEventListener("input",()=>{labels();setup()}));
+$("sp").addEventListener("input",labels);
+$("run").onclick=()=>{running=!running;$("run").textContent=running?"Pause":"Run"};
+$("restart").onclick=()=>{setup();running=true;$("run").textContent="Pause"};
+labels();setup();loop();
+</script>
+</body>
+</html>
