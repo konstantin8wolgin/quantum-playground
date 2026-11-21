@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paths That Meet Again</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2.sec{font-size:18px;margin:0 0 6px}
+h3.cap{font-size:14px;margin:10px 0 4px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.grid2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.legend{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;max-width:100%}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px;overflow-wrap:anywhere}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.big{margin-top:12px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.big b{font-size:19px;color:var(--chip-exact);font-variant-numeric:tabular-nums}
+.big small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style></head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Paths That Meet Again</h1>
+<p class="sub">The path integral as a lens. In a harmonic trap, all paths from one point meet again at the mirror point, and the wave forms an upside-down image. In a box, the paths bounce, and the wave draws a carpet and then comes back. Colour shows the phase. Brightness shows the probability.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: press <i>Play</i> and watch the picture on the left. Time goes down. The thin coloured lines are classical paths from one start point. Wait for the half period: all lines meet, and the packet is upside down.</li>
+<li>Part 1: change the <i>start point</i> or the <i>kick</i>. The meeting point and the meeting time do not change with the kick. Then read the number "overlap with the mirror image" at T/2.</li>
+<li>Part 2: choose <i>jump to</i> = 1/3 or 1/4 and look at the snapshot. Count the copies of the packet. Then jump to 1/2 and to 1.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
+<section id="part1">
+<h2 class="sec">Part 1 · A harmonic trap focuses all paths</h2>
+<p>A ball on a spring swings with period T = 2π/ω. Start many balls at the same point, each with a different speed. After T/2 all of them are at the other side, at −x₀. The speed does not matter. So the quantum wave also comes together there.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Space-time map (x across, time down, one full period)</h3>
+    <canvas id="st1" data-h0="360"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">The packet now (snapshot at the white line)</h3>
+    <canvas id="sn1" data-h0="170"></canvas>
+    <h3 class="cap">Overlaps over one period</h3>
+    <canvas id="ov1" data-h0="130"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>colours and brightness of the map: the exact wave, built from 240 oscillator states (the number of states and the norm they hold are in the line below)</div>
+  <div><span class="chip c-exact">exact</span>coloured lines: classical paths x(t) = x₀ cos ωt + (v/ω) sin ωt. Their colour is the phase of the action along the path (S/ħ), from the exact formula S = ½(x·ẋ − x₀·v₀)</div>
+  <div><span class="chip c-cartoon">cartoon</span>21 paths are only a sample. The real sum uses all paths, and all of them matter.</div>
+  <div><span class="chip c-int">interpretation</span>"The paths meet, so the wave meets." The wave function is the same without this story. The story shows why the focus is sharp.</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="run1" class="primary">Pause</button><button id="j1a">start</button><button id="j1b">T/4</button><button id="j1c">T/2</button><button id="j1d">T</button></div>
+  <label>time t/T <b id="t1V"></b><input id="t1" type="range" min="0" max="1000" step="1" value="0"></label>
+  <label>trap frequency ω <b id="w1V"></b><input id="w1" type="range" min="1" max="2" step="0.05" value="1"></label>
+  <label>start point x₀ <b id="x01V"></b><input id="x01" type="range" min="-2" max="2" step="0.05" value="1.2"></label>
+  <label>kick p (start momentum) <b id="p1V"></b><input id="p1" type="range" min="-2" max="2" step="0.1" value="0"></label>
+  <label>shape <select id="shape1"><option value="two">two bumps</option><option value="steps">three steps</option><option value="spike">one spike (almost a point)</option></select></label>
+  <label><input type="checkbox" id="fan1" checked> show classical paths from x₀</label>
+  <label>speed <b id="sp1V"></b><input id="sp1" type="range" min="1" max="8" step="1" value="3"></label>
+</div>
+<div class="big" id="big1"></div>
+<div class="read" id="read1"></div>
+<div class="predict"><b>Predict, then test:</b> double the kick p. Does the packet come back to the mirror point at the same time T/2, or later? Then move x₀ to 0. What does the picture at T/2 look like now?</div>
+<details><summary>What the numbers mean</summary>
+<p>The wave is written as a sum of oscillator states: ψ(x,t) = Σ cₙ e<sup>−iω(n+½)t</sup> φₙ(x). At t = T/2 every term gets the factor e<sup>−iπ(n+½)</sup> = −i·(−1)ⁿ. The state φₙ has parity (−1)ⁿ, so the sum is −i times the start wave turned around: ψ(x, T/2) = e<sup>−iπ/2</sup> ψ₀(−x). The mirror overlap is |⟨ψ₀(−x)|ψ(T/2)⟩|. It is exactly 1. The phase factor is −i. This is the Gouy (or Maslov) phase: every focus adds −π/2. At T you get e<sup>−iπ</sup> = −1.</p>
+<p>The check "Mehler kernel against the state sum" is independent. It does not use the oscillator states. It adds the exact kernel K(x,t;x₀) over all start points x₀ with the start wave as weight. It must give the same wave. It is only done where the kernel is not too sharp (|sin ωt| > 0.3).</p>
+<p>Only the middle part, |x| &lt; 6, is drawn. At t = T/4 the wave is as wide as its momentum spread, so the edges of a narrow packet can leave the picture. The norm line says how much stays inside.</p>
+</details>
+</section>
+
+<section id="part2">
+<h2 class="sec">Part 2 · The quantum carpet in a box</h2>
+<p>A packet in a box with hard walls. The walls reflect it, again and again. The map below shows |ψ|² in space and time. It forms a carpet with straight channels. At T_rev = 4L²/π (for ħ = m = 1) the packet is back, exactly. At rational fractions of T_rev it splits into copies.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Carpet: the box across (0 to L), time down (in units of T_rev)</h3>
+    <canvas id="st2" data-h0="380"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">The packet now (snapshot at the white line)</h3>
+    <canvas id="sn2" data-h0="170"></canvas>
+    <h3 class="cap">Autocorrelation |⟨ψ(0)|ψ(t)⟩|² over one T_rev</h3>
+    <canvas id="ac2" data-h0="130"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>carpet and snapshot: the exact wave, a sum over the box modes φₙ = √(2/L) sin(nπx/L), E_n = n²π²/(2L²). The number of modes and the norm they hold are shown below.</div>
+  <div><span class="chip c-exact">exact</span>autocorrelation curve and the number at T_rev: sums over the same modes.</div>
+  <div><span class="chip c-cartoon">cartoon</span>thin coloured lines (optional): classical bouncing paths. Their colour is the phase ½v²t − π·(number of wall hits). Only a few paths are drawn.</div>
+  <div><span class="chip c-int">interpretation</span>"The carpet is the sum over bounced paths." The wave function is the same without this story. The mode sum and the image sum give the same numbers (tested).</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="run2" class="primary">Play</button><button id="rs2">to start</button></div>
+  <label>time t/T_rev <b id="t2V"></b><input id="t2" type="range" min="0" max="1000" step="1" value="250"></label>
+  <label>jump to <select id="jump2"><option value="">…</option><option value="1/6">1/6</option><option value="1/5">1/5</option><option value="1/4">1/4</option><option value="1/3">1/3</option><option value="1/2">1/2 (mirror)</option><option value="2/3">2/3</option><option value="3/4">3/4</option><option value="1/1">1 (revival)</option></select></label>
+  <label>packet width σ (in L) <b id="sg2V"></b><input id="sg2" type="range" min="0.015" max="0.08" step="0.005" value="0.02"></label>
+  <label>momentum (in modes) <b id="n02V"></b><input id="n02" type="range" min="0" max="30" step="1" value="0"></label>
+  <label>start position x_c <b id="xc2V"></b><input id="xc2" type="range" min="0.15" max="0.85" step="0.01" value="0.3"></label>
+  <label>time zoom: window <select id="win2"><option value="0">whole T_rev</option><option value="1">1/2 of T_rev</option><option value="2" selected>1/4</option><option value="3">1/8</option><option value="4">1/16</option><option value="5">1/32</option></select></label>
+  <label>window start <b id="ws2V"></b><input id="ws2" type="range" min="0" max="1000" step="1" value="0"></label>
+  <label>colours <select id="view2"><option value="dens">probability only</option><option value="phase">phase colours</option></select></label>
+  <label><input type="checkbox" id="paths2"> show bouncing classical paths</label>
+  <label>speed <b id="sp2V"></b><input id="sp2" type="range" min="1" max="8" step="1" value="3"></label>
+</div>
+<div class="big" id="big2"></div>
+<div class="read" id="read2"></div>
+<div class="predict"><b>Predict, then test:</b> at t = T_rev/3, how many copies of the packet do you expect? And at T_rev/4? Jump there and count. Then make the packet wide (σ = 0.08). Why do the copies blur?</div>
+<details><summary>What the numbers mean</summary>
+<p>The mode n turns with the phase e<sup>−iE_n t</sup>. With L = 1 and ħ = m = 1: E_n·T_rev = (n²π²/2)(4/π) = 2πn². So at T_rev every mode has turned by a whole number of turns, and the sum is the start wave again. That is why |⟨ψ(0)|ψ(T_rev)⟩|² = 1 exactly.</p>
+<p>At t = (p/q)·T_rev the phase factor e<sup>−2πi n²p/q</sup> repeats every q modes. A repeating pattern is a sum of q waves e<sup>2πi sn/q</sup>. Each wave with weight ≠ 0 moves the (mirror-extended) packet by 2s/q·L. So each such term is one copy, and each copy has the weight |a_s|². "Copies expected" counts these terms. "Peaks counted" counts the bright peaks in the snapshot. They agree if the packet is narrow.</p>
+<p>At T_rev/2 the factor is (−1)ⁿ. This gives ψ(x) = −ψ₀(L−x): the mirror image, with a minus sign. At T_rev/4 the factor is 1 for even n and −i for odd n. This gives (1−i)/2·ψ₀(x) − (1+i)/2·ψ₀(L−x): two copies with weight ½ each.</p>
+</details>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>The <a class="term" href="../glossary.html#path-integral">path integral</a> says: to find where a quantum particle goes, add one small arrow (an <a class="term" href="../glossary.html#amplitude">amplitude</a>) for every path. The arrow of a path turns with its <a class="term" href="../glossary.html#action">action</a>. This room shows two cases where the sum of arrows is easy to see.</p>
+<p>First case: a ball in a <a class="term" href="../glossary.html#harmonic-oscillator">harmonic trap</a> (like a ball on a spring). Throw balls from one point with any speed. All of them come back together at the mirror point after half a period. At that point all arrows have the same direction, so they add up: a sharp focus. The wave there is an exact upside-down copy of the start wave.</p>
+<p>Second case: a packet in a box. The walls reflect the paths. Many bounced paths cross each other and add up or cancel. The result is a "carpet" of bright and dark lines. After the time T_rev all arrows line up again, and the packet is back, exactly.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Colour</dt><dd>The <a class="term" href="../glossary.html#phase">phase</a> of the wave (or of the path action). Red → yellow → green → blue → red is one full turn. This is the same colour code as in the other rooms.</dd>
+<dt>Brightness (maps and snapshots)</dt><dd>The <a class="term" href="../glossary.html#probability">probability</a> density |ψ|². Weak parts are shown a little brighter than they are.</dd>
+<dt>Part 1 map</dt><dd>x is across and time goes down, one full period T. At T/2 the packet is mirrored. At T it is back. Thin coloured lines are classical paths from the start point x₀. The line colour is the action phase. At T/2 all lines have the same colour (action 0): they add up.</dd>
+<dt>Part 1 snapshot</dt><dd>The packet at the white line. The dashed grey line is the start shape. The dotted line is the start shape turned around (x → −x).</dd>
+<dt>Part 1 overlaps</dt><dd>Blue: how much the wave looks like the start wave. Orange: how much it looks like the mirror image. Blue is 1 at T. Orange is 1 at T/2.</dd>
+<dt>Part 2 carpet</dt><dd>The box is across, time goes down. A sharp copy of the packet appears where the pattern is bright and narrow. The straight channels follow the bouncing paths of the particle.</dd>
+<dt>Part 2 autocorrelation</dt><dd>How much the wave at time t looks like the start wave: |⟨ψ(0)|ψ(t)⟩|². It is 1 at t = 0 and at T_rev. Smaller peaks at fractions of T_rev show the copies.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: press <i>T/2</i>. Compare the snapshot with the dotted line. <details><summary>What happens and why</summary>The packet is the dotted shape: the start shape, turned around. Every path from x₀ is at −x₀ at T/2. The wave is the sum of all paths, and all arrows there point the same way. The overlap with the mirror image is 1 (the number below the picture). The wave has also gained a phase factor −i. In the picture, the colours turn by a quarter of the colour wheel.</details></li>
+<li>Part 1: change the kick p. <details><summary>What happens and why</summary>The packet swings wider or narrower, but it is at the mirror point at the same time T/2. A stronger kick only means a larger swing. The period of a harmonic trap does not depend on the amplitude or the speed. This is why all paths meet at the same moment.</details></li>
+<li>Part 1: set the shape to "one spike" and look at the fan of lines. <details><summary>What happens and why</summary>A narrow spike is almost a point source. It spreads out (the paths go apart), then it comes together at T/2 (the paths meet) and spreads again. The lines of the fan show the same. The focus is a point where the paths cross. The wave there is sharp because all arrows add up.</details></li>
+<li>Part 1: pause at T/4. <details><summary>What happens and why</summary>Neither the start shape nor the mirror image is there. Both overlaps are well below 1. The packet looks like its own momentum distribution: the trap swaps position and momentum every quarter period.</details></li>
+<li>Part 2: jump to 1/2, then to 1. <details><summary>What happens and why</summary>At 1/2 you see one mirror image of the packet (x → L − x). At 1 the packet is back where it started, with the same shape and the same phase. The autocorrelation number at T_rev is exactly 1. All the modes have turned a whole number of turns.</details></li>
+<li>Part 2: jump to 1/3, 1/4, 1/5, 1/6. <details><summary>What happens and why</summary>You see 3, 2, 5 and 3 copies. At the time T_rev/q the phases of the modes repeat after q modes. This splits the packet into copies. The number of copies is q for odd q. For even q it can be smaller (2 at 1/4, 3 at 1/6). The "copies expected" number comes from the phase pattern. The "peaks counted" number comes from the picture.</details></li>
+<li>Part 2: make the packet wider (σ = 0.08), or give it momentum. <details><summary>What happens and why</summary>A wider packet has fewer modes. The copies get wider too and begin to overlap, so you cannot count them. A packet with momentum moves, so its copies move too, and the carpet gets slanted channels.</details></li>
+<li>Part 2: switch on the bouncing paths and zoom in time (window 1/8). <details><summary>What happens and why</summary>The paths run along the bright channels of the carpet. Where many paths with the same colour meet, the wave is strong. Where paths with opposite colours meet, the wave is weak.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p><b>Harmonic trap.</b> A particle in the potential V = ½mω²x² has paths x(t) = x₀ cos ωt + (v/ω) sin ωt. Every path from x₀ is at −x₀ at t = π/ω, whatever the speed v. So the point −x₀ is a <i>focus</i> (physicists say <i>caustic</i>). The action of each path there is the same (it is zero), so all arrows add up. The exact sum over all paths is the Mehler kernel, the <a class="term" href="../glossary.html#propagator">propagator</a> of the trap, K(x,t;x₀). Its size grows like 1/√(sin ωt). At the focus it becomes a sharp delta function, and the wave is the start wave turned around.</p>
+<p>The kernel has a prefactor 1/√(i sin ωt). Each time ωt passes a multiple of π, this factor gains a phase −π/2. This is the <a class="term" href="../glossary.html#gouy-phase"><i>Gouy phase</i></a> or <i>Maslov phase</i>: each focus adds −π/2. After T/2 the wave is −i·ψ₀(−x). After T it is −ψ₀(x). The same factor comes from the <a class="term" href="../glossary.html#zero-point-energy">zero-point energy</a> ½ħω: the state φₙ has the phase e<sup>−iω(n+½)t</sup>, and the part e<sup>−iωt/2</sup> is −i at T/2. A global phase cannot be seen in |ψ|², but it can be seen when you add two waves.</p>
+<p><b>Box.</b> The wave in a box with perfect walls is a sum of modes φₙ (<a class="term" href="../glossary.html#eigenstate">eigenstates</a>) with energies Eₙ ∝ n². The energies grow with n², so after T_rev = 4L²/π (for ħ = m = 1) every mode has turned by 2πn², a whole number of turns. This is the full <a class="term" href="../glossary.html#revival">revival</a>. After T_rev/2 each mode has the factor (−1)ⁿ, and the wave is the mirror image.</p>
+<p>The same wave is a sum over bounced paths. Take the free particle. Add the "image" of the packet behind each wall, with a minus sign (a wall reflects the wave with a factor −1). The images repeat with period 2L. Free spreading of all these packets gives the wave in the box (the method of images). So the carpet is the interference of the free packet with its own images. Each path that hits a wall n times has the action ½v²t and the extra factor (−1)ⁿ. This is the sum over paths from the <a href="path-integral.html">Path Integral Playground</a>. The interference of two kinds of paths is the same idea as in <a href="double-slit.html">Double Slit Flow</a>. The link between paths and mirrors is in <a href="feynman-mirror.html">Light Takes Every Path</a>.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">K(x,t;x₀,0) = √( mω / (2πiħ sin ωt) ) · exp( i mω [ (x²+x₀²) cos ωt − 2 x x₀ ] / (2ħ sin ωt) )</span>
+<span>The Mehler kernel (the exact path integral of the oscillator). In the code ħ = m = 1. For ωt between π and 2π the square root gains a further factor e<sup>−iπ/2</sup>, and so on for each multiple of π.</span>
+<span class="eq">K = Σₙ φₙ(x) φₙ(x₀) e<sup>−iω(n+½)t</sup></span>
+<span>The same kernel as a sum over oscillator states. The test compares both forms.</span>
+<span class="eq">ψ(x, T/2) = e<sup>−iπ/2</sup> ψ(−x, 0), &nbsp; ψ(x, T) = e<sup>−iπ</sup> ψ(x, 0)</span>
+<span>Because e<sup>−iπ(n+½)</sup> = −i(−1)ⁿ and φₙ(−x) = (−1)ⁿ φₙ(x). T = 2π/ω.</span>
+<span class="eq">S = ∫ (½mẋ² − ½mω²x²) dt = ½ m (x ẋ − x₀ v₀)</span>
+<span>The action along a classical path (it is "on shell"). It is 0 at t = T/2 for every path from x₀.</span>
+<span class="eq">φₙ(x) = √(2/L) sin(nπx/L), &nbsp; Eₙ = n²π²ħ² / (2mL²)</span>
+<span>The modes of a box of width L.</span>
+<span class="eq">T_rev = 4mL²/(πħ), &nbsp; Eₙ T_rev/ħ = 2πn²</span>
+<span>Every mode turns a whole number of times. So ψ(x, T_rev) = ψ(x, 0). Also ψ(x, T_rev/2) = −ψ(L−x, 0).</span>
+<span class="eq">e<sup>−2πi n² p/q</sup> = Σ_s a_s e<sup>2πi s n/q</sup>, &nbsp; ψ(x, (p/q)T_rev) = Σ_s a_s ψ̃(x + 2sL/q, 0)</span>
+<span>Fractional revival. ψ̃ is the start wave continued beyond the walls (odd, with period 2L). Each non-zero a_s gives one copy. Σ|a_s|² = 1.</span>
+<span class="eq">ψ(x,t) = Σ_j [ F(x − 2jL, t) − F̄(x + 2jL, t) ]</span>
+<span>The method of images. F is the free packet. F̄ is the free mirror packet (its centre is −x_c, its momentum is −k₀).</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The trap is perfectly harmonic, and the box has perfectly hard walls. There is no damping and no noise, and the particle is alone (one dimension, no spin). In a real trap the potential is never exactly harmonic, so the foci blur after a few periods. In a real box (a Rydberg atom, a quantum well, a light guide) walls and energy levels are not perfect, so revivals fade. The numbers "1.0000000000" are exact for this model, not for a real lab. The wave is built from a finite number of states (240 in Part 1, up to 300 in Part 2), so the numbers are exact only to the precision the norm line shows. A packet that touches a wall is cut off at the wall, and the code renormalises it. The 21 paths and the few bouncing paths are only a cartoon of the full sum. The words "path" and "copy" are pictures; only the wave function has a meaning in an experiment.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman and A. R. Hibbs, <i>Quantum Mechanics and Path Integrals</i> (McGraw-Hill, 1965): the path integral for the harmonic oscillator.</li>
+<li>F. G. Mehler, Journal für die reine und angewandte Mathematik 66, 161 (1866): the kernel formula (in a form from mathematics).</li>
+<li>H. F. Talbot, "Facts relating to optical science. No. IV", Philosophical Magazine 9, 401 (1836): the first report of the Talbot effect with light.</li>
+<li>M. V. Berry and S. Klein, "Integer, fractional and fractal Talbot effects", Journal of Modern Optics 43, 2139 (1996).</li>
+<li>I. Sh. Averbukh and N. F. Perelman, Physics Letters A 139, 449 (1989): fractional revivals of wave packets.</li>
+<li>D. L. Aronstein and C. R. Stroud, "Fractional wave-function revivals in the infinite square well", Physical Review A 55, 4526 (1997).</li>
+<li>R. W. Robinett, "Quantum wave packet revivals", Physics Reports 392, 1 (2004): a long review.</li>
+<li>J. A. Yeazell, M. Mallalieu and C. R. Stroud, "Observation of the collapse and revival of a Rydberg electronic wave packet", Physical Review Letters 64, 2007 (1990).</li>
+<li>M. S. Chapman et al., "Near-field imaging of atom diffraction gratings: the atomic Talbot effect", Physical Review A 51, R14 (1995).</li>
+<li>Related rooms: <a href="path-integral.html">Path Integral Playground</a>, <a href="double-slit.html">Double Slit Flow</a>, <a href="feynman-mirror.html">Light Takes Every Path</a>.</li>
+</ul>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TWO_PI=2*Math.PI;
+function frac(x){return x-Math.floor(x)}
+/* ---------- Part 1: harmonic oscillator, hbar = m = 1, E_n = w (n + 1/2) ---------- */
+/* normalised Hermite functions h_n(u), n = 0..N-1, by the stable three-term recurrence. Row n starts at n*M. */
+function hermiteTable(N,us){
+  const M=us.length,T=new Float64Array(N*M);
+  for(let j=0;j<M;j++){const u=us[j];let prev=0,cur=Math.pow(Math.PI,-0.25)*Math.exp(-u*u/2);T[j]=cur;
+    for(let n=0;n<N-1;n++){const nx=Math.sqrt(2/(n+1))*u*cur-Math.sqrt(n/(n+1))*prev;prev=cur;cur=nx;T[(n+1)*M+j]=cur}}
+  return T}
+/* eigenfunctions of the oscillator with frequency w at the points xs: phi_n(x) = w^(1/4) h_n(sqrt(w) x) */
+function hoBasis(N,w,xs){
+  const s=Math.sqrt(w),us=new Float64Array(xs.length);for(let j=0;j<xs.length;j++)us[j]=s*xs[j];
+  const T=hermiteTable(N,us),f=Math.sqrt(s);for(let i=0;i<T.length;i++)T[i]*=f;return T}
+/* amplitude of a profile at x: sum of Gaussian bumps (real), times e^{i p x}. */
+function hoProfile(shape,x,x0,p){
+  const g=(y,s)=>Math.exp(-y*y/(2*s*s));let a;
+  if(shape==="two")a=g(x-x0+0.9,0.3)+0.5*g(x-x0-0.8,0.42);
+  else if(shape==="steps")a=g(x-x0+1.2,0.28)+0.62*g(x-x0,0.28)+0.3*g(x-x0-1.2,0.28);
+  else a=g(x-x0,0.32);
+  return [a*Math.cos(p*x),a*Math.sin(p*x)]}
+/* coefficients c_n = <phi_n|psi0> by the trapezoid rule on a fine grid, renormalised to sum |c|^2 = 1.
+   returns {re,im,N,captured}: captured = (sum of |c_n|^2 over the N modes) / (integral of |psi0|^2). */
+function hoCoeffs(N,basis,xs,dx,psiRe,psiIm){
+  const M=xs.length;let nrm=0;for(let j=0;j<M;j++)nrm+=(psiRe[j]*psiRe[j]+psiIm[j]*psiIm[j])*dx;
+  const re=new Float64Array(N),im=new Float64Array(N);let tot=0;
+  for(let n=0;n<N;n++){let a=0,b=0;const o=n*M;for(let j=0;j<M;j++){const f=basis[o+j];a+=f*psiRe[j];b+=f*psiIm[j]}
+    re[n]=a*dx;im[n]=b*dx;tot+=re[n]*re[n]+im[n]*im[n]}
+  const captured=tot/nrm,sc=1/Math.sqrt(tot);for(let n=0;n<N;n++){re[n]*=sc;im[n]*=sc}
+  return {re,im,N,captured}}
+/* time evolution: psi(x,t) = sum c_n e^{-i w (n+1/2) t} phi_n(x). tau = t/T = w t / 2pi. */
+function hoPsi(c,tau,basis,M){
+  const N=c.N,re=new Float64Array(M),im=new Float64Array(M);
+  for(let n=0;n<N;n++){const th=TWO_PI*frac(tau*(n+0.5)),co=Math.cos(th),si=Math.sin(th);
+    const ar=c.re[n]*co+c.im[n]*si,ai=c.im[n]*co-c.re[n]*si,o=n*M;
+    for(let j=0;j<M;j++){const f=basis[o+j];re[j]+=ar*f;im[j]+=ai*f}}
+  return {re,im}}
+/* <psi0|psi(t)> = sum |c_n|^2 e^{-i th_n}  (par = 1);  <psi0(-x)|psi(t)> = sum (-1)^n |c_n|^2 e^{-i th_n}  (par = -1) */
+function hoOverlap(c,tau,par){
+  let re=0,im=0;
+  for(let n=0;n<c.N;n++){const w=(c.re[n]*c.re[n]+c.im[n]*c.im[n])*(par<0&&(n&1)?-1:1),th=TWO_PI*frac(tau*(n+0.5));
+    re+=w*Math.cos(th);im-=w*Math.sin(th)}
+  return [re,im]}
+/* exact Mehler kernel, real time. K(x,t;x0,0) = sqrt(w/(2 pi i sin wt)) exp(i w((x^2+x0^2)cos wt - 2 x x0)/(2 sin wt)).
+   The square root is continued through the focal points: every passage of wt through a multiple of pi adds -pi/2. */
+function mehlerReal(x,x0,t,w){
+  const a=w*t,s=Math.sin(a),c=Math.cos(a),nu=Math.floor(a/Math.PI);
+  const amp=Math.sqrt(w/(TWO_PI*Math.abs(s))),ph=-Math.PI/4-nu*Math.PI/2+w*((x*x+x0*x0)*c-2*x*x0)/(2*s);
+  return [amp*Math.cos(ph),amp*Math.sin(ph)]}
+/* the same kernel for complex time t - i eps (eps > 0). Then everything decays like a Gaussian, so it can be tested
+   against the eigenstate sum and integrated over y without an oscillating tail. */
+function mehlerComplex(x,x0,t,eps,w){
+  const a=w*t,e=w*eps,ch=Math.cosh(e),sh=Math.sinh(e);
+  const sr=Math.sin(a)*ch,si=-Math.cos(a)*sh,cr=Math.cos(a)*ch,ci=Math.sin(a)*sh;   /* sin z, cos z, z = a - i e */
+  const k=Math.floor((a+Math.PI/2)/TWO_PI),arg=Math.atan2(si,sr)+TWO_PI*k,mod=Math.hypot(sr,si);
+  /* prefactor sqrt(w/(2 pi)) * exp(-i pi/4) * (sin z)^(-1/2) with the continued branch */
+  const pa=Math.sqrt(w/TWO_PI)*Math.pow(mod,-0.5),pp=-Math.PI/4-arg/2;
+  /* exponent i w ((x^2+x0^2) cos z - 2 x x0) / (2 sin z) */
+  const nr=w*((x*x+x0*x0)*cr-2*x*x0),ni=w*((x*x+x0*x0)*ci),d=2*(sr*sr+si*si);
+  const qr=(nr*sr+ni*si)/d,qi=(ni*sr-nr*si)/d;      /* (nr + i ni)/(2 sin z) */
+  const er=-qi,ei=qr;                               /* times i */
+  const m=pa*Math.exp(er),ph=pp+ei;return [m*Math.cos(ph),m*Math.sin(ph)]}
+/* sum_n phi_n(x) phi_n(x0) e^{-i E_n (t - i eps)}, N terms (needs eps > 0 to converge fast) */
+function kernelSum(x,x0,t,eps,w,N){
+  const T=hoBasis(N,w,[x,x0]);let re=0,im=0;
+  for(let n=0;n<N;n++){const E=w*(n+0.5),f=T[n*2]*T[n*2+1]*Math.exp(-E*eps),th=-E*t;re+=f*Math.cos(th);im+=f*Math.sin(th)}
+  return [re,im]}
+/* classical paths of the oscillator: x(t) = x0 cos wt + (v/w) sin wt */
+function classX(x0,v,w,t){return x0*Math.cos(w*t)+v/w*Math.sin(w*t)}
+function classV(x0,v,w,t){return -x0*w*Math.sin(w*t)+v*Math.cos(w*t)}
+/* action along the path from 0 to t: S = int (v^2/2 - w^2 x^2/2) dt = (x v_t - x0 v_0)/2 (exact, on shell) */
+function classAction(x0,v,w,t){return 0.5*(classX(x0,v,w,t)*classV(x0,v,w,t)-x0*v)}
+/* the phase of the Mehler kernel (without the prefactor) = classical action of the path that joins (x0,0) to (x,t) */
+function mehlerAction(x,x0,t,w){const a=w*t;return w*((x*x+x0*x0)*Math.cos(a)-2*x*x0)/(2*Math.sin(a))}
+
+/* ---------- Part 2: particle in a box 0 < x < 1, hbar = m = 1 ----------
+   modes phi_n = sqrt(2) sin(n pi x), E_n = n^2 pi^2 / 2.  T_rev = 4/pi, so E_n T_rev = 2 pi n^2 and tau = t/T_rev. */
+const T_REV=4/Math.PI;
+function sinTable(N,xs){const M=xs.length,T=new Float64Array(N*M);
+  for(let n=1;n<=N;n++)for(let j=0;j<M;j++)T[(n-1)*M+j]=Math.SQRT2*Math.sin(n*Math.PI*xs[j]);return T}
+/* Gaussian packet exp(-(x-xc)^2/(4 s^2) + i k0 x), cut at the walls */
+function boxPacket(xs,xc,s,k0){const re=new Float64Array(xs.length),im=new Float64Array(xs.length);
+  for(let j=0;j<xs.length;j++){const a=Math.exp(-(xs[j]-xc)*(xs[j]-xc)/(4*s*s));re[j]=a*Math.cos(k0*xs[j]);im[j]=a*Math.sin(k0*xs[j])}
+  return {re,im}}
+/* c_n = <phi_n|psi0>, trapezoid rule (psi0 vanishes at x=0,1 after the cut); renormalised over the first N modes */
+function boxCoeffs(Nmax,tab,xs,dx,pr,pi_){
+  const M=xs.length;let nrm=0;for(let j=0;j<M;j++)nrm+=(pr[j]*pr[j]+pi_[j]*pi_[j])*dx;
+  const re=new Float64Array(Nmax),im=new Float64Array(Nmax);let tot=0;
+  for(let n=0;n<Nmax;n++){let a=0,b=0;const o=n*M;for(let j=0;j<M;j++){a+=tab[o+j]*pr[j];b+=tab[o+j]*pi_[j]}re[n]=a*dx;im[n]=b*dx;tot+=re[n]*re[n]+im[n]*im[n]}
+  return {re,im,N:Nmax,total:tot,captured:tot/nrm}}
+/* keep the first N modes that hold all but 1e-7 of the weight, renormalise to 1 */
+function boxTrim(c,eps){let cum=0,N=c.N;const w=new Float64Array(c.N);for(let n=0;n<c.N;n++){w[n]=c.re[n]*c.re[n]+c.im[n]*c.im[n]}
+  for(let n=c.N-1;n>=0;n--){cum+=w[n];if(cum>eps*c.total){N=n+1;break}}
+  let t=0;for(let n=0;n<N;n++)t+=w[n];const s=1/Math.sqrt(t),re=new Float64Array(N),im=new Float64Array(N);
+  for(let n=0;n<N;n++){re[n]=c.re[n]*s;im[n]=c.im[n]*s}return {re,im,N,total:1,captured:c.captured}}
+/* psi(x, tau) = sum c_n e^{-2 pi i n^2 tau} phi_n(x) */
+function boxPsi(c,tau,tab,M){
+  const re=new Float64Array(M),im=new Float64Array(M);
+  for(let n=1;n<=c.N;n++){const th=TWO_PI*frac(n*n*tau),co=Math.cos(th),si=Math.sin(th),cr=c.re[n-1],ci=c.im[n-1];
+    const ar=cr*co+ci*si,ai=ci*co-cr*si,o=(n-1)*M;for(let j=0;j<M;j++){const f=tab[o+j];re[j]+=ar*f;im[j]+=ai*f}}
+  return {re,im}}
+/* autocorrelation amplitude <psi(0)|psi(tau)> = sum |c_n|^2 e^{-2 pi i n^2 tau} */
+function boxAuto(c,tau){let re=0,im=0;
+  for(let n=1;n<=c.N;n++){const w=c.re[n-1]*c.re[n-1]+c.im[n-1]*c.im[n-1],th=TWO_PI*frac(n*n*tau);re+=w*Math.cos(th);im-=w*Math.sin(th)}
+  return [re,im]}
+/* fractional revival at tau = p/q: the phase e^{-2 pi i n^2 p/q} repeats every q modes. Write it as a sum of
+   e^{2 pi i s n/q}; each term with a non-zero weight is one copy of the packet, shifted by 2s/q along the
+   mirror-extended line. Returns the number of copies and the weight |a_s|^2 of each. */
+function copiesExpected(p,q){
+  const f=[];for(let n=0;n<q;n++){const th=-TWO_PI*(((n*n*p)%q)/q);f.push([Math.cos(th),Math.sin(th)])}
+  const out=[];
+  for(let s=0;s<q;s++){let re=0,im=0;
+    for(let n=0;n<q;n++){const th=-TWO_PI*s*n/q,co=Math.cos(th),si=Math.sin(th);re+=f[n][0]*co-f[n][1]*si;im+=f[n][0]*si+f[n][1]*co}
+    re/=q;im/=q;const w=re*re+im*im;if(w>1e-18)out.push({s,shift:2*s/q,weight:w})}
+  return {count:out.length,terms:out}}
+/* where the copies sit inside the box (0,1) for a packet that starts at xc */
+function copyPositions(p,q,xc){
+  const ce=copiesExpected(p,q),pos=[];
+  for(const t of ce.terms)for(const sg of [1,-1]){let y=((sg*xc-t.shift)%2+2)%2;if(y>1)y=2-y;
+    if(!pos.some(z=>Math.abs(z-y)<1e-9))pos.push(y)}
+  return pos.sort((a,b)=>a-b)}
+/* free Gaussian u0(y) = exp(-a (y-xc)^2 + i k0 y) after time t (hbar = m = 1) */
+function freeGauss(y,t,xc,a,k0){
+  const dr=1,di=2*a*t,dd=dr*dr+di*di,z=y-xc-k0*t;           /* d = 1 + 2 i a t */
+  const er=-a*z*z*dr/dd,ei=a*z*z*di/dd;                      /* -a z^2 / d */
+  const pm=Math.pow(dd,-0.25),pp=-0.5*Math.atan2(di,dr);
+  const ph=ei+pp+k0*y-k0*k0*t/2,m=pm*Math.exp(er);return [m*Math.cos(ph),m*Math.sin(ph)]}
+/* method of images: the box solution is a sum of free packets and their sign-flipped mirror images */
+function boxByImages(x,t,xc,s,k0,J){
+  const a=1/(4*s*s);let re=0,im=0;
+  for(let j=-J;j<=J;j++){const u=freeGauss(x-2*j,t,xc,a,k0),w=freeGauss(x+2*j,t,-xc,a,-k0);re+=u[0]-w[0];im+=u[1]-w[1]}
+  return [re,im]}
+/* classical bouncing path: unfolded position u = xc + v t; number of wall hits and the phase of its action */
+function bouncePath(xc,v,t){const u=xc+v*t;let y=((u%2)+2)%2;if(y>1)y=2-y;
+  const nb=u>=0?Math.floor(u):Math.ceil(-u);return {x:y,bounces:nb,phase:0.5*v*v*t-Math.PI*nb}}
+/* PHYSICS-CORE END */
+/* ---------------- user interface (not tested from node) ---------------- */
+const $=id=>document.getElementById(id);
+const BG="#07080c",TXT="rgba(255,255,255,.78)";
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,H=Math.round(+c.dataset.h0*(w<420?0.85:1));
+  const pw=Math.round(w*d),ph=Math.round(H*d);
+  if(c.dataset.pw!==String(pw)||c.dataset.ph!==String(ph)){c.width=pw;c.height=ph;c.dataset.pw=pw;c.dataset.ph=ph}
+  c.style.height=H+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h:H}}
+/* phase colour wheel: same code as the other rooms (red, yellow, green, blue, red) */
+const pal=new Uint8Array(256*3);
+for(let h=0;h<256;h++){const H=h/256*6,Xc=1-Math.abs(H%2-1);let r=0,g=0,b=0;
+  if(H<1){r=1;g=Xc}else if(H<2){r=Xc;g=1}else if(H<3){g=1;b=Xc}else if(H<4){g=Xc;b=1}else if(H<5){r=Xc;b=1}else{r=1;b=Xc}
+  pal[h*3]=r*255;pal[h*3+1]=g*255;pal[h*3+2]=b*255}
+const hueIdx=ph=>{let h=ph/TWO_PI;h-=Math.floor(h);return Math.min(255,(h*256)|0)};
+const rgb=(i,b)=>`rgb(${pal[i*3]*b|0},${pal[i*3+1]*b|0},${pal[i*3+2]*b|0})`;
+function fmt(x,d){return x.toFixed(d)}
+function pm(v,d){return (v<0?"−":"")+Math.abs(v).toFixed(d)}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function nearFrac(tau){if(tau<1e-9)return null;for(let q=1;q<=12;q++){const p=Math.round(tau*q);if(p>=1&&p<=q&&Math.abs(tau-p/q)<2e-4&&gcd(p,q)===1)return [p,q]}return null}
+/* batch path segments into 24 colour bins: 24 stroke calls instead of thousands */
+function binPaths(){return Array.from({length:24},()=>new Path2D())}
+function strokeBins(g,bins,w,alpha){g.lineWidth=w;g.lineCap="round";for(let k=0;k<24;k++){g.strokeStyle=`hsla(${k*15+7},90%,58%,${alpha})`;g.stroke(bins[k])}}
+const binOf=ph=>{let h=ph/TWO_PI;h-=Math.floor(h);return Math.min(23,(h*24)|0)};
+
+/* ===================== Part 1 ===================== */
+const FX=(()=>{const M=2001,a=new Float64Array(M);for(let i=0;i<M;i++)a[i]=-10+i*0.01;return a})();
+const P1={N:240,cols:300,rows:260,XR:6,probe:new Float64Array([-1.3,0.2,1.5]),tau:0,run:true,need:true,dirty:true};
+P1.vx=new Float64Array(P1.cols);for(let j=0;j<P1.cols;j++)P1.vx[j]=-P1.XR+2*P1.XR*j/(P1.cols-1);
+P1.off=document.createElement("canvas");P1.off.width=P1.cols;P1.off.height=P1.rows;
+function build1(){
+  const N=P1.N,M=FX.length,w=+$("w1").value,x0=+$("x01").value,p=+$("p1").value,shape=$("shape1").value;
+  P1.w=w;P1.x0=x0;
+  const fb=hoBasis(N,w,FX),fr=new Float64Array(M),fi=new Float64Array(M);let nrm=0;
+  for(let j=0;j<M;j++){const a=hoProfile(shape,FX[j],x0,p);fr[j]=a[0];fi[j]=a[1];nrm+=(a[0]*a[0]+a[1]*a[1])*0.01}
+  P1.c=hoCoeffs(N,fb,FX,0.01,fr,fi);P1.fr=fr;P1.fi=fi;P1.scale=1/Math.sqrt(P1.c.captured*nrm);
+  P1.vb=hoBasis(N,w,P1.vx);P1.pb=hoBasis(N,w,P1.probe);
+  const cols=P1.cols,rows=P1.rows,rho=new Float32Array(rows*cols),ph=new Float32Array(rows*cols);let mx=0,inside=0;
+  for(let r=0;r<rows;r++){const s=hoPsi(P1.c,r/(rows-1),P1.vb,cols);
+    for(let j=0;j<cols;j++){const q=s.re[j]*s.re[j]+s.im[j]*s.im[j];rho[r*cols+j]=q;ph[r*cols+j]=Math.atan2(s.im[j],s.re[j]);if(q>mx)mx=q}}
+  P1.rhoMax=mx;P1.rho0=rho.slice(0,cols);
+  const img=P1.off.getContext("2d").createImageData(cols,rows),D=img.data,ref=0.6*mx;
+  for(let i=0;i<rows*cols;i++){const b=Math.min(1,Math.pow(rho[i]/ref,0.5)),h=hueIdx(ph[i]);D[i*4]=pal[h*3]*b;D[i*4+1]=pal[h*3+1]*b;D[i*4+2]=pal[h*3+2]*b;D[i*4+3]=255}
+  P1.off.getContext("2d").putImageData(img,0,0);
+  /* norm inside the picture at the worst row (T/4 and 3T/4) */
+  let mn=1;for(const r of [0,Math.round((rows-1)*0.25),Math.round((rows-1)*0.5),Math.round((rows-1)*0.75)]){let s=0;for(let j=0;j<cols;j++)s+=rho[r*cols+j];mn=Math.min(mn,s*(2*P1.XR/(cols-1)))}
+  P1.inside=mn;
+  P1.ovA=new Float64Array(401);P1.ovM=new Float64Array(401);
+  for(let k=0;k<=400;k++){const a=hoOverlap(P1.c,k/400,1),b=hoOverlap(P1.c,k/400,-1);P1.ovA[k]=Math.hypot(a[0],a[1]);P1.ovM[k]=Math.hypot(b[0],b[1])}
+  P1.chkM=hoOverlap(P1.c,0.5,-1);P1.chkA=hoOverlap(P1.c,1,1);
+  let s0=0;{const a=[];for(let k=-10;k<=10;k++){a.push(classAction(x0,k*0.16*w,w,Math.PI/w))}s0=Math.max(...a)-Math.min(...a)}P1.spreadHalf=s0;
+  P1.need=false;P1.dirty=true}
+function draw1(){
+  const tau=P1.tau,w=P1.w,x0=P1.x0,XR=P1.XR;
+  {const {x:g,w:W,h:H}=fit($("st1"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const ML=46,MB=20,MT=2,pw=W-ML-6,ph=H-MB-MT,X=x=>ML+(x+XR)/(2*XR)*pw,Y=t=>MT+t*ph;
+   g.imageSmoothingEnabled=true;g.drawImage(P1.off,ML,MT,pw,ph);
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";
+   for(const [t,l] of [[0,"0"],[0.25,"T/4"],[0.5,"T/2"],[0.75,"3T/4"],[1,"T"]]){g.fillText(l,ML-6,Y(t)+4);g.strokeStyle="rgba(255,255,255,.18)";g.setLineDash([3,4]);g.beginPath();g.moveTo(ML,Y(t));g.lineTo(ML+pw,Y(t));g.stroke();g.setLineDash([])}
+   g.textAlign="center";for(const x of [-4,-2,0,2,4]){g.fillText(String(x),X(x),H-6)}g.fillText("x",ML+pw-4,H-6);
+   if($("fan1").checked){const bins=binPaths(),NS=100;
+     for(let k=-10;k<=10;k++){const b=k*0.16;let px=0,py=0;
+       for(let i=0;i<=NS;i++){const t=i/NS,a=TWO_PI*t,xx=x0*Math.cos(a)+b*Math.sin(a),S=0.5*w*(xx*(-x0*Math.sin(a)+b*Math.cos(a))-x0*b);
+         if(i>0){const bn=bins[binOf(S)];bn.moveTo(X(px),Y(py));bn.lineTo(X(xx),Y(t))}px=xx;py=t}}
+     g.save();g.beginPath();g.rect(ML,MT,pw,ph);g.clip();strokeBins(g,bins,1.1,0.8);g.restore();
+     g.fillStyle="#fff";for(const [xx,t] of [[x0,0],[-x0,0.5],[x0,1]]){g.beginPath();g.arc(X(xx),Y(t),3.5,0,7);g.fill()}}
+   g.fillStyle="rgba(255,255,255,.9)";g.textAlign="left";g.font="11px system-ui";
+   g.fillText("× e^(−iπ/2)",ML+6,Y(0.5)-5);g.fillText("× e^(−iπ)",ML+6,Y(1)-5);
+   g.strokeStyle="#fff";g.lineWidth=1.5;g.beginPath();g.moveTo(ML,Y(tau));g.lineTo(ML+pw,Y(tau));g.stroke();g.lineWidth=1;
+   P1.geo={ML,pw};}
+  const s=hoPsi(P1.c,tau,P1.vb,P1.cols);
+  {const {x:g,w:W,h:H}=fit($("sn1"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=8,pw=W-2*ML,base=H-18,top=8,ref=P1.rhoMax*1.05,cols=P1.cols,bw=pw/cols;
+   g.setLineDash([4,3]);g.strokeStyle="rgba(255,255,255,.55)";g.beginPath();
+   for(let j=0;j<cols;j++){const y=base-(P1.rho0[j]/ref)*(base-top);j?g.lineTo(ML+(j+0.5)*bw,y):g.moveTo(ML+(j+0.5)*bw,y)}g.stroke();
+   g.setLineDash([1.5,3]);g.strokeStyle="#7fb0ff";g.beginPath();
+   for(let j=0;j<cols;j++){const y=base-(P1.rho0[cols-1-j]/ref)*(base-top);j?g.lineTo(ML+(j+0.5)*bw,y):g.moveTo(ML+(j+0.5)*bw,y)}g.stroke();g.setLineDash([]);
+   for(let j=0;j<cols;j++){const q=s.re[j]*s.re[j]+s.im[j]*s.im[j],hgt=Math.min(1.2,q/ref)*(base-top);g.fillStyle=rgb(hueIdx(Math.atan2(s.im[j],s.re[j])),1);g.fillRect(ML+j*bw,base-hgt,bw+0.6,hgt)}
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="center";for(const x of [-4,-2,0,2,4])g.fillText(String(x),ML+(x+P1.XR)/(2*P1.XR)*pw,H-4);
+   g.textAlign="left";g.fillText("dashed: start   dotted: start turned around",ML,12);}
+  {const {x:g,w:W,h:H}=fit($("ov1"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=30,pw=W-ML-8,top=8,base=H-20,X=t=>ML+t*pw,Y=v=>base-v*(base-top);
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="right";g.fillText("1",ML-4,Y(1)+4);g.fillText("0",ML-4,Y(0)+4);
+   g.textAlign="center";for(const [t,l] of [[0,"0"],[0.5,"T/2"],[1,"T"]])g.fillText(l,X(t),H-6);
+   g.strokeStyle="rgba(255,255,255,.18)";g.beginPath();g.moveTo(ML,Y(1));g.lineTo(ML+pw,Y(1));g.stroke();
+   for(const [arr,col] of [[P1.ovA,"#7fb0ff"],[P1.ovM,"#fb923c"]]){g.strokeStyle=col;g.lineWidth=1.8;g.beginPath();for(let k=0;k<=400;k++){const x=X(k/400),y=Y(arr[k]);k?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}g.lineWidth=1;
+   g.fillStyle="#7fb0ff";g.textAlign="left";g.fillText("|⟨ψ₀|ψ(t)⟩|",ML+8,top+8);g.fillStyle="#fb923c";g.fillText("|⟨ψ₀(−x)|ψ(t)⟩|",ML+110,top+8);
+   g.strokeStyle="#fff";g.beginPath();g.moveTo(X(tau),top);g.lineTo(X(tau),base);g.stroke()}
+  /* readouts */
+  const A=hoOverlap(P1.c,tau,1),Mo=hoOverlap(P1.c,tau,-1);
+  $("big1").innerHTML=`<span>overlap with the mirror image at T/2:</span> <b>|⟨ψ₀(−x)|ψ(T/2)⟩| = ${P1.chkM?fmt(Math.hypot(P1.chkM[0],P1.chkM[1]),10):""}</b> <span>(exact answer: 1)</span>
+   <small>phase factor at T/2: ${pm(P1.chkM[0],6)} ${P1.chkM[1]<0?"−":"+"} ${Math.abs(P1.chkM[1]).toFixed(6)} i  (exact: −i = e<sup>−iπ/2</sup>) · at T: |⟨ψ₀|ψ(T)⟩| = ${fmt(Math.hypot(P1.chkA[0],P1.chkA[1]),10)}, factor ${pm(P1.chkA[0],6)} ${P1.chkA[1]<0?"−":"+"} ${Math.abs(P1.chkA[1]).toFixed(6)} i (exact: −1 = e<sup>−iπ</sup>) · action spread of the 21 paths at T/2: ${P1.spreadHalf.toExponential(1)} rad (exact: 0)</small>`;
+  const sn=Math.sin(TWO_PI*tau);let meh="kernel too sharp near a focus (|sin ωt| &lt; 0.3), check skipped";
+  if(Math.abs(sn)>0.3){const t=tau*TWO_PI/w,ps=hoPsi(P1.c,tau,P1.pb,3);let worst=0;
+    for(let k=0;k<3;k++){let re=0,im=0;const xp=P1.probe[k];
+      for(let j=0;j<FX.length;j++){const fr=P1.fr[j],fi=P1.fi[j];if(fr*fr+fi*fi<1e-16)continue;const K=mehlerReal(xp,FX[j],t,w);re+=(K[0]*fr-K[1]*fi);im+=(K[0]*fi+K[1]*fr)}
+      re*=0.01*P1.scale;im*=0.01*P1.scale;worst=Math.max(worst,Math.hypot(re-ps.re[k],im-ps.im[k]))}
+    meh=`max |ψ(Mehler kernel quadrature) − ψ(state sum)| at 3 points: <b>${worst.toExponential(1)}</b>`}
+  $("read1").innerHTML=`<div><span>time t/T </span><b>${fmt(tau,3)}</b> <span>· T = 2π/ω = </span><b>${fmt(TWO_PI/P1.w,3)}</b> <span>· focus passed: </span><b>${Math.floor(tau*2+1e-9)}</b></div>
+   <div><span>overlap with start </span><b>${fmt(Math.hypot(A[0],A[1]),4)}</b> <span>· with mirror image </span><b>${fmt(Math.hypot(Mo[0],Mo[1]),4)}</b></div>
+   <div><span>Mehler check: </span>${meh}</div>
+   <div><span>states used </span><b>${P1.N}</b> <span>· norm captured </span><b>${P1.c.captured.toFixed(8)}</b> <span>· norm inside |x| &lt; 6 (worst of 0, T/4, T/2, 3T/4) </span><b>${P1.inside.toFixed(4)}</b></div>`;
+  $("t1V").textContent=fmt(tau,3);P1.dirty=false}
+
+/* ===================== Part 2 ===================== */
+const NQ=2048,NMAX=300;
+const XQ=(()=>{const a=new Float64Array(NQ+1);for(let j=0;j<=NQ;j++)a[j]=j/NQ;return a})();
+let TABQ=null;
+const P2={cols:320,rows:300,tau:0.25,rat:[1,4],run:false,need:true,dirty:true};
+P2.xs=new Float64Array(P2.cols);for(let j=0;j<P2.cols;j++)P2.xs[j]=(j+0.5)/P2.cols;
+P2.off=document.createElement("canvas");P2.off.width=P2.cols;P2.off.height=P2.rows;
+function winLen(){return Math.pow(2,-(+$("win2").value))}
+function build2(){
+  if(!TABQ)TABQ=sinTable(NMAX,XQ);
+  const sg=+$("sg2").value,n0=+$("n02").value,xc=+$("xc2").value;
+  P2.sg=sg;P2.n0=n0;P2.xc=xc;
+  const pk=boxPacket(XQ,xc,sg,n0*Math.PI),c0=boxCoeffs(NMAX,TABQ,XQ,1/NQ,pk.re,pk.im);P2.c=boxTrim(c0,1e-7);
+  P2.tab=sinTable(P2.c.N,P2.xs);P2.W=winLen();P2.w0=(1-P2.W)*(+$("ws2").value)/1000;
+  /* enough rows to follow the fastest mode (n^2 W cycles in the window), and 3 sub-times per row so thin lines do not alias */
+  const cols=P2.cols,N2=P2.c.N,rows=Math.min(900,Math.max(300,Math.ceil(2.2*N2*N2*P2.W))),sub=N2*rows*cols*3<5e7?3:1;
+  P2.rows=rows;P2.off.width=cols;P2.off.height=rows;
+  const rho=new Float32Array(rows*cols),ph=new Float32Array(rows*cols);
+  for(let r=0;r<rows;r++){
+    for(let u=0;u<sub;u++){const s=boxPsi(P2.c,P2.w0+P2.W*(r+(u+0.5)/sub)/rows,P2.tab,cols);
+      for(let j=0;j<cols;j++){rho[r*cols+j]+=(s.re[j]*s.re[j]+s.im[j]*s.im[j])/sub;if(u===(sub>>1))ph[r*cols+j]=Math.atan2(s.im[j],s.re[j])}}}
+  const img=P2.off.getContext("2d").createImageData(cols,rows),D=img.data,ref=4,phase=$("view2").value==="phase";
+  for(let i=0;i<rows*cols;i++){const b=Math.min(1,Math.pow(rho[i]/ref,0.6)),o=i*4;
+    if(phase){const h=hueIdx(ph[i]);D[o]=pal[h*3]*b;D[o+1]=pal[h*3+1]*b;D[o+2]=pal[h*3+2]*b}
+    else{D[o]=255*Math.min(1,1.6*b);D[o+1]=255*Math.min(1,1.05*Math.pow(b,1.15));D[o+2]=255*Math.min(1,0.3*Math.sqrt(b)+0.9*b*b)}
+    D[o+3]=255}
+  P2.off.getContext("2d").putImageData(img,0,0);
+  P2.ac=new Float64Array(1001);for(let k=0;k<=1000;k++){const a=boxAuto(P2.c,k/1000);P2.ac[k]=a[0]*a[0]+a[1]*a[1]}
+  const a1=boxAuto(P2.c,1);P2.a1=a1[0]*a1[0]+a1[1]*a1[1];
+  const p0=boxPsi(P2.c,0,P2.tab,cols),p1=boxPsi(P2.c,1,P2.tab,cols),ph2=boxPsi(P2.c,0.5,P2.tab,cols);let d1=0,d2=0;
+  for(let j=0;j<cols;j++){d1=Math.max(d1,Math.hypot(p1.re[j]-p0.re[j],p1.im[j]-p0.im[j]));d2=Math.max(d2,Math.hypot(ph2.re[j]+p0.re[cols-1-j],ph2.im[j]+p0.im[cols-1-j]))}
+  P2.dRev=d1;P2.dMir=d2;P2.rho0=new Float64Array(cols);for(let j=0;j<cols;j++)P2.rho0[j]=p0.re[j]*p0.re[j]+p0.im[j]*p0.im[j];P2.rhoMax0=Math.max(...P2.rho0);
+  $("sg2V").textContent=sg.toFixed(3);$("n02V").textContent=n0;$("xc2V").textContent=xc.toFixed(2);$("ws2V").textContent=P2.w0.toFixed(3);
+  P2.need=false;P2.dirty=true}
+function draw2(){
+  const tau=P2.tau,W2=P2.W,w0=P2.w0;
+  {const {x:g,w:W,h:H}=fit($("st2"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const ML=46,MB=20,MT=2,pw=W-ML-6,ph=H-MB-MT,X=x=>ML+x*pw,Y=t=>MT+(t-w0)/W2*ph;
+   g.imageSmoothingEnabled=true;g.drawImage(P2.off,ML,MT,pw,ph);
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";
+   const marks=[];for(let q=1;q<=6;q++)for(let p=0;p<=q;p++){const t=p/q;if(gcd(p,q)===1&&t>=w0-1e-12&&t<=w0+W2+1e-12&&!marks.some(m=>Math.abs(m[0]-t)<1e-9))marks.push([t,p===0?"0":p+"/"+q])}
+   marks.sort((a,b)=>a[0]-b[0]);let lastY=W2<1?MT+12:-99;
+   for(const [t,l] of marks){const y=Y(t);g.strokeStyle="rgba(255,255,255,.2)";g.setLineDash([3,4]);g.beginPath();g.moveTo(ML,y);g.lineTo(ML+pw,y);g.stroke();g.setLineDash([]);if(y-lastY>11&&(W2>=1||y<MT+ph-12)){g.fillText(l,ML-6,y+4);lastY=y}}
+   if(W2<1){g.fillText(fmt(w0,3),ML-6,MT+10);g.fillText(fmt(w0+W2,3),ML-6,MT+ph-2)}
+   g.textAlign="center";g.fillText("0",X(0),H-6);g.fillText("L/2",X(0.5),H-6);g.fillText("L",X(1)-4,H-6);
+   if($("paths2").checked){const bins=binPaths(),sk=1/(2*P2.sg),hits=Math.abs(P2.n0*Math.PI)+3*sk;let drawn=true;
+     if(hits*W2*T_REV>120)drawn=false;
+     else for(let j=-3;j<=3;j++){const v=P2.n0*Math.PI+j*0.8*sk,t0=w0*T_REV,t1=(w0+W2)*T_REV;
+       const pts=[t0],u0=P2.xc+v*t0,u1=P2.xc+v*t1,lo=Math.min(u0,u1),hi=Math.max(u0,u1);
+       const ks=[];for(let k=Math.ceil(lo+1e-12);k<=Math.floor(hi);k++)ks.push((k-P2.xc)/v);ks.sort((a,b)=>a-b);for(const t of ks)if(t>t0&&t<t1)pts.push(t);pts.push(t1);
+       for(let i=0;i<pts.length-1;i++){const ta=pts[i],tb=pts[i+1],ea=1e-9*(tb-ta),A=bouncePath(P2.xc,v,ta+ea),B=bouncePath(P2.xc,v,tb-ea);
+         const sub=4;for(let s=0;s<sub;s++){const f0=s/sub,f1=(s+1)/sub,xa=A.x+(B.x-A.x)*f0,xb=A.x+(B.x-A.x)*f1,tm=ta+(tb-ta)*(f0+f1)/2,ph=0.5*v*v*tm-Math.PI*bouncePath(P2.xc,v,tm).bounces;
+           const bn=bins[binOf(ph)];bn.moveTo(X(xa),Y(ta/T_REV+(tb-ta)/T_REV*f0));bn.lineTo(X(xb),Y(ta/T_REV+(tb-ta)/T_REV*f1))}}}
+     if(drawn){g.save();g.beginPath();g.rect(ML,MT,pw,ph);g.clip();strokeBins(g,bins,1.2,0.9);g.restore()}
+     else{g.fillStyle="rgba(255,255,255,.85)";g.textAlign="left";g.fillText("too many bounces to draw: zoom in time or lower the momentum",ML+6,MT+14)}}
+   if(tau>=w0&&tau<=w0+W2){g.strokeStyle="#fff";g.lineWidth=1.5;g.beginPath();g.moveTo(ML,Y(tau));g.lineTo(ML+pw,Y(tau));g.stroke();g.lineWidth=1}}
+  const s=boxPsi(P2.c,tau,P2.tab,P2.cols),cols=P2.cols,rho=new Float64Array(cols);let mxr=0,sum=0;
+  for(let j=0;j<cols;j++){rho[j]=s.re[j]*s.re[j]+s.im[j]*s.im[j];if(rho[j]>mxr)mxr=rho[j];sum+=rho[j]/cols}
+  const fr=P2.rat||nearFrac(tau);
+  {const {x:g,w:W,h:H}=fit($("sn2"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=8,pw=W-2*ML,base=H-18,top=14,ref=Math.max(P2.rhoMax0,mxr)*1.05,bw=pw/cols;
+   g.setLineDash([4,3]);g.strokeStyle="rgba(255,255,255,.55)";g.beginPath();for(let j=0;j<cols;j++){const y=base-(P2.rho0[j]/ref)*(base-top);j?g.lineTo(ML+(j+0.5)*bw,y):g.moveTo(ML+(j+0.5)*bw,y)}g.stroke();g.setLineDash([]);
+   for(let j=0;j<cols;j++){const hgt=Math.min(1.1,rho[j]/ref)*(base-top);g.fillStyle=rgb(hueIdx(Math.atan2(s.im[j],s.re[j])),1);g.fillRect(ML+j*bw,base-hgt,bw+0.6,hgt)}
+   if(fr){g.fillStyle="#fff";for(const z of copyPositions(fr[0],fr[1],P2.xc)){const x=ML+z*pw;g.beginPath();g.moveTo(x,base+2);g.lineTo(x-4,base+9);g.lineTo(x+4,base+9);g.fill()}}
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="center";g.fillText("0",ML,H-3);g.fillText("L/2",ML+pw/2,H-3);g.fillText("L",ML+pw-4,H-3);
+   g.textAlign="left";g.fillText(fr?"triangles: where the copies should be":"dashed: start shape",ML,11)}
+  {const {x:g,w:W,h:H}=fit($("ac2"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=30,pw=W-ML-8,top=8,base=H-20,X=t=>ML+t*pw,Y=v=>base-v*(base-top);
+   g.fillStyle="rgba(127,176,255,.15)";g.fillRect(X(w0),top,Math.max(1.5,pw*W2),base-top);
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="right";g.fillText("1",ML-4,Y(1)+4);g.fillText("0",ML-4,Y(0)+4);g.textAlign="center";
+   for(const [p,q] of [[0,1],[1,4],[1,3],[1,2],[2,3],[3,4],[1,1]]){const t=p/q;g.strokeStyle="rgba(255,255,255,.15)";g.beginPath();g.moveTo(X(t),top);g.lineTo(X(t),base);g.stroke();g.fillText(p===0?"0":q===1?"1":p+"/"+q,X(t),H-6)}
+   g.strokeStyle="#7fb0ff";g.lineWidth=1.5;g.beginPath();for(let k=0;k<=1000;k++){const x=X(k/1000),y=Y(P2.ac[k]);k?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.lineWidth=1;
+   g.strokeStyle="#fff";g.beginPath();g.moveTo(X(tau),top);g.lineTo(X(tau),base);g.stroke()}
+  /* readouts */
+  const a=boxAuto(P2.c,tau),a2=a[0]*a[0]+a[1]*a[1];
+  let copies="–";
+  if(fr){const ce=copiesExpected(fr[0],fr[1]);const found=[];
+    for(let j=2;j<cols-2;j++)if(rho[j]>0.3*mxr&&rho[j]>=rho[j-1]&&rho[j]>rho[j+1]){const x=(j+0.5)/cols;if(!found.some(f=>Math.abs(f-x)<0.02))found.push(x)}
+    copies=`at t = ${fr[0]===fr[1]?"1":fr[0]+"/"+fr[1]}·T_rev: copies expected from the phase pattern <b>${ce.count}</b> · peaks counted in the picture <b>${found.length}</b>${fr[1]===1?" (full revival: one copy, the start packet)":""}`}
+  else copies="move to a simple fraction (use <i>jump to</i>) to compare the number of copies";
+  $("big2").innerHTML=`<span>full revival at T_rev:</span> <b>|⟨ψ(0)|ψ(T_rev)⟩|² = ${fmt(P2.a1,10)}</b> <span>(exact answer: 1)</span>
+   <small>max |ψ(x,T_rev) − ψ(x,0)| = ${P2.dRev.toExponential(1)} (exact: 0) · max |ψ(x,T_rev/2) + ψ(L−x,0)| = ${P2.dMir.toExponential(1)} (exact: 0, the mirror image with a minus sign)</small>`;
+  $("read2").innerHTML=`<div><span>time t/T_rev </span><b>${fr?fr[0]+"/"+fr[1]+" = ":""}${fmt(tau,4)}</b> <span>· t = </span><b>${fmt(tau*T_REV,4)}</b> <span>(T_rev = 4L²/π = ${fmt(T_REV,4)} for L = 1)</span></div>
+   <div><span>autocorrelation now </span><b>${fmt(a2,4)}</b></div>
+   <div>${copies}</div>
+   <div><span>modes used </span><b>${P2.c.N}</b> <span>· norm captured </span><b>${P2.c.captured.toFixed(8)}</b></div>`;
+  $("t2V").textContent=fmt(tau,3);P2.dirty=false}
+
+/* ===================== wiring ===================== */
+function setTau1(t){P1.tau=Math.min(1,Math.max(0,t));$("t1").value=Math.round(P1.tau*1000);P1.dirty=true}
+function setTau2(t,rat){P2.tau=Math.min(1,Math.max(0,t));P2.rat=rat||null;$("t2").value=Math.round(P2.tau*1000);
+  if(P2.tau<P2.w0||P2.tau>P2.w0+P2.W){$("ws2").value=Math.round(Math.min(1,Math.max(0,(P2.tau-P2.W/2)/(1-P2.W+1e-12)))*1000);P2.need=true}
+  P2.dirty=true}
+["w1","x01","p1","shape1"].forEach(id=>$(id).addEventListener("input",()=>{$("w1V").textContent=(+$("w1").value).toFixed(2);$("x01V").textContent=(+$("x01").value).toFixed(2);$("p1V").textContent=(+$("p1").value).toFixed(1);P1.need=true}));
+$("fan1").addEventListener("input",()=>P1.dirty=true);
+$("sp1").addEventListener("input",()=>$("sp1V").textContent=$("sp1").value);
+$("t1").addEventListener("input",()=>{P1.tau=$("t1").value/1000;P1.dirty=true});
+$("run1").onclick=()=>{P1.run=!P1.run;$("run1").textContent=P1.run?"Pause":"Play"};
+[["j1a",0],["j1b",0.25],["j1c",0.5],["j1d",1]].forEach(([id,t])=>$(id).onclick=()=>{setTau1(t);P1.run=false;$("run1").textContent="Play"});
+["sg2","n02","xc2","win2","ws2","view2"].forEach(id=>$(id).addEventListener("input",()=>{if(id!=="ws2")P2.rat=P2.rat;P2.need=true}));
+$("paths2").addEventListener("input",()=>P2.dirty=true);
+$("sp2").addEventListener("input",()=>$("sp2V").textContent=$("sp2").value);
+$("t2").addEventListener("input",()=>{P2.tau=$("t2").value/1000;P2.rat=null;P2.dirty=true});
+$("run2").onclick=()=>{P2.run=!P2.run;$("run2").textContent=P2.run?"Pause":"Play"};
+$("rs2").onclick=()=>{setTau2(0,null);P2.run=false;$("run2").textContent="Play"};
+$("jump2").addEventListener("input",()=>{const v=$("jump2").value;if(!v)return;const [p,q]=v.split("/").map(Number);P2.run=false;$("run2").textContent="Play";setTau2(p/q,[p,q]);$("jump2").value=""});
+window.addEventListener("resize",()=>{P1.dirty=P2.dirty=true});
+let last=0;
+function loop(ts){
+  const dt=Math.min(0.1,(ts-last)/1000||0);last=ts;
+  if(P1.need)build1();
+  if(P1.run){P1.tau+=dt*0.025*$("sp1").value;if(P1.tau>1)P1.tau-=1;$("t1").value=Math.round(P1.tau*1000);P1.dirty=true}
+  if(P1.dirty)draw1();
+  if(P2.need)build2();
+  if(P2.run){P2.tau+=dt*0.012*$("sp2").value;if(P2.tau>1)P2.tau-=1;P2.rat=null;$("t2").value=Math.round(P2.tau*1000);P2.dirty=true}
+  if(P2.dirty)draw2();
+  requestAnimationFrame(loop)}
+$("w1V").textContent="1.00";$("x01V").textContent="1.20";$("p1V").textContent="0.0";$("sp1V").textContent=$("sp1").value;$("sp2V").textContent=$("sp2").value;
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
