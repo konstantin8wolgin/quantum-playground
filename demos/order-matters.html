@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order Matters</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px;touch-action:none}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:0 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+.mag{display:grid;grid-template-columns:auto auto 1fr auto;gap:8px 14px;align-items:center;margin-top:8px}
+@media (max-width:700px){.mag{grid-template-columns:1fr 1fr}.mag input[type=range]{grid-column:1/-1}}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+label.inl{display:inline-block;margin-right:10px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer}
+button.on,button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.status{margin-top:10px;font-size:14px;min-height:22px}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:8px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+.split{display:grid;grid-template-columns:minmax(0,560px) 1fr;gap:18px;align-items:start}
+@media (max-width:820px){.split{grid-template-columns:1fr}}
+.mat{display:inline-block;font-family:ui-serif,Georgia,serif;font-size:14px;margin:4px 14px 4px 0;vertical-align:middle}
+.mat table{display:inline-table;border-left:2px solid var(--muted);border-right:2px solid var(--muted);border-radius:6px;padding:0 4px;border-collapse:separate;border-spacing:8px 1px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Order Matters</h1>
+<p class="sub">Ask a quantum system two questions. Swap the order, and you get different answers. Three views of one fact: spin magnets, the rule x·p ≠ p·x, and the map of a state in phase space.</p>
+
+<section>
+<h3>1 · The magnet chain <span class="chip c-sim">simulation</span><span class="chip c-exact">exact</span></h3>
+<canvas id="chain" height="300"></canvas>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>dots and counters: random outcomes, seeded random numbers</div>
+  <div><span class="chip c-exact">exact</span>numbers on the beams and detectors: Born-rule probabilities</div>
+</div>
+<div class="cap">Each magnet asks: "Is the spin up or down along my axis?" It splits the beam in two. Click a gate (or use the boxes) to block one output. The number on a beam is the share of all particles that reach it.</div>
+<div class="controls">
+  <label>preset <select id="preset"><option value="erase">z, then x (block x−), then z</option><option value="repeat">z, z, z (block all −)</option><option value="tilt">z, then 45°, then x (block all −)</option></select></label>
+  <label>start <select id="start"><option value="up">spin up along z</option><option value="mixed">unpolarised (no direction)</option></select></label>
+  <label>magnets <span class="btns" id="nbtn"><button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button></span></label>
+</div>
+<div id="mags"></div>
+<div class="btns" style="margin-top:12px"><button id="run" class="primary">Pause</button><button id="fire">Fire 1000</button><button id="reset">Reset counts</button></div>
+<div class="read" id="read1"></div>
+<div class="predict"><b>Predict, then test:</b> the first magnet keeps spin up along z. The second magnet keeps only x+. The last magnet asks the z question again. What share of the particles do you expect in z+? Many people say 100 %. Press Fire 1000 and look. Then set the second magnet to "z" and compare.</div>
+</section>
+
+<section>
+<h3>2 · Order of operations <span class="chip c-exact">exact</span></h3>
+<canvas id="comm" height="280"></canvas>
+<div class="cap">A wave packet ψ(x). "x·p" means: first apply p, then multiply by x. "p·x" means: first multiply by x, then apply p. The white line is the difference. The dashed line is iψ. They lie on top of each other.</div>
+<div class="controls">
+  <label>width σ <b id="sgV"></b><input id="sg" type="range" min="0.6" max="1.6" step="0.05" value="1"></label>
+  <label>momentum k₀ <b id="k0V"></b><input id="k0" type="range" min="0" max="2" step="0.05" value="1.5"></label>
+  <label>centre x₀ <b id="xcV"></b><input id="xc" type="range" min="-2" max="2" step="0.1" value="0.5"></label>
+</div>
+<div class="read" id="read2"></div>
+<div class="status"><b>The same rule for spin:</b> <span id="spinmat"></span></div>
+<div class="predict"><b>Predict, then test:</b> change the width and the momentum. Do you expect the white line to change? Look at the two coloured lines: they change a lot. Their difference does not.</div>
+</section>
+
+<section>
+<h3>3 · Phase space <span class="chip c-exact">exact</span></h3>
+<div class="split">
+<div><canvas id="wig" height="400"></canvas>
+<div class="cap">Orange: W &gt; 0. Blue: W &lt; 0. Below the map: probability to find x (orange line) and |ψ(x)|² (blue area). Right of the map: probability to find p.</div></div>
+<div>
+  <div class="btns" id="kinds"><button data-k="coh">coherent</button><button data-k="sq">squeezed</button><button data-k="f0">Fock 0</button><button data-k="f1">Fock 1</button><button data-k="f2">Fock 2</button><button data-k="f3">Fock 3</button><button data-k="cat">cat</button></div>
+  <div class="controls" style="grid-template-columns:1fr">
+    <label data-for="coh">centre x₀ <b id="cxV"></b><input id="cx" type="range" min="-2" max="2" step="0.05" value="1"></label>
+    <label data-for="coh">centre p₀ <b id="cpV"></b><input id="cp" type="range" min="-2" max="2" step="0.05" value="0.5"></label>
+    <label data-for="sq">squeeze r <b id="srV"></b><input id="sr" type="range" min="-0.7" max="0.7" step="0.05" value="0.5"></label>
+    <label data-for="cat">separation D <b id="cdV"></b><input id="cd" type="range" min="0" max="5" step="0.1" value="4"></label>
+  </div>
+  <div class="status" id="hint3"></div>
+  <div class="read" id="read3" style="flex-direction:column"></div>
+</div>
+</div>
+<div class="predict"><b>Predict, then test:</b> choose Fock 1 and look at the middle of the map. Can W be negative? Then choose "cat" and make D larger. Where do the blue stripes sit?</div>
+
+<details><summary>What the numbers mean</summary>
+<p><b>An observable is a question you can ask.</b> "Is the spin up or down along z?" is one question. "Where is the particle?" is another. Each question has a matrix or an operator <span class="eq">A</span>. The possible answers are its eigenvalues.</p>
+<p><b>The answer is random. The average is not.</b> For a state ψ, the chance of an answer a is <span class="eq">|⟨a|ψ⟩|²</span> (the Born rule). The average of many answers is <span class="eq">⟨A⟩ = ⟨ψ|A|ψ⟩</span>. For spin along a magnet axis <span class="eq">n = (sin φ, 0, cos φ)</span> the chance of "up" is <span class="eq">(1 + r·n)/2</span>, where <span class="eq">r</span> is the direction of the spin (the Bloch vector). After the answer, the state <em>is</em> that answer: <span class="eq">r = ±n</span>.</p>
+<p><b>Two questions that do not commute disturb each other.</b> The z question and the x question have <span class="eq">[σ<sub>x</sub>, σ<sub>z</sub>] = σ<sub>x</sub>σ<sub>z</sub> − σ<sub>z</sub>σ<sub>x</sub> = −2iσ<sub>y</sub> ≠ 0</span>. After you ask x, the z answer is gone: the chance of z+ is 50 % again. In the preset, the last two detectors get 25 % each of the particles (50 % of those that arrive). With two z magnets in a row, nothing is lost, because z commutes with itself.</p>
+<p>For position and momentum, <span class="eq">p = −iħ d/dx</span> and <span class="eq">[x, p] = xp − px = iħ</span>. Panel 2 does this on a grid with finite differences: the difference is <span class="eq">iψ</span> up to a small grid error (it is shown in the readout). This one rule gives the uncertainty relation <span class="eq">Δx·Δp ≥ ħ/2</span>. A coherent state sits exactly at 1/2.</p>
+<p><b>The Wigner function.</b> <span class="eq">W(x,p) = (1/π) ∫ ψ*(x+y) ψ(x−y) e<sup>2ipy</sup> dy</span>. Its integral over p is the probability to find x. Its integral over x is the probability to find p. Its total integral is 1. But W itself can be negative: negative W means no classical probability can explain the state. The Fock 1 state has <span class="eq">W(0,0) = −1/π ≈ −0.318</span>. The blue stripes of the cat state are the interference of its two parts.</p>
+<p>Limits of this page: the map covers −5 … 5 in x and p, so the centre sliders stop at ±2. The wave on the grid is cut at ±10. The checks in the readouts are computed live.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const PI=Math.PI;
+/* ---- spin-1/2 magnet chain (hbar = 1) ---- */
+function axisVec(phiDeg){const a=phiDeg*PI/180;return[Math.sin(a),0,Math.cos(a)];}
+function dot3(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function startVec(kind){return kind==="mixed"?[0,0,0]:[0,0,1];}
+/* exact probabilities. blocked[k]=[plusBlocked,minusBlocked]. flux[k]=[f+,f-] before the gate. det = counts at the last magnet's outputs. */
+function branchStats(start,angles,blocked){
+  let br=[{p:1,r:startVec(start)}];const flux=[];
+  for(let k=0;k<angles.length;k++){
+    const n=axisVec(angles[k]),f=[0,0],nb=[];
+    for(const b of br){
+      for(let s=0;s<2;s++){
+        const sg=s===0?1:-1,pr=b.p*(1+sg*dot3(b.r,n))/2;
+        f[s]+=pr;
+        if(blocked[k][s])continue;
+        nb.push({p:pr,r:[sg*n[0],sg*n[1],sg*n[2]]});
+      }
+    }
+    flux.push(f);br=nb;
+  }
+  const last=angles.length-1;
+  const det=[blocked[last][0]?0:flux[last][0],blocked[last][1]?0:flux[last][1]];
+  const arrive=det[0]+det[1];
+  return{flux,det,arrive,share:arrive>0?[det[0]/arrive,det[1]/arrive]:[0,0]};
+}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* one particle: out[k]=+1/-1 (Born rule), stop = index of the magnet whose output was blocked, or -1 */
+function sampleParticle(rng,start,angles,blocked){
+  let r=startVec(start);const out=[];
+  for(let k=0;k<angles.length;k++){
+    const n=axisVec(angles[k]),pp=(1+dot3(r,n))/2,sg=rng()<pp?1:-1;
+    out.push(sg);r=[sg*n[0],sg*n[1],sg*n[2]];
+    if(blocked[k][sg===1?0:1])return{out,stop:k};
+  }
+  return{out,stop:-1};
+}
+/* complex 2x2 matrices: M[i][j]=[re,im] */
+const SX=[[[0,0],[1,0]],[[1,0],[0,0]]],SY=[[[0,0],[0,-1]],[[0,1],[0,0]]],SZ=[[[1,0],[0,0]],[[0,0],[-1,0]]];
+function matMul(A,B){const C=[[[0,0],[0,0]],[[0,0],[0,0]]];
+  for(let i=0;i<2;i++)for(let j=0;j<2;j++)for(let k=0;k<2;k++){
+    C[i][j][0]+=A[i][k][0]*B[k][j][0]-A[i][k][1]*B[k][j][1];
+    C[i][j][1]+=A[i][k][0]*B[k][j][1]+A[i][k][1]*B[k][j][0];}
+  return C;}
+function matComm(A,B){const P=matMul(A,B),Q=matMul(B,A);return P.map((row,i)=>row.map((e,j)=>[e[0]-Q[i][j][0],e[1]-Q[i][j][1]]));}
+function matScale(A,c){return A.map(row=>row.map(e=>[e[0]*c[0]-e[1]*c[1],e[0]*c[1]+e[1]*c[0]]));}
+function matMaxDiff(A,B){let m=0;for(let i=0;i<2;i++)for(let j=0;j<2;j++)m=Math.max(m,Math.hypot(A[i][j][0]-B[i][j][0],A[i][j][1]-B[i][j][1]));return m;}
+/* ---- x p - p x on a grid ---- */
+const QN=1601,QDX=0.01,QX0=-8;
+function qx(j){return QX0+j*QDX;}
+function packet(sigma,k0,xc){
+  const re=new Float64Array(QN),im=new Float64Array(QN);let s=0;
+  for(let j=0;j<QN;j++){const x=qx(j),a=Math.exp(-(x-xc)*(x-xc)/(4*sigma*sigma));re[j]=a*Math.cos(k0*x);im[j]=a*Math.sin(k0*x);s+=a*a;}
+  const nrm=1/Math.sqrt(s*QDX);for(let j=0;j<QN;j++){re[j]*=nrm;im[j]*=nrm;}
+  return{re,im};
+}
+/* p = -i d/dx with central differences; ends are set to 0 */
+function commXP(re,im){
+  const z=()=>new Float64Array(QN),xpR=z(),xpI=z(),pxR=z(),pxI=z(),cR=z(),cI=z();
+  for(let j=1;j<QN-1;j++){
+    const x=qx(j),dr=(re[j+1]-re[j-1])/(2*QDX),di=(im[j+1]-im[j-1])/(2*QDX);
+    xpR[j]=x*di;xpI[j]=-x*dr;                       /* x (p psi), p psi = i-part swap: (b' , -a') */
+    const ar=qx(j+1)*re[j+1]-qx(j-1)*re[j-1],ai=qx(j+1)*im[j+1]-qx(j-1)*im[j-1];
+    pxR[j]=ai/(2*QDX);pxI[j]=-ar/(2*QDX);           /* p (x psi) */
+    cR[j]=xpR[j]-pxR[j];cI[j]=xpI[j]-pxI[j];
+  }
+  return{xpR,xpI,pxR,pxI,cR,cI};
+}
+function expectC(re,im,cr,ci){let nr=0,ni=0,d=0;
+  for(let j=0;j<QN;j++){nr+=re[j]*cr[j]+im[j]*ci[j];ni+=re[j]*ci[j]-im[j]*cr[j];d+=re[j]*re[j]+im[j]*im[j];}
+  return[nr/d,ni/d];}
+/* largest |c/psi - i| where |psi|^2 is above 5 % of its peak (the central region) */
+function ratioErr(re,im,cr,ci){let mx=0;for(let j=0;j<QN;j++)mx=Math.max(mx,re[j]*re[j]+im[j]*im[j]);
+  let e=0;for(let j=1;j<QN-1;j++){const d=re[j]*re[j]+im[j]*im[j];if(d<0.05*mx)continue;
+    const qr=(cr[j]*re[j]+ci[j]*im[j])/d,qi=(ci[j]*re[j]-cr[j]*im[j])/d;e=Math.max(e,Math.hypot(qr,qi-1));}
+  return e;}
+/* ---- Wigner function ---- */
+const WJ=200,WG=0.05,WN=101,WH=50,WD=0.1,WM=160,WL=2*WJ+1;
+function wx(i){return(i-WH)*WD;}
+const WCOS=new Float64Array(WN*(WM+1)),WSIN=new Float64Array(WN*(WM+1));
+for(let ip=0;ip<WN;ip++)for(let m=0;m<=WM;m++){const a=0.01*(ip-WH)*m;WCOS[ip*(WM+1)+m]=Math.cos(a);WSIN[ip*(WM+1)+m]=Math.sin(a);}
+/* wave function table on x = (j-200)*0.05 ; kind: coh {x0,p0}, sq {r}, fock {n}, cat {d} */
+function psiTable(kind,par){
+  const re=new Float64Array(WL),im=new Float64Array(WL);
+  for(let j=0;j<WL;j++){
+    const x=(j-WJ)*WG;let a=0,b=0;
+    if(kind==="coh"){const g=Math.exp(-(x-par.x0)*(x-par.x0)/2);a=g*Math.cos(par.p0*x);b=g*Math.sin(par.p0*x);}
+    else if(kind==="sq"){a=Math.exp(-Math.exp(2*par.r)*x*x/2);}
+    else if(kind==="fock"){let h0=Math.exp(-x*x/2),h1=Math.SQRT2*x*h0;
+      if(par.n===0)a=h0;else{for(let n=1;n<par.n;n++){const h2=Math.sqrt(2/(n+1))*x*h1-Math.sqrt(n/(n+1))*h0;h0=h1;h1=h2;}a=h1;}}
+    else if(kind==="cat"){const u=par.d/2;a=Math.exp(-(x-u)*(x-u)/2)+Math.exp(-(x+u)*(x+u)/2);}
+    re[j]=a;im[j]=b;
+  }
+  let s=0;for(let j=0;j<WL;j++)s+=re[j]*re[j]+im[j]*im[j];
+  const nrm=1/Math.sqrt(s*WG);for(let j=0;j<WL;j++){re[j]*=nrm;im[j]*=nrm;}
+  return{re,im};
+}
+/* W[ip*WN+ix], x=(ix-50)*0.1, p=(ip-50)*0.1 */
+function wignerMap(re,im){
+  const W=new Float64Array(WN*WN),cr=new Float64Array(WM+1),ci=new Float64Array(WM+1),K=WG/PI;
+  for(let ix=0;ix<WN;ix++){
+    const c=WJ+2*(ix-WH);
+    for(let m=0;m<=WM;m++){
+      const a=c+m,b=c-m;
+      if(a>=WL||b<0){cr[m]=0;ci[m]=0;continue;}
+      cr[m]=re[a]*re[b]+im[a]*im[b];ci[m]=re[a]*im[b]-im[a]*re[b];
+    }
+    let mm=WM;while(mm>0&&Math.abs(cr[mm])+Math.abs(ci[mm])<1e-7)mm--;   /* skip the empty tail */
+    for(let ip=0;ip<WN;ip++){
+      const o=ip*(WM+1);let s=cr[0];
+      for(let m=1;m<=mm;m++)s+=2*(cr[m]*WCOS[o+m]-ci[m]*WSIN[o+m]);
+      W[ip*WN+ix]=K*s;
+    }
+  }
+  return W;
+}
+function integralW(W){let s=0;for(let i=0;i<W.length;i++)s+=W[i];return s*WD*WD;}
+function minW(W){let m=Infinity;for(let i=0;i<W.length;i++)if(W[i]<m)m=W[i];return m;}
+function marginals(W){
+  const mx=new Float64Array(WN),mp=new Float64Array(WN);
+  for(let ip=0;ip<WN;ip++)for(let ix=0;ix<WN;ix++){const v=W[ip*WN+ix]*WD;mx[ix]+=v;mp[ip]+=v;}
+  return{mx,mp};
+}
+function psiDensity(re,im){const d=new Float64Array(WN);for(let ix=0;ix<WN;ix++){const j=WJ+2*(ix-WH);d[ix]=re[j]*re[j]+im[j]*im[j];}return d;}
+function momentsW(W){
+  let sx=0,sp=0,sxx=0,spp=0,s=0;
+  for(let ip=0;ip<WN;ip++)for(let ix=0;ix<WN;ix++){const w=W[ip*WN+ix],x=wx(ix),p=wx(ip);s+=w;sx+=w*x;sp+=w*p;sxx+=w*x*x;spp+=w*p*p;}
+  sx/=s;sp/=s;const dx=Math.sqrt(sxx/s-sx*sx),dp=Math.sqrt(spp/s-sp*sp);
+  return{mx:sx,mp:sp,dx,dp,prod:dx*dp};
+}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const f3=v=>(Math.abs(v)<5e-5?0:v).toFixed(3),f4=v=>(Math.abs(v)<5e-5?0:v).toFixed(4);
+function fit(c,h){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth;c.style.height=h+"px";
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h}}
+const ORG="#ffaa3c",BLU="#6aaeff";
+
+/* ================= panel 1: magnet chain ================= */
+const S1={n:3,start:"up",ang:[0,90,0],blk:[[false,false],[false,true],[false,false]],seed:20250101,rng:null,parts:[],counts:[0,0],stopped:0,acc:0,running:!reduce,gates:[],last:0};
+const axName=a=>a===0?"z":a===90?"x":a+"°";
+const cfg=()=>[S1.start,S1.ang.slice(0,S1.n),S1.blk.slice(0,S1.n)];
+function resetCounts(){S1.rng=mulberry32(S1.seed);S1.parts=[];S1.counts=[0,0];S1.stopped=0;S1.acc=0}
+function buildMags(){
+  let h="";
+  for(let k=0;k<3;k++)h+=`<div class="mag" id="mg${k}"><b>Magnet ${k+1}</b><span class="btns"><button data-k="${k}" data-a="0">z</button><button data-k="${k}" data-a="90">x</button></span>
+  <label>axis angle φ <b id="av${k}"></b><input type="range" min="-180" max="180" step="1" id="as${k}"></label>
+  <span><label class="inl"><input type="checkbox" id="bp${k}"> block +</label><label class="inl"><input type="checkbox" id="bm${k}"> block −</label></span></div>`;
+  $("mags").innerHTML=h;
+  $("mags").addEventListener("click",e=>{const b=e.target.closest("button[data-a]");if(!b)return;S1.ang[+b.dataset.k]=+b.dataset.a;changed()});
+  for(let k=0;k<3;k++){
+    $("as"+k).addEventListener("input",e=>{S1.ang[k]=+e.target.value;changed()});
+    $("bp"+k).addEventListener("change",e=>{S1.blk[k][0]=e.target.checked;changed()});
+    $("bm"+k).addEventListener("change",e=>{S1.blk[k][1]=e.target.checked;changed()});
+  }
+}
+function syncUI1(){
+  for(let k=0;k<3;k++){
+    $("mg"+k).classList.toggle("hide",k>=S1.n);
+    $("as"+k).value=S1.ang[k];$("av"+k).textContent=S1.ang[k]+"° ("+axName(S1.ang[k])+")";
+    $("bp"+k).checked=S1.blk[k][0];$("bm"+k).checked=S1.blk[k][1];
+  }
+  document.querySelectorAll("#nbtn button").forEach(b=>b.classList.toggle("on",+b.dataset.n===S1.n));
+  $("start").value=S1.start;
+}
+function changed(){resetCounts();syncUI1();draw1();readout1()}
+function preset(name){
+  if(name==="erase"){S1.n=3;S1.ang=[0,90,0];S1.blk=[[false,false],[false,true],[false,false]];S1.start="up"}
+  else if(name==="repeat"){S1.n=3;S1.ang=[0,0,0];S1.blk=[[false,true],[false,true],[false,true]];S1.start="up"}
+  else{S1.n=3;S1.ang=[0,45,90];S1.blk=[[false,true],[false,true],[false,true]];S1.start="up"}
+}
+function geom(W,H){
+  const n=S1.n,xs=34,xe=W-88,D=(xe-xs)/(n+1),yc=H/2,A=Math.min(H*0.28,72);
+  return{n,xs,xe,D,yc,A,bw:14,px:k=>xs+(k+1)*D};
+}
+function segX(g,j){ /* start and end x of segment j */
+  if(j===0)return[g.xs,g.px(0)-g.bw];
+  return[g.px(j-1)+g.bw,j<g.n?g.px(j)-g.bw:g.xe];
+}
+function laneY(g,j,sg,u){
+  let f;if(j<g.n)f=u<0.25?u/0.25:u>0.75?(1-u)/0.25:1;else f=Math.min(1,u/0.25);
+  return g.yc-sg*g.A*f;
+}
+function draw1(){
+  const c=$("chain"),{x:g,w:W,h:H}=fit(c,W0(c));
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);
+  const G=geom(W,H),st=branchStats(...cfg()),n=G.n;
+  g.font="11px system-ui";g.lineJoin="round";
+  /* source */
+  g.fillStyle="rgba(255,255,255,.7)";g.textAlign="left";g.fillText(S1.start==="up"?"source: z+":"source: mixed",4,G.yc-12);
+  g.strokeStyle="rgba(255,255,255,.55)";g.lineWidth=1.5+5;g.lineCap="butt";
+  { const [a,b]=segX(G,0);g.beginPath();g.moveTo(a,G.yc);g.lineTo(b,G.yc);g.stroke(); }
+  S1.gates=[];
+  for(let j=1;j<=n;j++){
+    const [a,b]=segX(G,j),L=b-a;
+    for(let s=0;s<2;s++){
+      const sg=s===0?1:-1,fl=st.flux[j-1][s],blocked=S1.blk[j-1][s];
+      g.strokeStyle=s===0?"rgba(255,170,60,"+(0.25+0.7*Math.min(1,fl*2))+")":"rgba(106,174,255,"+(0.25+0.7*Math.min(1,fl*2))+")";
+      g.lineWidth=1.5+5*fl;g.beginPath();g.moveTo(a,G.yc);
+      const y=G.yc-sg*G.A;
+      g.lineTo(a+0.25*L,y);
+      if(j<n){g.lineTo(a+0.75*L,y);g.lineTo(b,G.yc)}else g.lineTo(b,y);
+      g.stroke();
+      const gx=a+0.5*L,gy=y;S1.gates.push({x:gx,y:gy,k:j-1,s});
+      if(blocked){g.fillStyle="#f2f2f2";g.fillRect(gx-3,gy-16,6,32);g.strokeStyle="#07080c";g.lineWidth=1;g.beginPath();g.moveTo(gx-3,gy-16);g.lineTo(gx+3,gy+16);g.stroke()}
+      else{g.strokeStyle="rgba(255,255,255,.45)";g.lineWidth=1;g.setLineDash([3,3]);g.beginPath();g.arc(gx,gy,13,0,7);g.stroke();g.setLineDash([])}
+      g.fillStyle="rgba(255,255,255,.85)";g.textAlign="center";
+      g.fillText(f3(fl),gx,gy+(sg>0?-22:30));
+      g.fillStyle="rgba(255,255,255,.45)";g.fillText(axName(S1.ang[j-1])+(s===0?"+":"−"),gx,gy+(sg>0?-34:42));
+    }
+  }
+  /* magnets */
+  for(let k=0;k<n;k++){
+    const x=G.px(k);g.fillStyle="#262a35";g.strokeStyle="rgba(255,255,255,.4)";g.lineWidth=1;
+    g.beginPath();g.rect(x-G.bw,G.yc-34,2*G.bw,68);g.fill();g.stroke();
+    const a=S1.ang[k]*PI/180,dx=Math.sin(a)*22,dy=-Math.cos(a)*22;
+    g.strokeStyle="#fff";g.fillStyle="#fff";g.lineWidth=2;g.beginPath();g.moveTo(x-dx*0.5,G.yc-dy*0.5);g.lineTo(x+dx*0.5,G.yc+dy*0.5);g.stroke();
+    const ang=Math.atan2(dy,dx);g.beginPath();g.moveTo(x+dx*0.5,G.yc+dy*0.5);
+    g.lineTo(x+dx*0.5-7*Math.cos(ang-0.5),G.yc+dy*0.5-7*Math.sin(ang-0.5));g.lineTo(x+dx*0.5-7*Math.cos(ang+0.5),G.yc+dy*0.5-7*Math.sin(ang+0.5));g.fill();
+    g.fillStyle="rgba(255,255,255,.7)";g.textAlign="center";g.fillText("M"+(k+1)+" "+axName(S1.ang[k]),x,G.yc+50);
+  }
+  /* detectors */
+  const nm=axName(S1.ang[n-1]);
+  for(let s=0;s<2;s++){
+    const sg=s===0?1:-1,y=G.yc-sg*G.A;
+    g.fillStyle="#1a1d27";g.strokeStyle=s===0?ORG:BLU;g.lineWidth=1.5;
+    g.beginPath();g.rect(G.xe,y-24,W-G.xe-3,48);g.fill();g.stroke();
+    g.fillStyle="#fff";g.textAlign="left";g.font="bold 11px system-ui";
+    g.fillText(nm+(s===0?"+":"−")+"  "+S1.counts[s],G.xe+5,y-9);
+    g.font="10.5px system-ui";g.fillStyle="rgba(255,255,255,.7)";
+    g.fillText("exact "+(100*st.det[s]).toFixed(1)+"%",G.xe+5,y+5);
+    const tot=S1.counts[0]+S1.counts[1];
+    g.fillText("seen "+(tot?(100*S1.counts[s]/tot).toFixed(1):"–")+"%",G.xe+5,y+18);
+    g.font="11px system-ui";
+  }
+  /* particles */
+  for(const p of S1.parts){
+    const j=Math.min(n,Math.floor(p.T)),u=p.T-j,[a,b]=segX(G,j);
+    const x=a+(b-a)*u;let y=G.yc,col="#fff";
+    if(j>=1){const sg=p.out[j-1];y=laneY(G,j,sg,u);col=sg>0?ORG:BLU}
+    g.fillStyle=col;g.beginPath();g.arc(x,y,3,0,7);g.fill();
+  }
+  g.textAlign="start";
+}
+const W0=c=>c.clientWidth<520?280:300;
+function stepParticles(dt){
+  const [s0,a,b]=cfg(),n=S1.n;
+  S1.acc+=dt*14;
+  while(S1.acc>=1){S1.acc-=1;if(S1.parts.length<90){const r=sampleParticle(S1.rng,s0,a,b);S1.parts.push({T:0,out:r.out,stop:r.stop})}}
+  const keep=[];
+  for(const p of S1.parts){
+    p.T+=dt*1.1;
+    if(p.stop>=0&&p.T>=p.stop+1.5){S1.stopped++;continue}
+    if(p.T>=n+1){S1.counts[p.out[n-1]===1?0:1]++;continue}
+    keep.push(p);
+  }
+  S1.parts=keep;
+}
+function fire(N){
+  const [s0,a,b]=cfg(),n=S1.n;
+  for(let i=0;i<N;i++){const r=sampleParticle(S1.rng,s0,a,b);if(r.stop>=0)S1.stopped++;else S1.counts[r.out[n-1]===1?0:1]++}
+  draw1();readout1();
+}
+function readout1(){
+  const st=branchStats(...cfg()),n=S1.n,nm=axName(S1.ang[n-1]),tot=S1.counts[0]+S1.counts[1];
+  const sh=st.arrive>0?st.share:[0,0];
+  $("read1").innerHTML=
+   `<div><span>exact chance at ${nm}+ / ${nm}− (of all particles): </span><b>${f3(st.det[0])} / ${f3(st.det[1])}</b></div>
+    <div><span>check: share of arrivals ${nm}+ : </span><b>${(100*sh[0]).toFixed(1)} %</b> <span>· ${nm}− : </span><b>${(100*sh[1]).toFixed(1)} %</b></div>
+    <div><span>blocked on the way: </span><b>${f3(1-st.arrive)}</b></div>
+    <div><span>counted: </span><b>${S1.counts[0]} / ${S1.counts[1]}</b> <span>arrived, </span><b>${S1.stopped}</b> <span>blocked${tot?` · seen share ${nm}+ ${(100*S1.counts[0]/tot).toFixed(1)} %`:""}</span></div>`;
+}
+$("chain").addEventListener("pointerdown",e=>{
+  const r=$("chain").getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  let best=null,bd=28;for(const gt of S1.gates){const d=Math.hypot(gt.x-x,gt.y-y);if(d<bd){bd=d;best=gt}}
+  if(best){S1.blk[best.k][best.s]=!S1.blk[best.k][best.s];changed()}
+});
+$("nbtn").addEventListener("click",e=>{const b=e.target.closest("button");if(b){S1.n=+b.dataset.n;changed()}});
+$("start").addEventListener("change",e=>{S1.start=e.target.value;changed()});
+$("preset").addEventListener("change",e=>{preset(e.target.value);changed()});
+$("fire").onclick=()=>fire(1000);
+$("reset").onclick=()=>{resetCounts();draw1();readout1()};
+$("run").onclick=()=>{S1.running=!S1.running;$("run").textContent=S1.running?"Pause":"Run"};
+if(reduce){S1.running=false;$("run").textContent="Run";$("run").disabled=true;$("run").title="Reduced motion is on. Use Fire 1000.";$("run").classList.remove("primary")}
+function loop(t){
+  const dt=Math.min(0.05,(t-S1.last)/1000||0);S1.last=t;
+  if(S1.running&&!document.hidden){stepParticles(dt);draw1();if((t|0)%4===0)readout1()}
+  requestAnimationFrame(loop);
+}
+
+/* ================= panel 2: x p - p x ================= */
+function draw2(){
+  const sg=+$("sg").value,k0=+$("k0").value,xc=+$("xc").value;
+  $("sgV").textContent=sg.toFixed(2);$("k0V").textContent=k0.toFixed(2);$("xcV").textContent=xc.toFixed(1);
+  const {re,im}=packet(sg,k0,xc),C=commXP(re,im);
+  const e=expectC(re,im,C.cR,C.cI),ee=ratioErr(re,im,C.cR,C.cI);
+  const xp=expectC(re,im,C.xpR,C.xpI),px=expectC(re,im,C.pxR,C.pxI);
+  const cv=$("comm"),{x:g,w:W,h:H}=fit(cv,W0(cv)-20);
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);
+  const narrow=W<560,pw=narrow?W-16:(W-36)/2;
+  // curves: part 0 = Re, 1 = Im
+  const sets=[
+   {name:"Re",xp:C.xpR,px:C.pxR,d:C.cR,iv:Array.from(im,v=>-v)},
+   {name:"Im",xp:C.xpI,px:C.pxI,d:C.cI,iv:re}];
+  const plots=narrow?[[8,18,pw,(H-46)/2],[8,H/2+10,pw,(H-46)/2]]:[[10,22,pw,H-62],[26+pw,22,pw,H-62]];
+  sets.forEach((s,i)=>{
+    const [px0,py0,w,h]=plots[i];
+    let m=1e-9;for(let j=1;j<QN-1;j++)m=Math.max(m,Math.abs(s.xp[j]),Math.abs(s.px[j]));
+    const X=x=>px0+w*(x+7)/14,Y=v=>py0+h/2-(h/2)*0.92*v/m;
+    g.strokeStyle="rgba(170,180,200,.25)";g.lineWidth=1;g.strokeRect(px0,py0,w,h);
+    g.beginPath();g.moveTo(px0,Y(0));g.lineTo(px0+w,Y(0));g.stroke();
+    const line=(arr,col,lw,dash)=>{g.strokeStyle=col;g.lineWidth=lw;g.setLineDash(dash||[]);g.beginPath();
+      for(let j=1;j<QN-1;j+=4){const x=qx(j);j===1?g.moveTo(X(x),Y(arr[j])):g.lineTo(X(x),Y(arr[j]))}g.stroke();g.setLineDash([])};
+    line(s.xp,BLU,1.5);line(s.px,ORG,1.5);line(s.d,"#ffffff",3.2);line(s.iv,"#e879f9",1.4,[5,4]);
+    g.fillStyle="rgba(255,255,255,.7)";g.font="11px system-ui";g.textAlign="left";
+    g.fillText(s.name+" part of the functions (x from −7 to 7)",px0+4,py0-6);
+  });
+  g.font="11px system-ui";g.textAlign="left";
+  const lg=[[BLU,"x·p ψ"],[ORG,"p·x ψ"],["#fff","difference"],["#e879f9","i ψ"]];
+  let lx=10;lg.forEach(([c,t])=>{g.fillStyle=c;g.fillRect(lx,H-14,12,4);g.fillStyle="rgba(255,255,255,.75)";g.fillText(t,lx+16,H-9);lx+=g.measureText(t).width+38});
+  const cs=(a)=>`${f4(a[0])} ${a[1]<0?"−":"+"} ${f4(Math.abs(a[1]))}i`;
+  $("read2").innerHTML=`<div><span>⟨xp⟩ = </span><b>${cs(xp)}</b></div><div><span>⟨px⟩ = </span><b>${cs(px)}</b></div>
+   <div><span>check: ⟨[x,p]⟩ = </span><b>${cs(e)}</b> <span>(expect 0 + 1i; error </span><b>${(Math.hypot(e[0],e[1]-1)).toExponential(1)}</b><span>)</span></div>
+   <div><span>largest error of [x,p]ψ/ψ in the centre: </span><b>${ee.toExponential(1)}</b></div>`;
+}
+function cStr(z){const r=Math.abs(z[0])<1e-9?0:z[0],i=Math.abs(z[1])<1e-9?0:z[1];
+  if(!i)return String(+r.toFixed(3));if(!r)return(i===1?"":i===-1?"−":String(+i.toFixed(3)).replace("-","−"))+"i";return r+(i<0?"−":"+")+Math.abs(i)+"i"}
+function matHTML(M){return`<span class="mat"><table>${M.map(r=>"<tr>"+r.map(e=>"<td>"+cStr(e)+"</td>").join("")+"</tr>").join("")}</table></span>`}
+function drawSpinMat(){
+  const A=matComm(SX,SZ),B=matScale(SY,[0,-2]);
+  $("spinmat").innerHTML=`[σx, σz] = ${matHTML(A)} = −2i σy = ${matHTML(B)} <span class="read" style="display:inline"><span>check: largest entry difference </span><b>${matMaxDiff(A,B).toExponential(1)}</b></span>`;
+}
+["sg","k0","xc"].forEach(id=>$(id).addEventListener("input",draw2));
+
+/* ================= panel 3: Wigner function ================= */
+const S3={kind:"cat",x0:1,p0:0.5,r:0.5,d:4,pend:false,W:null};
+const off=document.createElement("canvas");off.width=WN;off.height=WN;
+function params3(){
+  switch(S3.kind){
+    case"coh":return["coh",{x0:S3.x0,p0:S3.p0}];
+    case"sq":return["sq",{r:S3.r}];
+    case"cat":return["cat",{d:S3.d}];
+    default:return["fock",{n:+S3.kind[1]}];}
+}
+function recompute3(){
+  const [k,p]=params3(),t=psiTable(k,p);
+  S3.psi=t;S3.W=wignerMap(t.re,t.im);S3.mg=marginals(S3.W);S3.dens=psiDensity(t.re,t.im);
+  S3.mom=momentsW(S3.W);S3.int=integralW(S3.W);S3.min=minW(S3.W);S3.w00=S3.W[WH*WN+WH];
+  const img=off.getContext("2d").createImageData(WN,WN),d=img.data,vm=1/PI;
+  for(let ip=0;ip<WN;ip++)for(let ix=0;ix<WN;ix++){
+    const v=Math.max(-1,Math.min(1,S3.W[ip*WN+ix]/vm)),a=Math.pow(Math.abs(v),0.6),o=((WN-1-ip)*WN+ix)*4;
+    const t2=v>=0?[255,165,40]:[80,160,255];
+    d[o]=7+(t2[0]-7)*a;d[o+1]=8+(t2[1]-8)*a;d[o+2]=12+(t2[2]-12)*a;d[o+3]=255;
+  }
+  off.getContext("2d").putImageData(img,0,0);
+  readout3();draw3();
+}
+function schedule3(){if(S3.pend)return;S3.pend=true;requestAnimationFrame(()=>{S3.pend=false;recompute3()})}
+let L3=null;
+function draw3(){
+  const cv=$("wig"),w0=cv.clientWidth,hp=Math.min(90,w0*0.2),hx=Math.min(84,w0*0.2),mx=26,my=6,gap=8;
+  const S=w0-mx-gap-hp-6,H=my+S+gap+hx+22;
+  const {x:g,w:W}=fit(cv,H);
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);
+  g.imageSmoothingEnabled=true;g.drawImage(off,mx,my,S,S);
+  L3={mx,my,S};
+  g.strokeStyle="rgba(170,180,200,.5)";g.lineWidth=1;g.strokeRect(mx,my,S,S);
+  g.fillStyle="rgba(255,255,255,.65)";g.font="10.5px system-ui";g.textAlign="center";
+  for(let t=-4;t<=4;t+=2){const px=mx+S*(t+5)/10,py=my+S*(5-t)/10;
+    g.fillText(t,px,my+S+gap+10+hx*0);g.textAlign="right";g.fillText(t,mx-4,py+4);g.textAlign="center";
+    g.strokeStyle="rgba(255,255,255,.12)";g.beginPath();g.moveTo(px,my);g.lineTo(px,my+S);g.moveTo(mx,py);g.lineTo(mx+S,py);g.stroke()}
+  g.fillText("x",mx+S/2,H-2);g.save();g.translate(8,my+S/2);g.rotate(-PI/2);g.fillText("p",0,0);g.restore();
+  if(S3.kind==="coh"){const px=mx+S*(S3.x0+5)/10,py=my+S*(5-S3.p0)/10;g.strokeStyle="#fff";g.lineWidth=1.5;g.beginPath();g.arc(px,py,7,0,7);g.stroke()}
+  // x marginal below the map
+  const yb=my+S+gap+14,hh=hx-6;
+  let m=1e-9;for(let i=0;i<WN;i++)m=Math.max(m,S3.mg.mx[i],S3.dens[i]);
+  const X=i=>mx+S*i/(WN-1),Yv=v=>yb+hh-hh*0.95*v/m;
+  g.fillStyle="rgba(106,174,255,.35)";g.beginPath();g.moveTo(X(0),yb+hh);for(let i=0;i<WN;i++)g.lineTo(X(i),Yv(S3.dens[i]));g.lineTo(X(WN-1),yb+hh);g.fill();
+  g.strokeStyle=ORG;g.lineWidth=1.8;g.beginPath();for(let i=0;i<WN;i++){i?g.lineTo(X(i),Yv(S3.mg.mx[i])):g.moveTo(X(i),Yv(S3.mg.mx[i]))}g.stroke();
+  g.strokeStyle="rgba(170,180,200,.4)";g.beginPath();g.moveTo(mx,yb+hh);g.lineTo(mx+S,yb+hh);g.stroke();
+  // p marginal right of the map
+  const xr=mx+S+gap;let m2=1e-9;for(let i=0;i<WN;i++)m2=Math.max(m2,S3.mg.mp[i]);
+  const Xh=v=>xr+hp*0.95*v/m2,Yp=i=>my+S*(WN-1-i)/(WN-1);
+  g.fillStyle="rgba(255,170,60,.25)";g.beginPath();g.moveTo(xr,Yp(0));for(let i=0;i<WN;i++)g.lineTo(Xh(S3.mg.mp[i]),Yp(i));g.lineTo(xr,Yp(WN-1));g.fill();
+  g.strokeStyle=ORG;g.lineWidth=1.8;g.beginPath();for(let i=0;i<WN;i++){i?g.lineTo(Xh(S3.mg.mp[i]),Yp(i)):g.moveTo(Xh(S3.mg.mp[i]),Yp(i))}g.stroke();
+  g.strokeStyle="rgba(170,180,200,.4)";g.beginPath();g.moveTo(xr,my);g.lineTo(xr,my+S);g.stroke();
+  g.fillStyle="rgba(255,255,255,.55)";g.textAlign="left";g.fillText("p",xr+2,my+10);g.textAlign="start";
+}
+function readout3(){
+  let md=0;for(let i=0;i<WN;i++)md=Math.max(md,Math.abs(S3.mg.mx[i]-S3.dens[i]));
+  const k=S3.kind,mo=S3.mom;
+  $("read3").innerHTML=
+   `<div><span>check: ∫W dx dp = </span><b>${f4(S3.int)}</b> <span>(expect 1)</span></div>
+    <div><span>W(0,0) = </span><b>${f4(S3.w00)}</b> <span>${k==="f1"?"(Fock 1: expect −1/π = −0.3183)":""}</span></div>
+    <div><span>lowest W = </span><b>${f4(S3.min)}</b> <span>${S3.min<-1e-3?"· negative: no classical probability explains this state":"· never negative"}</span></div>
+    <div><span>Δx·Δp = </span><b>${f3(mo.dx)} × ${f3(mo.dp)} = ${f4(mo.prod)}</b> <span>${k==="coh"||k==="sq"?"(expect 0.5)":"(least possible: 0.5)"}</span></div>
+    <div><span>x marginal vs |ψ|²: largest gap </span><b>${md.toExponential(1)}</b></div>`;
+  document.querySelectorAll("#kinds button").forEach(b=>b.classList.toggle("on",b.dataset.k===S3.kind));
+  document.querySelectorAll("[data-for]").forEach(l=>l.classList.toggle("hide",!l.dataset.for.split(" ").includes(k==="coh"?"coh":k==="sq"?"sq":k==="cat"?"cat":"-")));
+  $("hint3").textContent=k==="coh"?"Drag on the map to move the centre.":k==="sq"?"Squeeze r > 0 narrows x and widens p.":"";
+}
+$("kinds").addEventListener("click",e=>{const b=e.target.closest("button");if(b){S3.kind=b.dataset.k;recompute3()}});
+const bind=(id,key,lab,dg)=>$(id).addEventListener("input",e=>{S3[key]=+e.target.value;$(lab).textContent=(+e.target.value).toFixed(dg);schedule3()});
+bind("cx","x0","cxV",2);bind("cp","p0","cpV",2);bind("sr","r","srV",2);bind("cd","d","cdV",1);
+{let drag=false;const cv=$("wig");
+  const mv=e=>{if(S3.kind!=="coh"||!L3)return;const r=cv.getBoundingClientRect(),
+    x=(e.clientX-r.left-L3.mx)/L3.S*10-5,p=5-(e.clientY-r.top-L3.my)/L3.S*10;
+    S3.x0=Math.max(-2,Math.min(2,x));S3.p0=Math.max(-2,Math.min(2,p));
+    $("cx").value=S3.x0;$("cp").value=S3.p0;$("cxV").textContent=S3.x0.toFixed(2);$("cpV").textContent=S3.p0.toFixed(2);schedule3()};
+  cv.addEventListener("pointerdown",e=>{drag=true;cv.setPointerCapture(e.pointerId);mv(e)});
+  cv.addEventListener("pointermove",e=>{if(drag)mv(e)});
+  cv.addEventListener("pointerup",()=>drag=false);cv.addEventListener("pointercancel",()=>drag=false);}
+["cxV","cpV","srV","cdV"].forEach((id,i)=>$(id).textContent=[ "1.00","0.50","0.50","4.0"][i]);
+
+/* ================= start ================= */
+buildMags();syncUI1();resetCounts();
+drawSpinMat();draw2();recompute3();draw1();readout1();
+addEventListener("resize",()=>{draw1();draw2();draw3()});
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
