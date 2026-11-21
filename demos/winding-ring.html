@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paths That Wind Around a Ring</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;--on-accent:#fff;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;--on-accent:#0b1020;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;--on-accent:#0b1020;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2.sec{font-size:18px;margin:0 0 6px}
+h3.cap{font-size:14px;margin:10px 0 4px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.legend{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;max-width:100%}
+button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px;overflow-wrap:anywhere}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.big{margin-top:12px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.big b{font-size:19px;color:var(--chip-exact);font-variant-numeric:tabular-nums}
+.big small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style></head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Paths That Wind Around a Ring</h1>
+<p class="sub">A particle on a ring. Its paths go round the ring n times, and n sorts them into sectors. A flux through the ring gives every path in sector n the phase e<sup>iθn</sup>. No force acts on the particle. Yet the sum over sectors gives energy levels that move with θ and cross at θ = π.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: move <i>θ</i>. Watch the small arrows (one per sector). At θ = 0 all arrows point right. At θ = π the arrows of odd sectors point left. Then change <i>β</i> and see which sectors are heavy.</li>
+<li>Part 2: look at the big number. Two completely different sums give the same Z. Move <i>β</i> to a small and to a large value, and watch which sum needs more terms.</li>
+<li>Part 3: move θ to π. The two lowest energy levels cross. Part 4: press <i>Run</i> and watch a computer count the windings of random paths.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
+<section id="part1">
+<h2 class="sec">Part 1 · Paths sort into winding sectors</h2>
+<p>The picture on the left "unrolls" the ring. The vertical axis is the angle φ, and it keeps growing when the particle goes round. A path from φ = 0 can end at 0, 2π, 4π, or −2π. All these end points are the same place on the ring. Each end point is one sector n. The right picture shows, for each sector, the weight of its paths, and the phase arrow from the flux.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Closed paths in imaginary time (time across, unrolled angle up)</h3>
+    <canvas id="st1" data-h0="330"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Sector n: weight, phase arrow, signed contribution</h3>
+    <canvas id="tb1" data-h0="330"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>the weight of sector n: z<sub>n</sub> = √(2πI/β) · e<sup>−2π²I n²/β</sup>. The bar shows z<sub>n</sub>/z<sub>0</sub>; the number at the right is the same ratio. The thin white (positive) or orange (negative) line is cos(θn)·z<sub>n</sub>/z<sub>0</sub>, the part that adds to Z.</div>
+  <div><span class="chip c-exact">exact</span>the arrow of sector n points at the angle θn. Only the real part, cos(θn), is left after the sectors n and −n are added.</div>
+  <div><span class="chip c-cartoon">cartoon</span>three sample paths per sector, drawn from the exact bridge measure (a straight line with random wiggles). The paths show the idea; they are not the sum, and they are not weighted by thickness.</div>
+  <div><span class="chip c-int">interpretation</span>"The particle goes round n times." In imaginary time the path is a random walk, not a motion. The sector n only sorts the closed loops.</div>
+</div>
+<div class="controls">
+  <label>flux angle θ <b data-v="theta"></b><input class="bind" data-k="theta" type="range" min="-2" max="2" step="0.01" value="0.6"></label>
+  <label>imaginary time β (1/temperature) <b data-v="beta"></b><input class="bind" data-k="beta" type="range" min="-0.5" max="1.48" step="0.01" value="0.78"></label>
+  <label>moment of inertia I <b data-v="I"></b><input class="bind" data-k="I" type="range" min="0.5" max="2" step="0.05" value="1"></label>
+  <div class="btns"><button id="newp">new sample paths</button></div>
+</div>
+<div class="read" id="read1"></div>
+<div class="predict"><b>Predict, then test:</b> at θ = π, which sectors have a negative contribution? What happens to the sum of the bars if you make β larger, so that the sectors n = ±1 become heavy?</div>
+</section>
+
+<section id="part2">
+<h2 class="sec">Part 2 · Add the sectors, or add the energy levels</h2>
+<p>The same number Z can be found in two ways. Way one: add the sectors, Z = Σ<sub>n</sub> e<sup>iθn</sup> z<sub>n</sub>. Way two: add the energy levels, Z = Σ<sub>k</sub> e<sup>−βE<sub>k</sub></sup> with E<sub>k</sub> = (k − θ/2π)²/2I. The two sums are not the same term by term. Only the totals are equal (Poisson resummation).</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Error of the partial sums (log scale)</h3>
+    <canvas id="er2" data-h0="250"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">The terms, as a share of Z</h3>
+    <canvas id="tm2" data-h0="250"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>both curves: the relative error of the partial sum, with the sectors |n| ≤ m (orange), and with the levels k within m of the lowest one (blue). Below 10<sup>−16</sup> the plot stops (rounding).</div>
+  <div><span class="chip c-exact">exact</span>bars: each term divided by Z. The blue bars (levels) are all positive and add to 1. The orange bars (sectors) can be negative.</div>
+  <div><span class="chip c-int">interpretation</span>The sector sum is a "high temperature" series (few terms at small β). The level sum is a "low temperature" series (few terms at large β). Each is the other seen from the other side.</div>
+</div>
+<div class="controls">
+  <label>flux angle θ <b data-v="theta"></b><input class="bind" data-k="theta" type="range" min="-2" max="2" step="0.01" value="0.6"></label>
+  <label>imaginary time β <b data-v="beta"></b><input class="bind" data-k="beta" type="range" min="-0.5" max="1.48" step="0.01" value="0.78"></label>
+  <label>moment of inertia I <b data-v="I"></b><input class="bind" data-k="I" type="range" min="0.5" max="2" step="0.05" value="1"></label>
+  <label>terms kept m <b id="mV"></b><input id="mcut" type="range" min="0" max="10" step="1" value="1"></label>
+</div>
+<div class="big" id="big2"></div>
+<div class="read" id="read2"></div>
+<div class="predict"><b>Predict, then test:</b> set β small (about 0.5). Which sum needs only one term? Then set β large (about 25). Which sum needs only a few terms now? What does the orange bar row look like at large β?</div>
+<details><summary>What the numbers mean</summary>
+<p>Z is the trace of e<sup>−βH</sup> for a free particle on a ring, so it includes the sum over the start point (a factor 2π). The sector n has the weight z<sub>n</sub> = √(2πI/β) e<sup>−2π²In²/β</sup>. With this factor the two sums are exactly equal. At large β, Z goes to e<sup>−βE₀</sup>. At small β, Z goes to √(2πI/β).</p>
+<p>"Terms needed" is the smallest m for which the partial sum is within 10<sup>−10</sup> of Z (relative). The big number uses all terms that matter (until the next term is below 10<sup>−17</sup>). The difference you see is rounding error of the computer, not physics.</p>
+</details>
+</section>
+
+<section id="part3">
+<h2 class="sec">Part 3 · Energy levels from paths, and the current</h2>
+<p>The levels E<sub>k</sub>(θ) are parabolas. They cross at θ = π (and at every odd multiple of π). The free energy −(1/β) ln Z is computed from the sectors only. At large β it follows the lowest parabola. The slope of the lowest level gives a <a class="term" href="../glossary.html#persistent-current">current that flows round the ring</a>, although no force acts.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Energy levels E<sub>k</sub>(θ) and −(1/β) ln Z</h3>
+    <canvas id="sp3" data-h0="270"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Persistent current J(θ) = −∂E/∂θ</h3>
+    <canvas id="cu3" data-h0="270"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>thin grey curves: the parabolas E<sub>k</sub>(θ) for k = −2…2. Thick curve: the lowest one, E<sub>0</sub>(θ) = min<sub>k</sub> (k − θ/2π)²/2I.</div>
+  <div><span class="chip c-exact">exact</span>orange curve: −(1/β) ln Z, with Z from the sum over sectors. At small β it is smooth. At large β it hugs the thick curve, and it sits below the crossing point by ln 2/β.</div>
+  <div><span class="chip c-exact">exact</span>current plot: dashed = zero temperature, the slope of the lowest parabola (a sawtooth). Orange = the thermal current at β, from the sector sum, J = −(1/β)·Σ n sin(θn) z<sub>n</sub>/Σ cos(θn) z<sub>n</sub>.</div>
+  <div><span class="chip c-int">interpretation</span>The current is a "ring response to flux". A real metal ring, or a superconducting ring, behaves in a similar way, but only with many particles and more physics.</div>
+</div>
+<div class="controls">
+  <label>flux angle θ <b data-v="theta"></b><input class="bind" data-k="theta" type="range" min="-2" max="2" step="0.01" value="0.6"></label>
+  <label>imaginary time β <b data-v="beta"></b><input class="bind" data-k="beta" type="range" min="-0.5" max="1.48" step="0.01" value="0.78"></label>
+  <label>moment of inertia I <b data-v="I"></b><input class="bind" data-k="I" type="range" min="0.5" max="2" step="0.05" value="1"></label>
+</div>
+<div class="read" id="read3"></div>
+<div class="predict"><b>Predict, then test:</b> move θ from 0 to 2π slowly. At which θ does the current jump? How big is the jump? What happens to the jump when β becomes small?</div>
+</section>
+
+<section id="part4">
+<h2 class="sec">Part 4 · A computer counts the windings</h2>
+<p>A Monte Carlo run makes random closed paths on a ring with N time slices, and counts their winding number n. The fraction of paths with each n must follow the weights z<sub>n</sub>. The flux does not enter the run. It is only used afterwards, to measure ⟨cos θn⟩ = Z(θ)/Z(0).</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">How often each winding number n appears</h3>
+    <canvas id="hi4" data-h0="230"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">What the run measures</h3>
+    <div class="read" id="read4" style="margin-top:4px;display:block"></div>
+    <div class="btns" style="margin-top:10px"><button id="mcRun" class="primary">Run</button><button id="mcReset">Reset</button>
+    <label style="display:inline-block">seed <select id="mcSeed"><option>1</option><option>2</option><option>3</option></select></label></div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>bars (orange) and numbers: Metropolis sampling of closed paths on a ring with N slices. It moves one slice at a time, and it also tilts the whole path by one turn (a move that changes n). The error is a block error (20 blocks).</div>
+  <div><span class="chip c-exact">exact</span>blue frames and "exact" numbers: p(n) = z<sub>n</sub>/Σ z<sub>m</sub>, ⟨n²⟩ = Σ n² p(n), and ⟨cos θn⟩ = Z(θ)/Z(0).</div>
+  <div><span class="chip c-int">interpretation</span>⟨n²⟩ is the "topological susceptibility" of the ring. It tells how much the winding number fluctuates.</div>
+</div>
+<div class="controls">
+  <label>flux angle θ <b data-v="theta"></b><input class="bind" data-k="theta" type="range" min="-2" max="2" step="0.01" value="0.6"></label>
+  <label>imaginary time β <b data-v="beta"></b><input class="bind" data-k="beta" type="range" min="-0.5" max="1.48" step="0.01" value="0.78"></label>
+  <label>moment of inertia I <b data-v="I"></b><input class="bind" data-k="I" type="range" min="0.5" max="2" step="0.05" value="1"></label>
+</div>
+<div class="predict"><b>Predict, then test:</b> at β/I = 6, how often does the path wind once (n = ±1)? Run for some seconds and compare with the blue frames. Then move θ: do the bars change? Does the cos θn number change?</div>
+<details><summary>What the numbers mean</summary>
+<p>The run is a real simulation, so it has a statistical error. Use the "± σ" numbers: the exact value should be inside about two or three σ most of the time. For small β/I (below about 1.5) the winding paths are so rare that a short run never sees one. The page then shows 0 and the exact value is tiny.</p>
+<p>Each time slice has the exact short-time weight on the ring (the sum over images), so the only approximation is the finite run length. N slices are chosen so that one step stays small compared with π (N ≈ 6β/I, at least 32).</p>
+</details>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Take a particle that can only move on a ring. Think of all <a class="term" href="../glossary.html#path-integral">paths</a> that start at one point and end at the same point. Some paths do not go round. Some go round once, some twice, some the other way. The number of turns n is the <a class="term" href="../glossary.html#winding-number">winding number</a>. A path cannot change n by small wiggles, so the paths form sectors.</p>
+<p>Now put a thin magnet through the ring. The particle never touches the magnetic field. But its wave gets a <a class="term" href="../glossary.html#phase">phase</a> e<sup>iθn</sup> for every turn, where θ is set by the <a class="term" href="../glossary.html#flux">flux</a>. This is the effect of <a href="aharonov-bohm.html">Aharonov and Bohm</a>, on a ring. The sum over all paths now has a sector sum with phases.</p>
+<p>The sum has a second form: a sum over energy levels, and the flux moves the levels. The two forms are equal. This room lets you see both, and a computer simulation that counts the windings.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Strip (Part 1)</dt><dd>The unrolled ring. Time (in <a class="term" href="../glossary.html#imaginary-time">imaginary time</a>) goes across. The angle goes up and is not reset when the path goes round. The dashed lines are the same point on the ring seen in the next copy (2πn).</dd>
+<dt>Bars and arrows</dt><dd>One row per sector n. The bar is the weight z<sub>n</sub>. The arrow is the phase e<sup>iθn</sup>. The thin line is the part that adds to Z (a signed number).</dd>
+<dt>Error plot (Part 2)</dt><dd>How close a partial sum is to the full answer. Orange: sector sum. Blue: level sum.</dd>
+<dt>Term bars (Part 2)</dt><dd>Each term as a share of Z. Blue shares are positive. Orange shares can be negative.</dd>
+<dt>Level plot (Part 3)</dt><dd>The energy of the particle against the flux θ. The parabolas cross at θ = π.</dd>
+<dt>Current plot (Part 3)</dt><dd>The slope of the energy: a sawtooth with a jump at θ = π.</dd>
+<dt>Histogram (Part 4)</dt><dd>How often each winding number n appeared in the run (orange), against the exact answer (blue frames).</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: set θ = 0, then θ = π. <details><summary>What happens and why</summary>At θ = 0 every arrow points right: all sectors add. At θ = π the arrow of sector n points at angle πn, so the odd sectors point left and their signed lines are negative. Sector n = ±1 now takes away from Z. Z is smaller at θ = π than at θ = 0.</details></li>
+<li>Part 1: make β small, then large. <details><summary>What happens and why</summary>The weight of sector n is e<sup>−2π²In²/β</sup>. At small β a winding path must go far in a short time, so it costs a lot, and only n = 0 is left. At large β there is a long time to go round, so many sectors have a weight close to 1. The paths of a large n look like straight lines.</details></li>
+<li>Part 2: β ≈ 0.5, then β ≈ 25. Look at the error plot. <details><summary>What happens and why</summary>At small β the orange curve (sectors) drops below 10<sup>−10</sup> after one term, and the blue curve (levels) is slow. At large β it is the other way. This is the Poisson duality: the same Z, written as a sum that converges fast in the low-temperature region, or in the high-temperature region.</details></li>
+<li>Part 2: look at the "terms needed" numbers while you move β. <details><summary>What happens and why</summary>The number of sectors needed grows like √β. The number of levels needed grows like 1/√β. The two counts are equal near β = 2πI. The sum with fewer terms is always the best choice.</details></li>
+<li>Part 3: move θ to π. <details><summary>What happens and why</summary>The two lowest parabolas, k = 0 and k = 1, cross. The lowest level E<sub>0</sub> has a corner. The curve −(1/β) ln Z is smooth at small β. At large β it follows the corner, but it stays lower by ln 2/β, because two levels count at the crossing. The current jumps by 1/(2πI).</details></li>
+<li>Part 3: look at the current at small and at large β. <details><summary>What happens and why</summary>At large β the current is the zero-temperature sawtooth. At small β the current is small and smooth, because many levels share the weight and the thermal average washes out the jump.</details></li>
+<li>Part 4: set β = 8, I = 1, press <i>Run</i>, and wait. <details><summary>What happens and why</summary>The orange bars grow into the blue frames, and ⟨n²⟩ moves to the exact value (about 0.17). The "σ" number gets smaller, like 1/√(run length). Change θ: the bars do not change, because the run does not know θ. Only the cos θn number changes. It is the ratio Z(θ)/Z(0).</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>A free particle on a ring has the energy levels E<sub>k</sub> = k²/(2I) with k = 0, ±1, ±2, … (ħ = 1, I is the moment of inertia). A flux through the ring shifts the angular momentum: k becomes k − θ/2π. This shift is a pure phase effect. The <a class="term" href="../glossary.html#vector-potential">vector potential</a> is nonzero on the ring, but it is a pure gauge on each small piece. It cannot be removed on the whole ring, because the ring is not simply connected. The group of phases is <a class="term" href="../glossary.html#u1">U(1)</a>, and θ is the angle of that group element for one turn.</p>
+<p>In the <a class="term" href="../glossary.html#path-integral">path integral</a> the particle takes all paths. On a ring the paths from φ₀ to φ₁ fall into classes: a path with n turns ends at φ₁ + 2πn when you follow it on the unrolled line. All paths of class n have the same phase from the flux, e<sup>iθn</sup>, because the flux phase is ∮A·dx = θn. So the <a class="term" href="../glossary.html#propagator">propagator</a> on the ring is a sum over the classes of the propagator on the line, with this phase. The sum over classes is the method of images again, as in the box.</p>
+<p>For the partition function we use imaginary time β (see <a class="term" href="../glossary.html#wick-rotation">Wick rotation</a>). The closed paths are random walks, and their weight is a Gaussian in the number of turns. The sum over n is a Gaussian sum with phases. By the Poisson resummation formula it is a sum of Gaussians in the dual variable k, and the exponent turns into β(k − θ/2π)²/2I. This is the energy sum. So the path sum "knows" the energy levels.</p>
+<p>The same story appears in other places. In a periodic potential, the paths that tunnel from one minimum to the next are <a class="term" href="../glossary.html#instanton">instantons</a>. Each instanton is one more "turn", and the Bloch angle of the wave gives it the phase e<sup>iθ</sup>, exactly like the flux here. (The room <a href="tunnelling.html">Tunnelling in Imaginary Time</a> shows instantons in a double well.). In a gauge theory such as QCD, the <a class="term" href="../glossary.html#theta-angle">θ angle</a> is a free parameter, and the sectors are labelled by an integer winding number. In a <a class="term" href="../glossary.html#superconductor">superconducting</a> ring, the winding number of the phase of the order parameter is fixed, and the flux is quantised in units of the <a class="term" href="../glossary.html#flux-quantum">flux quantum</a>.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">z<sub>n</sub>(β) = √(2πI/β) · exp( −I (2πn)² / 2β )</span>
+<span>The weight of the closed paths with winding number n for a free particle on a ring (the trace over the start point is included; the free kernel on the line is √(I/2πβ) e<sup>−I Δφ²/2β</sup>).</span>
+<span class="eq">Z(β,θ) = Σ<sub>n∈ℤ</sub> e<sup>iθn</sup> z<sub>n</sub>(β) = Σ<sub>n</sub> cos(θn) z<sub>n</sub></span>
+<span>The sum over sectors with the flux phase. It is real, because n and −n are both there.</span>
+<span class="eq">Z(β,θ) = Σ<sub>k∈ℤ</sub> exp( −β E<sub>k</sub>(θ) ), &nbsp; E<sub>k</sub>(θ) = (k − θ/2π)² / 2I</span>
+<span>The same Z as a sum over energy levels. Proof: Poisson resummation, Σ<sub>n</sub> f(n) = Σ<sub>k</sub> f̂(k), with a Gaussian f.</span>
+<span class="eq">E<sub>0</sub>(θ) = min<sub>k</sub> (k − θ/2π)²/2I, &nbsp; E<sub>0</sub>(θ + 2π) = E<sub>0</sub>(θ)</span>
+<span>The ground-state energy. It has period 2π in θ, as the winding sum shows (n is an integer). Two levels are equal at θ = π.</span>
+<span class="eq">−(1/β) ln Z = E<sub>0</sub> − (1/β) ln( 1 + Σ<sub>k≠k*</sub> e<sup>−β(E<sub>k</sub> − E<sub>0</sub>)</sup> )</span>
+<span>How the free energy comes back to E<sub>0</sub> at large β. The correction is ln 2/β at θ = π.</span>
+<span class="eq">J(θ) = −∂E<sub>0</sub>/∂θ = (k* − θ/2π)/(2πI)</span>
+<span>The persistent current at zero temperature. It is a sawtooth: at θ = π it jumps from −1/(4πI) to +1/(4πI).</span>
+<span class="eq">J<sub>β</sub> = (1/β) ∂<sub>θ</sub> ln Z = −(1/β) Σ n sin(θn) z<sub>n</sub> / Z</span>
+<span>The thermal current, from the sector sum.</span>
+<span class="eq">⟨n²⟩ = −∂²<sub>θ</sub> ln Z |<sub>θ=0</sub> = Σ n² z<sub>n</sub> / Σ z<sub>n</sub> &nbsp; (≈ 2 e<sup>−2π²I/β</sup> for small β/I)</span>
+<span>The topological susceptibility of the ring, the quantity Part 4 measures.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The particle is free and alone, on a perfect ring with no width, no spin and no potential. A real ring (a mesoscopic metal ring, a superconducting ring) has many electrons, disorder and a finite thickness, and the observed currents are much smaller. The figures with θ are for an ideal flux through the ring; the electron never meets the field. The paths in Part 1 are a sample of three per sector, which is a cartoon of the real sum. The energy levels are exact. The Monte Carlo is a real simulation, so it has a statistical error and it is slow for β/I below about 1.5. A small cosine potential (which turns the crossings into gaps and gives energy bands) is not in this room.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>Y. Aharonov and D. Bohm, "Significance of electromagnetic potentials in the quantum theory", Physical Review 115, 485 (1959).</li>
+<li>L. S. Schulman, <i>Techniques and Applications of Path Integration</i> (Wiley, 1981), chapter 23: path integrals on multiply connected spaces.</li>
+<li>S. Coleman, <i>Aspects of Symmetry</i> (Cambridge University Press, 1985), chapter 7: the uses of instantons, and the angle θ.</li>
+<li>Related rooms: <a href="aharonov-bohm.html">A Phase Without a Force</a>, <a href="tunnelling.html">Tunnelling in Imaginary Time</a>.</li>
+</ul>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TWO_PI=2*Math.PI;
+/* ---------- free particle on a ring, hbar = 1, moment of inertia I ----------
+   Z(beta,theta) = sum_n e^{i theta n} z_n,  z_n = sqrt(2 pi I / beta) exp(-I (2 pi n)^2 / (2 beta))   (trace included)
+   Poisson dual:  Z = sum_k exp(-beta (k - theta/2pi)^2 / (2 I)). */
+function zSector(n,beta,I){return Math.sqrt(TWO_PI*I/beta)*Math.exp(-I*(TWO_PI*n)*(TWO_PI*n)/(2*beta))}
+/* number of sectors that matter: z_n/z_0 < e^-42 */
+function sectorsAuto(beta,I){return Math.ceil(Math.sqrt(84*beta/(2*TWO_PI*Math.PI*I)*1))+2}
+function levelsAuto(beta,I,theta){return Math.ceil(Math.sqrt(84*I/beta))+Math.ceil(Math.abs(theta)/TWO_PI)+2}
+/* partial sums over |n| <= N (real and imaginary part) */
+function ZwindRe(beta,theta,I,N){let s=zSector(0,beta,I);for(let n=1;n<=N;n++)s+=2*Math.cos(theta*n)*zSector(n,beta,I);return s}
+function ZwindIm(beta,theta,I,N){let s=0;for(let n=-N;n<=N;n++)s+=Math.sin(theta*n)*zSector(n,beta,I);return s}
+function Zwind(beta,theta,I){return ZwindRe(beta,theta,I,sectorsAuto(beta,I))}
+function kStar(theta){return Math.round(theta/TWO_PI)}
+function levelE(k,theta,I){const d=k-theta/TWO_PI;return d*d/(2*I)}
+/* partial sum over the levels with |k - k*| <= K */
+function ZenergyPart(beta,theta,I,K){const c=kStar(theta);let s=0;for(let k=c-K;k<=c+K;k++)s+=Math.exp(-beta*levelE(k,theta,I));return s}
+function Zenergy(beta,theta,I){return ZenergyPart(beta,theta,I,levelsAuto(beta,I,theta))}
+function E0(theta,I){return levelE(kStar(theta),theta,I)}
+function Efree(beta,theta,I){return -Math.log(Zwind(beta,theta,I))/beta}
+/* currents */
+function J0(theta,I){return (kStar(theta)-theta/TWO_PI)/(TWO_PI*I)}
+function Jwind(beta,theta,I){const N=sectorsAuto(beta,I);let s=0;for(let n=1;n<=N;n++)s+=2*n*Math.sin(theta*n)*zSector(n,beta,I);return -s/beta/ZwindRe(beta,theta,I,N)}
+function Jenergy(beta,theta,I){const K=levelsAuto(beta,I,theta),c=kStar(theta);let s=0,z=0;
+  for(let k=c-K;k<=c+K;k++){const w=Math.exp(-beta*levelE(k,theta,I));s+=(k-theta/TWO_PI)/(TWO_PI*I)*w;z+=w}return s/z}
+/* winding statistics at theta = 0 */
+function pSector(n,beta,I){const N=sectorsAuto(beta,I);let z=0;for(let m=-N;m<=N;m++)z+=zSector(m,beta,I);return zSector(n,beta,I)/z}
+function nSquared(beta,I){const N=sectorsAuto(beta,I);let a=0,z=0;for(let n=-N;n<=N;n++){const w=zSector(n,beta,I);a+=n*n*w;z+=w}return a/z}
+function cosAverage(beta,theta,I){return Zwind(beta,theta,I)/Zwind(beta,0,I)}
+/* convergence: relative error of partial sums against the dual full sum, and how many terms are needed */
+function errWind(beta,theta,I,N){const R=Zenergy(beta,theta,I);return Math.abs(ZwindRe(beta,theta,I,N)-R)/R}
+function errEnergy(beta,theta,I,K){const R=Zwind(beta,theta,I);return Math.abs(ZenergyPart(beta,theta,I,K)-R)/R}
+function neededWind(beta,theta,I,tol){for(let N=0;N<200;N++)if(errWind(beta,theta,I,N)<tol)return N;return 200}
+function neededEnergy(beta,theta,I,tol){for(let K=0;K<200;K++)if(errEnergy(beta,theta,I,K)<tol)return K;return 200}
+/* ---------- random numbers and sample paths ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(rng){let u=0;while(u<1e-300)u=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(TWO_PI*rng())}
+/* a closed path of the ring in sector n, unrolled: straight line 2 pi n t/beta plus a Brownian bridge (diffusion 1/I).
+   zs: M standard normals. Returns phi at t_j = beta j/M, j = 0..M. */
+function bridgePath(n,beta,I,zs){const M=zs.length,dt=beta/M,sd=Math.sqrt(dt/I),W=new Float64Array(M+1);
+  for(let j=0;j<M;j++)W[j+1]=W[j]+sd*zs[j];
+  const phi=new Float64Array(M+1);for(let j=0;j<=M;j++)phi[j]=TWO_PI*n*j/M+W[j]-(j/M)*W[M];return phi}
+/* ---------- Monte Carlo of closed paths on the ring: Nsl slices, exact short-time weight (sum over images) ---------- */
+function wrap(d){return d-TWO_PI*Math.round(d/TWO_PI)}
+function logK(d,a){d=wrap(d);const p=TWO_PI;return -a*d*d+Math.log(1+Math.exp(-a*((d+p)*(d+p)-d*d))+Math.exp(-a*((d-p)*(d-p)-d*d)))}
+function sliceCount(beta,I){return Math.max(32,Math.ceil(6*beta/I))}
+function mcNew(beta,I,seed){const N=sliceCount(beta,I),eps=beta/N;
+  return {N,a:I/(2*eps),w:Math.min(3,2*Math.sqrt(eps/I)),phi:new Float64Array(N),rng:mulberry32(seed*7919+13),ns:[],acc:0,tries:0}}
+function mcWinding(st){const N=st.N;let s=0;for(let i=0;i<N;i++)s+=wrap(st.phi[(i+1)%N]-st.phi[i]);return Math.round(s/TWO_PI)}
+function mcLogW(phi,N,a){let s=0;for(let i=0;i<N;i++)s+=logK(phi[(i+1)%N]-phi[i],a);return s}
+function mcSweep(st){const N=st.N,phi=st.phi,a=st.a,rng=st.rng;
+  for(let i=0;i<N;i++){const pr=phi[(i+N-1)%N],nx=phi[(i+1)%N],o=phi[i],q=o+(rng()*2-1)*st.w;
+    const dl=logK(q-pr,a)+logK(nx-q,a)-logK(o-pr,a)-logK(nx-o,a);
+    st.tries++;if(dl>=0||Math.log(rng())<dl){phi[i]=q;st.acc++}}
+  /* tilt move: add s*2 pi j/N to slice j (changes n by s, keeps the fluctuations) */
+  const s=rng()<0.5?1:-1,old=Float64Array.from(phi),l0=mcLogW(phi,N,a);
+  for(let j=0;j<N;j++)phi[j]=old[j]+s*TWO_PI*j/N;
+  const l1=mcLogW(phi,N,a);if(!(l1>=l0||Math.log(rng())<l1-l0))phi.set(old);
+  st.ns.push(mcWinding(st))}
+/* mean and block error of f(n) over ns[burn..] in B blocks */
+function blockStats(ns,burn,f,B){const L=ns.length-burn,len=Math.floor(L/B);if(len<1)return {mean:NaN,err:NaN,count:L};
+  const m=[];for(let b=0;b<B;b++){let s=0;for(let i=0;i<len;i++)s+=f(ns[burn+b*len+i]);m.push(s/len)}
+  const mean=m.reduce((x,y)=>x+y,0)/B;let v=0;for(const x of m)v+=(x-mean)*(x-mean);
+  return {mean,err:Math.sqrt(v/(B-1)/B),count:B*len}}
+/* PHYSICS-CORE END */
+/* ---------------- user interface (not tested from node) ---------------- */
+const $=id=>document.getElementById(id);
+const BG="#07080c",TXT="rgba(255,255,255,.78)";
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,H=Math.round(+c.dataset.h0*(w<420?0.85:1));
+  const pw=Math.round(w*d),ph=Math.round(H*d);
+  if(c.dataset.pw!==String(pw)||c.dataset.ph!==String(ph)){c.width=pw;c.height=ph;c.dataset.pw=pw;c.dataset.ph=ph}
+  c.style.height=H+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h:H}}
+function sci(x,d){if(x===0)return "0";const a=Math.abs(x);return (a>=0.01&&a<1000)?x.toFixed(a<1?4:2):x.toExponential(d||1)}
+function pm(v,d){const a=Math.abs(v).toFixed(d);return (v<0&&+a!==0?"−":"")+a}
+const CAT={"-3":"#fcd34d","-2":"#f9a8d4","-1":"#fb923c","0":"#e7e8ea","1":"#5eead4","2":"#93c5fd","3":"#d8b4fe"};
+const S={theta:0.6*Math.PI,beta:Math.pow(10,0.78),I:1,m:1,seedPaths:1};
+let dirty=true;
+
+/* ---- shared sliders ---- */
+function readBinds(){
+  document.querySelectorAll("input.bind").forEach(e=>{const v=+e.value,k=e.dataset.k;
+    if(k==="theta")S.theta=v*Math.PI;else if(k==="beta")S.beta=Math.pow(10,v);else S.I=v});
+  document.querySelectorAll("[data-v]").forEach(b=>{const k=b.dataset.v;
+    b.textContent=k==="theta"?(S.theta/Math.PI).toFixed(2)+" π":k==="beta"?S.beta.toFixed(2)+"  (β/I = "+(S.beta/S.I).toFixed(2)+")":S.I.toFixed(2)})}
+document.querySelectorAll("input.bind").forEach(e=>e.addEventListener("input",()=>{
+  document.querySelectorAll(`input.bind[data-k="${e.dataset.k}"]`).forEach(o=>{if(o!==e)o.value=e.value});
+  readBinds();if(e.dataset.k!=="theta")mcReset();dirty=true}));
+$("mcut").addEventListener("input",()=>{S.m=+$("mcut").value;dirty=true});
+
+/* ---- Part 1 sample paths ---- */
+const NMAX=3,NPATH=3,MSEG=120;
+let pathZ=[];
+function newPaths(){const rng=mulberry32(1000+S.seedPaths*31);pathZ=[];
+  for(let n=-NMAX;n<=NMAX;n++)for(let p=0;p<NPATH;p++){const z=new Float64Array(MSEG);for(let j=0;j<MSEG;j++)z[j]=gauss(rng);pathZ.push({n,z})}}
+$("newp").onclick=()=>{S.seedPaths++;newPaths();dirty=true};
+
+function draw1(){
+  const {beta,I,theta}=S,z0=zSector(0,beta,I);
+  {const {x:g,w:W,h:H}=fit($("st1"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const ML=36,MB=20,MT=6,pw=W-ML-8,ph=H-MB-MT,R=(NMAX+0.5)*TWO_PI,X=t=>ML+t/beta*pw,Y=f=>MT+(R-f)/(2*R)*ph;
+   g.font="11px system-ui";g.textBaseline="middle";
+   for(let n=-NMAX;n<=NMAX;n++){g.strokeStyle="rgba(255,255,255,.2)";g.setLineDash([3,4]);g.beginPath();g.moveTo(ML,Y(TWO_PI*n));g.lineTo(ML+pw,Y(TWO_PI*n));g.stroke();g.setLineDash([]);
+     g.fillStyle=CAT[n];g.textAlign="right";g.fillText(n===0?"0":(n+"·2π"),ML-4,Y(TWO_PI*n))}
+   g.save();g.beginPath();g.rect(ML,MT,pw,ph);g.clip();
+   for(const P of pathZ){const phi=bridgePath(P.n,beta,I,P.z),wr=zSector(P.n,beta,I)/z0;
+     g.strokeStyle=CAT[P.n];g.globalAlpha=Math.min(1,0.18+0.82*Math.pow(wr,0.25));g.lineWidth=1.3;g.beginPath();
+     for(let j=0;j<=MSEG;j++){const x=X(beta*j/MSEG),y=Y(phi[j]);j?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
+   g.restore();g.globalAlpha=1;
+   g.fillStyle="#fff";g.beginPath();g.arc(X(0),Y(0),3.5,0,7);g.fill();
+   for(let n=-NMAX;n<=NMAX;n++){g.fillStyle=CAT[n];g.beginPath();g.arc(X(beta),Y(TWO_PI*n),3,0,7);g.fill()}
+   g.fillStyle=TXT;g.textAlign="center";g.textBaseline="alphabetic";g.fillText("imaginary time τ  (0 … β)",ML+pw/2,H-4);}
+  {const {x:g,w:W,h:H}=fit($("tb1"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const MT=6,MB=20,ph=H-MB-MT,R=(NMAX+0.5)*TWO_PI,Y=f=>MT+(R-f)/(2*R)*ph,rowH=ph/(2*NMAX+1);
+   const x0=44,x1=W-84,bw=x1-x0,dr=Math.min(13,rowH/2-2);
+   g.font="11px system-ui";g.textBaseline="middle";
+   for(let n=-NMAX;n<=NMAX;n++){const y=Y(TWO_PI*n),wr=zSector(n,beta,I)/z0,c=Math.cos(theta*n)*wr;
+     g.strokeStyle="rgba(255,255,255,.16)";g.beginPath();g.moveTo(0,y+rowH/2);g.lineTo(W,y+rowH/2);g.stroke();
+     g.fillStyle=CAT[n];g.textAlign="left";g.fillText("n="+n,4,y-dr*0.0);
+     /* dial */
+     const cx=x0-2+dr+14;g.strokeStyle="rgba(255,255,255,.35)";g.beginPath();g.arc(cx,y,dr,0,7);g.stroke();
+     const a=theta*n,ex=cx+dr*Math.cos(a),ey=y-dr*Math.sin(a);g.strokeStyle="#fff";g.lineWidth=1.8;g.beginPath();g.moveTo(cx,y);g.lineTo(ex,ey);g.stroke();g.lineWidth=1;
+     g.fillStyle="#fff";g.beginPath();g.arc(ex,ey,2.2,0,7);g.fill();
+     /* bars */
+     const bx=cx+dr+10,bl=W-84-bx;g.fillStyle=CAT[n];g.globalAlpha=0.85;g.fillRect(bx,y-rowH*0.28,Math.max(1,bl*wr),rowH*0.34);g.globalAlpha=1;
+     g.fillStyle=c>=0?"#ffffff":"#fb923c";g.fillRect(bx,y+rowH*0.1,Math.max(1,bl*Math.abs(c)),rowH*0.14);
+     g.fillStyle=TXT;g.textAlign="left";g.fillText(sci(wr,1),W-80,y)}
+   g.fillStyle=TXT;g.textAlign="center";g.textBaseline="alphabetic";g.fillText("arrow = e^{iθn}   bar = z_n / z_0   line = cos(θn) z_n / z_0",W/2,H-4)}
+  const Z=Zwind(beta,theta,I),Z0=Zwind(beta,0,I);
+  $("read1").innerHTML=`<div><span>θ = </span><b>${(theta/Math.PI).toFixed(3)} π</b> <span>· β/I = </span><b>${(beta/I).toFixed(3)}</b></div>
+   <div><span>z₁/z₀ = </span><b>${sci(zSector(1,beta,I)/z0,2)}</b></div>
+   <div><span>Z(θ) from the sectors = </span><b>${Z.toFixed(8)}</b> <span>· Z(0) = </span><b>${Z0.toFixed(8)}</b> <span>· ratio ⟨cos θn⟩ = </span><b>${(Z/Z0).toFixed(6)}</b></div>`}
+
+function logErr(e){return e<=1e-16?-16:Math.log10(e)}
+function draw2(){
+  const {beta,I,theta}=S,M=10,mm=S.m;
+  {const {x:g,w:W,h:H}=fit($("er2"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const ML=38,MB=22,MT=8,pw=W-ML-10,ph=H-MB-MT,X=m=>ML+m/M*pw,Y=v=>MT+(-v)/16*ph;
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";g.textBaseline="middle";
+   for(const v of [0,-4,-8,-12,-16]){g.fillText("1e"+v,ML-4,Y(v));g.strokeStyle="rgba(255,255,255,.14)";g.beginPath();g.moveTo(ML,Y(v));g.lineTo(ML+pw,Y(v));g.stroke()}
+   g.strokeStyle="rgba(255,255,255,.4)";g.setLineDash([3,3]);g.beginPath();g.moveTo(ML,Y(-10));g.lineTo(ML+pw,Y(-10));g.stroke();g.setLineDash([]);
+   g.textAlign="center";g.textBaseline="alphabetic";for(let m=0;m<=M;m+=2)g.fillText(String(m),X(m),H-8);g.fillText("terms m",ML+pw/2,H-2);
+   for(const [fn,col] of [[errWind,"#fb923c"],[errEnergy,"#7fb0ff"]]){g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.8;g.beginPath();
+     for(let m=0;m<=M;m++){const y=Y(logErr(fn(beta,theta,I,m)));m?g.lineTo(X(m),y):g.moveTo(X(m),y)}g.stroke();g.lineWidth=1;
+     const y=Y(logErr(fn(beta,theta,I,mm)));g.beginPath();g.arc(X(mm),y,4.5,0,7);g.fill()}
+   g.strokeStyle="rgba(255,255,255,.55)";g.beginPath();g.moveTo(X(mm),MT);g.lineTo(X(mm),MT+ph);g.stroke();
+   g.textAlign="right";g.textBaseline="alphabetic";g.fillStyle="#fb923c";g.fillText("sectors |n| ≤ m",ML+pw-8,MT+ph*0.35);g.fillStyle="#7fb0ff";g.fillText("levels |k−k*| ≤ m",ML+pw-8,MT+ph*0.35+14)}
+  {const {x:g,w:W,h:H}=fit($("tm2"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const Z=Zenergy(beta,theta,I),R=6,cols=2*R+1,ML=8,pw=W-2*ML,cw=pw/cols,rowH=(H-64)/2;
+   g.font="11px system-ui";
+   const rows=[["sector terms cos(θn) z_n / Z","#fb923c",n=>Math.cos(theta*n)*zSector(n,beta,I)/Z,n=>n,()=>0],["level terms e^{−βE_k} / Z","#7fb0ff",k=>Math.exp(-beta*levelE(k,theta,I))/Z,k=>k,()=>kStar(theta)]];
+   let vmax=1.05;for(let n=-R;n<=R;n++)vmax=Math.max(vmax,Math.abs(rows[0][2](n)));
+   rows.forEach((rw,ri)=>{const top=14+ri*(rowH+30),base=top+rowH*0.62,sc=rowH*0.58/vmax;
+     g.fillStyle=TXT;g.textAlign="left";g.fillText(rw[0],ML,top-2);
+     g.strokeStyle="rgba(255,255,255,.3)";g.beginPath();g.moveTo(ML,base);g.lineTo(ML+pw,base);g.stroke();
+     for(let i=-R;i<=R;i++){const idx=i+rw[4](),v=rw[2](idx),x=ML+(i+R)*cw,inc=Math.abs(i)<=mm;
+       g.globalAlpha=inc?1:0.3;g.fillStyle=rw[1];const h=v*sc;g.fillRect(x+cw*0.15,v>=0?base-h:base,cw*0.7,Math.abs(h)+0.5);g.globalAlpha=1;
+       g.fillStyle=TXT;g.textAlign="center";g.fillText(String(idx),x+cw/2,top+rowH+1)}})}
+  const Zw=ZwindRe(beta,theta,I,sectorsAuto(beta,I)),Ze=Zenergy(beta,theta,I),df=Math.abs(Zw-Ze);
+  $("big2").innerHTML=`<span>Z from all winding sectors:</span> <b>${Zw.toFixed(12)}</b> <span>· Z from all energy levels:</span> <b>${Ze.toFixed(12)}</b>
+   <small>|difference| / Z = <b style="font-size:14px">${(df/Ze).toExponential(1)}</b> (exact answer: 0, rounding only; the test file requires ≤ 1e-12) · ${2*sectorsAuto(beta,I)+1} sectors, ${2*levelsAuto(beta,I,theta)+1} levels</small>`;
+  $("read2").innerHTML=`<div><span>partial sum, sectors |n| ≤ ${mm}: </span><b>${ZwindRe(beta,theta,I,mm).toFixed(8)}</b></div>
+   <div><span>partial sum, levels |k−k*| ≤ ${mm}: </span><b>${ZenergyPart(beta,theta,I,mm).toFixed(8)}</b></div>
+   <div><span>terms needed for 1e-10 — sectors: </span><b>${neededWind(beta,theta,I,1e-10)}</b> <span>· levels: </span><b>${neededEnergy(beta,theta,I,1e-10)}</b> <span>(m, on each side)</span></div>`;
+  $("mV").textContent=String(mm)}
+
+function draw3(){
+  const {beta,I,theta}=S;
+  {const {x:g,w:W,h:H}=fit($("sp3"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const ML=40,MB=22,MT=8,pw=W-ML-10,ph=H-MB-MT,TM=2*Math.PI,EM=0.6/I,X=t=>ML+(t+TM)/(2*TM)*pw,Y=e=>MT+(1-e/EM)*ph;
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="center";
+   for(const t of [-2,-1,0,1,2]){g.fillText(t+"π",X(t*Math.PI),H-8);g.strokeStyle=t%2?"rgba(255,255,255,.28)":"rgba(255,255,255,.12)";g.beginPath();g.moveTo(X(t*Math.PI),MT);g.lineTo(X(t*Math.PI),MT+ph);g.stroke()}
+   g.textAlign="right";for(let i=0;i<=3;i++){const e=EM*i/3;g.fillText(e.toFixed(2),ML-4,Y(e)+4)}
+   g.save();g.beginPath();g.rect(ML,MT,pw,ph);g.clip();
+   g.strokeStyle="rgba(255,255,255,.4)";for(let k=-3;k<=3;k++){g.beginPath();for(let i=0;i<=200;i++){const t=-TM+2*TM*i/200,x=X(t),y=Y(levelE(k,t,I));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
+   g.strokeStyle="#5eead4";g.lineWidth=3;g.beginPath();for(let i=0;i<=400;i++){const t=-TM+2*TM*i/400;const x=X(t),y=Y(E0(t,I));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+   g.strokeStyle="#fb923c";g.lineWidth=1.8;g.beginPath();for(let i=0;i<=200;i++){const t=-TM+2*TM*i/200,x=X(t),y=Y(Efree(beta,t,I));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.lineWidth=1;g.restore();
+   const tx=X(Math.max(-TM,Math.min(TM,theta)));g.strokeStyle="#fff";g.beginPath();g.moveTo(tx,MT);g.lineTo(tx,MT+ph);g.stroke();
+   g.fillStyle="#5eead4";g.textAlign="left";g.fillText("E₀(θ), lowest level",ML+6,MT+14);g.fillStyle="#fb923c";g.fillText("−(1/β) ln Z",ML+6,MT+28);g.fillStyle=TXT;g.fillText("other levels E_k",ML+6,MT+42)}
+  {const {x:g,w:W,h:H}=fit($("cu3"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const ML=44,MB=22,MT=8,pw=W-ML-10,ph=H-MB-MT,TM=2*Math.PI,JM=0.6/(2*Math.PI*I),X=t=>ML+(t+TM)/(2*TM)*pw,Y=j=>MT+(1-(j+JM)/(2*JM))*ph;
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="center";
+   for(const t of [-2,-1,0,1,2]){g.fillText(t+"π",X(t*Math.PI),H-8);g.strokeStyle=t%2?"rgba(255,255,255,.28)":"rgba(255,255,255,.12)";g.beginPath();g.moveTo(X(t*Math.PI),MT);g.lineTo(X(t*Math.PI),MT+ph);g.stroke()}
+   g.strokeStyle="rgba(255,255,255,.3)";g.beginPath();g.moveTo(ML,Y(0));g.lineTo(ML+pw,Y(0));g.stroke();
+   g.textAlign="right";for(const f of [-1,0,1]){g.fillText((f*JM).toFixed(3),ML-4,Y(f*JM)+4)}
+   g.save();g.beginPath();g.rect(ML,MT,pw,ph);g.clip();
+   g.strokeStyle="#5eead4";g.setLineDash([5,3]);g.lineWidth=2;g.beginPath();let pk=null;
+   for(let i=0;i<=800;i++){const t=-TM+2*TM*i/800,k=kStar(t),y=Y(J0(t,I));if(pk!==null&&k!==pk){g.stroke();g.beginPath()}if(pk===null||k!==pk)g.moveTo(X(t),y);else g.lineTo(X(t),y);pk=k}g.stroke();g.setLineDash([]);
+   g.strokeStyle="#fb923c";g.lineWidth=1.8;g.beginPath();for(let i=0;i<=300;i++){const t=-TM+2*TM*i/300,x=X(t),y=Y(Jwind(beta,t,I));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.lineWidth=1;g.restore();
+   const tx=X(Math.max(-TM,Math.min(TM,theta)));g.strokeStyle="#fff";g.beginPath();g.moveTo(tx,MT);g.lineTo(tx,MT+ph);g.stroke();
+   g.textAlign="left";g.fillStyle="#5eead4";g.fillText("zero temperature",ML+6,MT+14);g.fillStyle="#fb923c";g.fillText("thermal, at β",ML+6,MT+28)}
+  const Ef=Efree(beta,theta,I),e0=E0(theta,I),k=kStar(theta);
+  $("read3").innerHTML=`<div><span>E₀(θ) = </span><b>${e0.toFixed(6)}</b> <span>(lowest level, k = ${k})</span></div>
+   <div><span>−(1/β) ln Z = </span><b>${Ef.toFixed(6)}</b> <span>· difference </span><b>${pm(Ef-e0,6)}</b> <span>(thermal smoothing; goes to 0 at large β, up to ln 2/β at a crossing)</span></div>
+   <div><span>current J(θ), zero T = </span><b>${pm(J0(theta,I),6)}</b> <span>· thermal = </span><b>${pm(Jwind(beta,theta,I),6)}</b> <span>(from the energy sum: ${pm(Jenergy(beta,theta,I),6)})</span></div>
+   <div><span>jump at θ = π: </span><b>${(1/(TWO_PI*I)).toFixed(6)}</b> <span>= 1/(2πI)</span></div>`}
+
+/* ---- Part 4: Monte Carlo ---- */
+let MC=null,mcOn=false;
+function mcReset(){MC=mcNew(S.beta,S.I,+$("mcSeed").value);dirty=true}
+$("mcRun").onclick=()=>{mcOn=!mcOn;$("mcRun").textContent=mcOn?"Pause":"Run"};
+$("mcReset").onclick=()=>{mcReset()};
+$("mcSeed").addEventListener("input",mcReset);
+function draw4(){
+  const {beta,I,theta}=S,ns=MC.ns,burn=Math.min(300,Math.floor(ns.length/4)),L=ns.length-burn;
+  {const {x:g,w:W,h:H}=fit($("hi4"));g.fillStyle=BG;g.fillRect(0,0,W,H);
+   const R=4,cols=2*R+1,ML=8,pw=W-2*ML,cw=pw/cols,base=H-24,top=18,cnt=new Array(cols).fill(0);
+   for(let i=burn;i<ns.length;i++){const n=ns[i];if(Math.abs(n)<=R)cnt[n+R]++}
+   const pe=[];let mx=0;for(let n=-R;n<=R;n++){pe.push(pSector(n,beta,I));mx=Math.max(mx,pe[n+R])}
+   g.font="11px system-ui";g.textAlign="center";
+   for(let n=-R;n<=R;n++){const x=ML+(n+R)*cw,p=L>0?cnt[n+R]/L:0;mx=Math.max(mx,p)}
+   mx*=1.1;
+   for(let n=-R;n<=R;n++){const x=ML+(n+R)*cw,p=L>0?cnt[n+R]/L:0;
+     g.fillStyle="#fb923c";const h=p/mx*(base-top);g.fillRect(x+cw*0.2,base-h,cw*0.6,h);
+     g.strokeStyle="#7fb0ff";g.lineWidth=2;const he=pe[n+R]/mx*(base-top);g.strokeRect(x+cw*0.12,base-he,cw*0.76,he);g.lineWidth=1;
+     g.fillStyle=TXT;g.fillText("n="+n,x+cw/2,H-8);g.fillText(sci(pe[n+R],1),x+cw/2,Math.min(base-4,base-he-4)>top+8?base-Math.max(h,he)-5:top+8)}
+   g.textAlign="left";g.fillStyle="#fb923c";g.fillText("orange: run   ",ML,12);g.fillStyle="#7fb0ff";g.fillText("blue frame: exact p(n)",ML+90,12)}
+  const sn=blockStats(ns,burn,n=>n*n,20),sc=blockStats(ns,burn,n=>Math.cos(theta*n),20),ex2=nSquared(beta,I),exc=cosAverage(beta,theta,I);
+  const pass=(a,e)=>isFinite(a.mean)&&a.err>0?(Math.abs(a.mean-e)/a.err).toFixed(1)+" σ":"–";
+  $("read4").innerHTML=`<div><span>slices N = </span><b>${MC.N}</b> <span>· sweeps = </span><b>${ns.length}</b> <span>· local move acceptance </span><b>${(MC.acc/Math.max(1,MC.tries)*100).toFixed(0)}%</b></div>
+   <div style="margin-top:6px"><span>⟨n²⟩ run: </span><b>${isFinite(sn.mean)?sn.mean.toFixed(4)+" ± "+sn.err.toFixed(4):"–"}</b> <span>· exact: </span><b>${ex2.toFixed(4)}</b> <span>· off by ${pass(sn,ex2)}</span></div>
+   <div style="margin-top:6px"><span>⟨cos θn⟩ run: </span><b>${isFinite(sc.mean)?sc.mean.toFixed(4)+" ± "+sc.err.toFixed(4):"–"}</b> <span>· exact Z(θ)/Z(0): </span><b>${exc.toFixed(4)}</b> <span>· off by ${pass(sc,exc)}</span></div>
+   <div style="margin-top:6px"><span>${beta/I<1.5?"β/I is small: windings are very rare, so the run sees almost none.":"A run of a few 10⁴ sweeps is usually enough."}</span></div>`}
+
+function drawAll(){draw1();draw2();draw3();draw4();dirty=false}
+window.addEventListener("resize",()=>{dirty=true});
+function loop(){
+  if(mcOn){const t0=performance.now();while(performance.now()-t0<10&&MC.ns.length<2000000)mcSweep(MC);dirty=true}
+  if(dirty)drawAll();requestAnimationFrame(loop)}
+readBinds();newPaths();mcReset();$("mcut").value=S.m;
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
