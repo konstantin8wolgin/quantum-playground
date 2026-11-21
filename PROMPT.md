@@ -12,7 +12,10 @@ that give intuition for:
    single arrival dots sampled from |ψ|², and the path-sum curve on the screen.
 2. Quantum fluctuations and quantum states (next steps, see notes/decisions.md).
 3. The gauge groups U(1), SU(2), SU(3): show what a group element does, with
-   low-dimensional slices of SU(3).
+   low-dimensional slices of SU(3). Spinor page: one rotation angle drives a
+   belt trick (row of plates, untangle via R(s,u) = rot(x,θs/2)·rot(b(u),θs/2)),
+   a Bloch sphere with a Penrose flag, the two spinor components as arrows, an
+   SU(2) circle, and the neutron-interferometer curve (1 + cos(θ/2))/2.
 
 Landing page `index.html`: the story "nature adds up phases" and one card per room.
 

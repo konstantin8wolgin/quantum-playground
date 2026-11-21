@@ -41,6 +41,6 @@ scope, because visuals can teach them better than the usual formalism.
 | Q12 | Going public | Only after the user reviews the simulations personally. Stay private until then. |
 
 ## Next
-- Demo 2: double slit (split-operator Schrödinger, phase colours, Bohmian flow lines, sum-over-paths curve).
-- Demo 1: spinor flag and 720°.
+- Demo 2: double slit — built 2026-11-21 (`demos/double-slit.html`; Visscher scheme with 4th-order Laplacian, because the FFT version was too slow).
+- Demo 1: spinor flag and 720° — built 2026-11-21 (`demos/spinor-flag.html`).
 - Landing page `index.html`.
