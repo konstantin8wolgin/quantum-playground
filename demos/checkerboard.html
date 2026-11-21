@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feynman's Checkerboard</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--on-accent:#ffffff;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--on-accent:#0b1020;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--on-accent:#0b1020;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2.sec{font-size:18px;margin:0 0 6px}
+h3.cap{font-size:14px;margin:10px 0 4px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.grid2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.legend{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;max-width:100%}
+button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px;overflow-wrap:anywhere}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.big{margin-top:12px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.big b{font-size:19px;color:var(--chip-exact);font-variant-numeric:tabular-nums}
+.big small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+table.tb{border-collapse:collapse;font-size:12.5px;margin-top:8px;font-variant-numeric:tabular-nums;max-width:100%}
+table.tb td,table.tb th{border:1px solid var(--line);padding:2px 8px;text-align:right}
+.tbw{overflow-x:auto;max-width:100%}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style></head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Feynman's Checkerboard</h1>
+<p class="sub">A particle with mass, built from the simplest paths there are. It moves one step left or right in every tick of the clock, always at light speed. Each time it turns around, the arrow of the path shrinks and turns by a quarter turn. Add all the arrows, and you get the Dirac wave of an electron in one space dimension.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: press <i>new path</i>. Count the turns R of the path. Look at its arrow and at the chain of arrows below. The chain adds all paths to one end point. The sum is checked against a count of all paths.</li>
+<li>Part 2: set the mass m to 0. Only the two edges of the light cone are lit. Then raise m and watch the inside of the cone fill with waves.</li>
+<li>Part 3: make the grid finer (more steps N). The checkerboard sum comes closer to the exact wave. Read the order of convergence. Part 4: a packet on the checkerboard moves slower than light.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
+<section id="part1">
+<h2 class="sec">Part 1 · Zig-zag paths and their arrows</h2>
+<p>Time goes down. In each tick the particle jumps one cell left or right. A path that turns R times gets the arrow (−iεm)<sup>R</sup>. That means: length (εm)<sup>R</sup>, and a quarter turn clockwise for each reversal. The wave at an end point is the sum of the arrows of all paths that end there.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">The checkerboard: one random path (bright), and all paths to the end point (faint)</h3>
+    <canvas id="cb1" data-h0="330"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Arrow of this one path</h3>
+    <canvas id="ar1" data-h0="130"></canvas>
+    <h3 class="cap">All arrows added head to tail (grouped by R)</h3>
+    <canvas id="ch1" data-h0="230"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>the chain: N(R) paths with R turns, each with the arrow (−iεm)<sup>R</sup>. The numbers N(R) are counted in two ways (a closed formula and a full list of paths). They agree.</div>
+  <div><span class="chip c-exact">exact</span>the check number below: a recursion over the grid, a closed formula, and a brute-force sum over all 2<sup>N</sup> paths.</div>
+  <div><span class="chip c-cartoon">cartoon</span>the bright path is one random example. The picture of "one path" is a way to think. Only the sum of all arrows has a meaning.</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="np1" class="primary">new path</button></div>
+  <label>steps N <b id="n1V"></b><input id="n1" type="range" min="4" max="14" step="1" value="9"></label>
+  <label>turn strength εm <b id="g1V"></b><input id="g1" type="range" min="0.05" max="1" step="0.05" value="0.5"></label>
+  <label>right steps in total <b id="x1V"></b><input id="x1" type="range" min="0" max="9" step="1" value="5"></label>
+  <label>first step <select id="s1"><option value="1">right</option><option value="-1">left</option></select></label>
+  <label>last step <select id="e1"><option value="1">right</option><option value="-1">left</option></select></label>
+  <label>rule <select id="r1"><option value="p">plain: weight −iεm per turn</option><option value="u">unitary: cos(mε) and −i sin(mε)</option></select></label>
+</div>
+<div class="big" id="big1"></div>
+<div class="read" id="read1"></div>
+<div class="predict"><b>Predict, then test:</b> make the turn strength small (0.1). Which values of R carry almost all of the sum? Then make it large (1.0). Does the sum come from the paths with few turns or many?</div>
+<details><summary>What the numbers mean</summary>
+<p>A path with N steps has N−1 places where it can turn. A path with R turns chooses R of these places, so there are C(N−1, R) turn patterns and 2 first directions. For one end point the number N(R) is a product of two binomials: the runs to the right and the runs to the left are split into parts. The test compares this formula with a list of all paths.</p>
+<p>The recursion goes one tick at a time: ψ<sub>R</sub>(x, t+ε) = ψ<sub>R</sub>(x−ε, t) − iεm ψ<sub>L</sub>(x−ε, t), and the mirror rule for ψ<sub>L</sub>. Here ψ<sub>R</sub> is the part that arrived with a step to the right. The first step costs nothing. The recursion adds up exactly the same arrows as the brute-force sum, so the difference is rounding only (about 1e-16).</p>
+</details>
+</section>
+
+<section id="part2">
+<h2 class="sec">Part 2 · The light cone</h2>
+<p>Sum the arrows for every point of the space-time triangle. Time goes down, space goes across. A particle without mass never turns. It has one path only, and that path runs along the edge of the light cone. With mass, the turning paths fill the inside of the cone with waves.</p>
+<h3 class="cap">Checkerboard sum for every grid point (colour = phase, brightness = size)</h3>
+<canvas id="lc2" data-h0="380"></canvas>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>the picture is the exact sum over all zig-zag paths for a finite grid (N steps, step ε = 1/N). The grid is a model. The Dirac wave appears when ε goes to 0.</div>
+  <div><span class="chip c-exact">exact</span>the norm line below: the plain rule gives exactly (1+ε²m²)<sup>N−1</sup>, the unitary rule gives exactly 1.</div>
+  <div><span class="chip c-int">interpretation</span>the bright edges are the paths with no turn. The waves inside come from paths with turns. "Brightness" of the edge is only shown at full strength. Inside, brightness is scaled to the strongest inner cell. The parts K<sub>RR</sub> and K<sub>LL</sub> are real, and K<sub>LR</sub> and K<sub>RL</sub> are purely imaginary (for the plain rule), so you see only two colours with a gradual change between them.</div>
+</div>
+<div class="controls">
+  <label>mass m (for total time t = 1) <b id="m2V"></b><input id="m2" type="range" min="0" max="24" step="0.5" value="12"></label>
+  <label>steps N (ε = 1/N) <b id="n2V"></b><input id="n2" type="range" min="20" max="300" step="10" value="160"></label>
+  <label>show <select id="c2">
+    <option value="RR">end right, start right</option>
+    <option value="LR" selected>end left, start right</option>
+    <option value="RL">end right, start left</option>
+    <option value="LL">end left, start left</option>
+    <option value="prob">probability, start (R+L)/√2</option></select></label>
+  <label>rule <select id="r2"><option value="p">plain: weight −iεm per turn</option><option value="u">unitary: cos(mε) and −i sin(mε)</option></select></label>
+</div>
+<div class="big" id="big2"></div>
+<div class="read" id="read2"></div>
+<div class="predict"><b>Predict, then test:</b> at m = 0, which cell is lit at the left edge for "end left, start right"? (Hint: it needs a turn.) Then raise m a little. Where does the first light appear inside the cone?</div>
+</section>
+
+<section id="part3">
+<h2 class="sec">Part 3 · Converging to the Dirac wave</h2>
+<p>Take the time t = 1 and cut it into N steps of size ε = 1/N. The sum on the grid, divided by the cell width 2ε, is compared with the exact answer. The exact answer has Bessel functions. When ε gets smaller, the curves meet.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Slice at t = 1: grid sum (dots) and exact wave (line)</h3>
+    <canvas id="sl3" data-h0="300"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Largest error against the step size ε (log–log)</h3>
+    <canvas id="lg3" data-h0="300"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>dots: the checkerboard sum / (2ε) at N steps. Only every second cell is reached at a given time, so the dots sit on every second grid position.</div>
+  <div><span class="chip c-exact">exact</span>line: the retarded Dirac propagator. In the cone: K<sub>RR</sub> = −m(t+x)/(2τ)·J<sub>1</sub>(mτ), K<sub>LR</sub> = −(i m/2)·J<sub>0</sub>(mτ), with τ = √(t²−x²). On the edge there is also a sharp spike δ(t−x) (the path without turns). It is not drawn.</div>
+  <div><span class="chip c-exact">exact</span>the errors and the fitted order come from the same checked functions as the tests. The error is the largest difference over the cells with |x| ≤ 0.9 t, for both components.</div>
+</div>
+<div class="controls">
+  <label>mass m <b id="m3V"></b><input id="m3" type="range" min="0.5" max="12" step="0.5" value="6"></label>
+  <label>coarsest grid <select id="n3"><option value="16">N = 16</option><option value="32" selected>N = 32</option><option value="64">N = 64</option><option value="128">N = 128</option><option value="256">N = 256</option></select></label>
+  <label>component <select id="c3"><option value="RR">K(R←R): real part</option><option value="LR">K(L←R): imaginary part</option></select></label>
+  <label>rule <select id="r3"><option value="p">plain: weight −iεm per turn</option><option value="u">unitary: cos(mε) and −i sin(mε)</option></select></label>
+</div>
+<div class="big" id="big3"></div>
+<div class="read" id="read3"></div>
+<div class="tbw" id="tb3"></div>
+<div class="predict"><b>Predict, then test:</b> double N. By what factor does the largest error fall? Now switch the rule to unitary. Does the order change? Does the error get bigger or smaller?</div>
+<details><summary>What the numbers mean</summary>
+<p>The order p is the slope of log(error) against log(ε) for the four grids N, 2N, 4N, 8N. It is a least-squares fit. Error ∝ ε<sup>p</sup>. For this scheme p is 1. The first step is placed at the cell next to the start, and this makes a shift of order ε. A shift of order ε in the position gives an error of order ε in a smooth wave.</p>
+<p>The unitary rule has a smaller error constant here, but it has the same order. Its error comes from the same shift. The factor cos(mε) = 1 − (mε)²/2 changes the wave only at second order.</p>
+</details>
+</section>
+
+<section id="part4">
+<h2 class="sec">Part 4 · A wave packet on the checkerboard</h2>
+<p>Now start with a smooth packet and let the unitary rule move it, tick by tick. The packet cannot go faster than light. A packet with mass goes slower, with the group speed k/√(k²+m²). If the packet starts in one component only, it also shakes (Zitterbewegung).</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Density in space (across) and time (down). Blue: right-moving part. Orange: left-moving part.</h3>
+    <canvas id="st4" data-h0="320"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Mean position ⟨x⟩ minus a straight-line fit (zoomed)</h3>
+    <canvas id="zb4" data-h0="320"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>the density is the exact evolution of the packet under the unitary rule on a grid with ε = 0.05. The norm stays 1.</div>
+  <div><span class="chip c-exact">exact</span>the lattice speed formula cos(mε) sin(kε)/sin(ωε), with cos(ωε) = cos(mε) cos(kε). For small ε it is k/√(k²+m²).</div>
+  <div><span class="chip c-int">interpretation</span>Zitterbewegung: the wiggle is the beat between the positive-energy and negative-energy parts of the packet. Its frequency is 2ω. It is a property of the equation. Whether you can "see" it in one particle is a matter of debate.</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="re4" class="primary">recompute</button></div>
+  <label>mass m <b id="m4V"></b><input id="m4" type="range" min="0.5" max="5" step="0.1" value="1.5"></label>
+  <label>momentum k <b id="k4V"></b><input id="k4" type="range" min="-4" max="4" step="0.1" value="1.5"></label>
+  <label>packet width σ <b id="s4V"></b><input id="s4" type="range" min="0.2" max="4" step="0.1" value="3"></label>
+  <label>start <select id="md4"><option value="pos">one speed (positive energy only)</option><option value="R">right component only</option></select></label>
+</div>
+<div class="big" id="big4"></div>
+<div class="read" id="read4"></div>
+<div class="predict"><b>Predict, then test:</b> keep k = 1.5 and double the mass. Does the packet go slower or faster? Then set k = 0, start with the right component only, make the packet narrow (σ = 0.3), and look at the zoomed plot. What is the period of the wiggle?</div>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Take a particle on a line. In each tick of a clock it jumps one cell to the left or to the right. It never stops, so it always moves at the speed of light. Now give it a mass in a very simple way: each time it turns around, its <a class="term" href="../glossary.html#amplitude">amplitude</a> is multiplied by −iεm. Here ε is the step size and m is the mass. That is the whole rule.</p>
+<p>Add the arrows of all zig-zag paths. When the steps get smaller and smaller, the sum becomes the exact <a class="term" href="../glossary.html#propagator">propagator</a> of the <a class="term" href="../glossary.html#dirac-equation">Dirac equation</a> in one space dimension. This is a <a class="term" href="../glossary.html#path-integral">path integral</a> for a particle with spin that you can count on a chessboard. Feynman found it, and Feynman and Hibbs set it as a problem in their book.</p>
+<p>The page checks four things. (1) The recursion and the sum over all paths give the same number. (2) The number of paths with R turns follows a binomial formula. (3) The grid sum approaches the exact wave, with an error that falls in proportion to ε. (4) The exact wave obeys the Dirac equation.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Checkerboard (Part 1)</dt><dd>Time goes down, space goes across. Dots are the cells that can be reached. The bright line is one random path. Orange dots mark its turns. Faint lines are all other paths to the same end point.</dd>
+<dt>Arrow of a path</dt><dd>A path with R turns has the arrow (−iεm)<sup>R</sup>. It gets shorter by the factor εm and turns a quarter turn clockwise per turn. The colours follow the <a class="term" href="../glossary.html#phase">phase</a> colour code of the other rooms.</dd>
+<dt>Chain of arrows</dt><dd>For each R, the N(R) paths have the same arrow. The chain draws these N(R) arrows as one long arrow. Arrows with an even R lie on the real axis (R = 0, 4, 8 point one way, R = 2, 6 the other way). Arrows with an odd R lie on the imaginary axis. The groups are drawn side by side so that you can see them; they are really on one line. The dashed arrow from the start to the end of the chain is the sum, the wave at this end point.</dd>
+<dt>Light cone (Part 2)</dt><dd>Colour is the phase of the sum, brightness is its size. The two edges are the paths with no turn. The inside is the part that mass adds.</dd>
+<dt>Slice (Part 3)</dt><dd>Dots are the grid sum divided by 2ε. The line is the exact Bessel wave. The log–log plot shows the largest error for four grids. A straight line with slope 1 means: halve ε, halve the error.</dd>
+<dt>Packet (Part 4)</dt><dd>The packet density in space and time. The white line is the mean position. The dashed yellow line is the speed from the formula k/√(k²+m²). The right plot zooms in on the wiggle of the mean position.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: set the turn strength to 0.1 and press <i>new path</i> a few times. <details><summary>What happens and why</summary>The chain is almost one long arrow (R = 0 or R = 1). Every extra turn shrinks the arrow by the factor 0.1. So a path with many turns hardly matters. This is a small-mass expansion: the sum is a power series in m.</details></li>
+<li>Part 1: set the turn strength to 1.0 and the end point near the middle. <details><summary>What happens and why</summary>Now long arrows come from paths with many turns, because there are very many of them (the binomials grow). Arrows with R = 0, 4, 8 point one way and arrows with R = 2, 6 point the other way, so they cancel each other in part. The sum is much smaller than the sum of the lengths. This is interference between paths.</details></li>
+<li>Part 2: set the mass to 0. <details><summary>What happens and why</summary>Only the edge of the <a class="term" href="../glossary.html#light-cone">light cone</a> is lit, and only for "end right, start right" (or "end left, start left"). The particle never turns, so only one path exists. The two other components are exactly 0.</details></li>
+<li>Part 2: raise m, then raise N. <details><summary>What happens and why</summary>Waves appear inside the cone. They have the shape J₀(m√(t²−x²)), so rings of equal phase follow the curves of constant proper time. Higher m makes finer rings. A finer grid (larger N) resolves them better; with a coarse grid the picture is only a rough copy.</details></li>
+<li>Part 2: switch between the plain and the unitary rule and read the norm. <details><summary>What happens and why</summary>The plain rule has a norm that grows by (1+ε²m²) at every tick, so the total probability is not conserved on the grid. The unitary rule uses cos(mε) and −i sin(mε) and keeps the norm at 1 exactly. When ε goes to 0, both rules give the same wave.</details></li>
+<li>Part 3: double N and read the error table. <details><summary>What happens and why</summary>The largest error falls by a factor of about 2. The fitted order is close to 1. The error is of first order in ε. In a log–log plot, the points lie on a straight line of slope 1.</details></li>
+<li>Part 4: set k = 0, start with the right component only, σ = 0.3, m = 3. <details><summary>What happens and why</summary>The zoomed plot shows a fast wiggle. Its period is π/ω, where ω is the energy of a rest particle (ω = m). The wiggle fades as the packet spreads. With a wide packet (σ ≫ 1/m) it is tiny.</details></li>
+<li>Part 4: use one speed, and compare the white line with the dashed line. <details><summary>What happens and why</summary>The two lines nearly match. The measured speed is an average over the packet, so it differs slightly from the formula for one k. A packet with large mass moves slowly. A packet with m small and k large moves close to the speed of light 1, and never faster.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p><b>The rule.</b> Use units with c = ħ = 1. Cut time and space into steps ε. A path jumps ε to the right or to the left in each tick. Every path gets the weight (−iεm)<sup>R</sup> where R is the number of turns. The wave from the start to a point (x, t) is the sum over all paths. Because a path has a first and a last direction, the result is a 2×2 table K<sub>end,start</sub>. The sum can be written as Σ<sub>R</sub> N(R) (−iεm)<sup>R</sup>, with N(R) the number of paths with R turns. This is a power series in the mass, so it is also a <a class="term" href="../glossary.html#perturbation-theory">perturbation series</a>: each turn is like one interaction with the mass.</p>
+<p><b>The limit.</b> One tick of the recursion says ψ<sub>R</sub>(x,t+ε) − ψ<sub>R</sub>(x−ε,t) = −iεm ψ<sub>L</sub>(x−ε,t). Divide by ε and let ε go to 0: (∂<sub>t</sub> + ∂<sub>x</sub>) ψ<sub>R</sub> = −i m ψ<sub>L</sub>, and (∂<sub>t</sub> − ∂<sub>x</sub>) ψ<sub>L</sub> = −i m ψ<sub>R</sub>. This is the Dirac equation for a <a class="term" href="../glossary.html#spinor">spinor</a> with two components (right-moving and left-moving). The solution for a point source is the retarded <a class="term" href="../glossary.html#propagator">propagator</a>. Its components are Bessel functions inside the light cone and a sharp spike on the edge. The mass sets how fast the waves inside oscillate.</p>
+<p><b>The sign and the cell.</b> With the sign −iεm the sum obeys (∂<sub>t</sub> + ∂<sub>x</sub>)ψ<sub>R</sub> = −imψ<sub>L</sub>. With +iεm you get the same physics with m → −m (a different sign convention of the Dirac matrices). Only every second cell is reached at a given time, so the cell width in x is 2ε. This is why the grid sum is divided by 2ε. Then the sum is a density in x, as the propagator is.</p>
+<p><b>Plain and unitary.</b> The plain rule is not unitary on the grid. Every tick multiplies the norm by 1+ε²m². After N−1 ticks it is (1+ε²m²)<sup>N−1</sup>. This tends to 1 when ε goes to 0 with t = Nε fixed, but only like 1 + εm²t. The unitary variant puts cos(mε) on each step without a turn and −i sin(mε) on each turn. The norm is 1 at every tick. It is a <a class="term" href="../glossary.html#quantum-walk"><i>quantum walk</i></a>: a particle with a "coin" in the direction (right or left), and the coin is turned by an angle mε at every tick. The wave on the grid has the dispersion cos(ωε) = cos(mε) cos(kε), which tends to ω² = k² + m².</p>
+<p><b>Packets.</b> A packet made of waves e<sup>ikx</sup> with k near k₀ moves with the group speed dω/dk = k/√(k²+m²). This is always less than 1 for m &gt; 0. A packet that starts in one component only is a mix of positive-energy and negative-energy waves. The two parts beat with frequency 2ω. The mean position then wiggles. This is the <a class="term" href="../glossary.html#zitterbewegung">Zitterbewegung</a>. It has the size of one Compton wavelength 1/m. See <a href="feynman-diagrams.html">Feynman Diagrams</a> for the other, perturbative way of adding up paths.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">K<sub>e,s</sub>(x, t = Nε) = Σ<sub>paths</sub> (−iεm)<sup>R</sup> = Σ<sub>R</sub> N(R) (−iεm)<sup>R</sup></span>
+<span>The sum over all paths of N steps from direction s (first step) to direction e (last step) at position x. R is the number of turns. The first step has no weight.</span>
+<span class="eq">ψ<sub>R</sub>(x, t+ε) = ψ<sub>R</sub>(x−ε, t) − iεm ψ<sub>L</sub>(x−ε, t),  ψ<sub>L</sub>(x, t+ε) = ψ<sub>L</sub>(x+ε, t) − iεm ψ<sub>R</sub>(x+ε, t)</span>
+<span>The recursion in code. It gives the same sum in about N² operations instead of 2<sup>N</sup>.</span>
+<span class="eq">N(R) = C(n<sub>R</sub>−1, k<sub>R</sub>−1) · C(n<sub>L</sub>−1, k<sub>L</sub>−1)</span>
+<span>For a path with n<sub>R</sub> right steps and n<sub>L</sub> left steps and R turns. There are R+1 runs. They alternate. The runs in one direction are k = ⌈(R+1)/2⌉ or ⌊(R+1)/2⌋. Each run has at least one step. If a direction has no run (k = 0), then it needs n = 0 steps.</span>
+<span class="eq">(∂<sub>t</sub> + ∂<sub>x</sub>) ψ<sub>R</sub> = −i m ψ<sub>L</sub>,  (∂<sub>t</sub> − ∂<sub>x</sub>) ψ<sub>L</sub> = −i m ψ<sub>R</sub></span>
+<span>The limit ε → 0: the Dirac equation i∂<sub>t</sub>ψ = (σ<sub>z</sub> p + m σ<sub>x</sub>) ψ, with p = −i∂<sub>x</sub>.</span>
+<span class="eq">G(x,t) = ½ θ(t−|x|) J₀(m τ),  τ = √(t² − x²)</span>
+<span>The retarded Green function of the Klein–Gordon equation (∂<sub>t</sub>² − ∂<sub>x</sub>² + m²) G = 0 in 1+1 dimensions, with G(x,0) = 0 and ∂<sub>t</sub>G(x,0) = δ(x).</span>
+<span class="eq">K = (∂<sub>t</sub> − σ<sub>z</sub>∂<sub>x</sub> − i m σ<sub>x</sub>) G</span>
+<span>Because (∂<sub>t</sub> + σ<sub>z</sub>∂<sub>x</sub> + i m σ<sub>x</sub>)(∂<sub>t</sub> − σ<sub>z</sub>∂<sub>x</sub> − i m σ<sub>x</sub>) = ∂<sub>t</sub>² − ∂<sub>x</sub>² + m².</span>
+<span class="eq">K<sub>RR</sub> = δ(t−x) − m(t+x)/(2τ) J₁(mτ),  K<sub>LL</sub> = δ(t+x) − m(t−x)/(2τ) J₁(mτ),  K<sub>RL</sub> = K<sub>LR</sub> = −(i m/2) J₀(mτ)</span>
+<span>Inside the cone (|x| &lt; t). The grid sum divided by 2ε tends to this. Check with one turn: there is exactly one path per cell, so the sum is −iεm, and −iεm/(2ε) = −im/2 = K at m → 0.</span>
+<span class="eq">‖ψ(t+ε)‖² = (1 + ε²m²) ‖ψ(t)‖²</span>
+<span>For the plain rule. The cross terms cancel because −iεm is purely imaginary. The unitary rule keeps ‖ψ‖ = 1.</span>
+<span class="eq">cos(ωε) = cos(mε) cos(kε),  v<sub>g</sub> = cos(mε) sin(kε) / sin(ωε) → k/√(k²+m²)</span>
+<span>The dispersion and the group speed of the unitary rule on the grid. The limit is for ε → 0.</span>
+<span class="eq">⟨x⟩(t) ≈ v t + A cos(2ωt + φ),  A ∼ 1/(2m)</span>
+<span>Zitterbewegung, in order of size only. ω = √(k²+m²).</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The checkerboard works for one space dimension and one time dimension only. The simple rule does not extend to three space dimensions in this form. Real electrons live in 3+1 dimensions and have more than a "left" and "right" part. The grid is a trick for the sum; the physical wave is the limit ε → 0. At finite ε the plain rule is not unitary, and the error is first order. All errors on this page are for this chosen first-step convention. The errors are measured for |x| ≤ 0.9 t. On the light cone itself the wave has a sharp spike (a delta function) that a grid can only show as one bright cell. The mass is the only interaction: there is no field, no spin-flip beyond the turn, and no second particle. The packet in Part 4 uses a grid with ε = 0.05, so its speed differs from k/√(k²+m²) by a small amount that grows with k. Zitterbewegung is a feature of the equation for one particle. It is hard to observe in a real electron because it is very fast and very small. The words "path" and "turn" are pictures; only the sum has a meaning in an experiment.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman and A. R. Hibbs, <i>Quantum Mechanics and Path Integrals</i> (McGraw-Hill, 1965), problem 2-6: the checkerboard.</li>
+<li>T. Jacobson and L. S. Schulman, "Quantum stochastics: the passage from a relativistic to a non-relativistic path integral", Journal of Physics A 17, 375 (1984): the exact link to the Dirac propagator.</li>
+<li>H. A. Gersch, "Feynman's relativistic chessboard as an Ising model", International Journal of Theoretical Physics 20, 491 (1981).</li>
+<li>Y. Aharonov, L. Davidovich and N. Zagury, "Quantum random walks", Physical Review A 48, 1687 (1993): the quantum walk.</li>
+<li>D. A. Meyer, "From quantum cellular automata to quantum lattice gases", Journal of Statistical Physics 85, 551 (1996): the unitary walk as a lattice Dirac equation.</li>
+<li>I. Bialynicki-Birula, "Weyl, Dirac, and Maxwell equations on a lattice as unitary cellular automata", Physical Review D 49, 6920 (1994).</li>
+<li>R. Gerritsma et al., "Quantum simulation of the Dirac equation", Nature 463, 68 (2010): Zitterbewegung with a trapped ion.</li>
+<li>Related rooms: <a href="path-integral.html">Path Integral Playground</a>, <a href="feynman-diagrams.html">Feynman Diagrams</a>, <a href="quantum-carpet.html">Paths That Meet Again</a>.</li>
+</ul>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TWO_PI=2*Math.PI;
+/* Bessel J0 and J1 by Miller's backward recurrence (accurate to about 1e-15 for 0 <= z <= 200) */
+function besselJ01(z){
+  z=Math.abs(z);if(z<1e-8)return [1-z*z/4,z/2];
+  const n=2*Math.ceil((z+30+3*Math.sqrt(z+10))/2);
+  let jp=0,jc=1e-300,sum=0,j1=0;
+  for(let k=n;k>=1;k--){const jm=2*k/z*jc-jp;jp=jc;jc=jm;
+    if(Math.abs(jc)>1e250){jc*=1e-250;jp*=1e-250;sum*=1e-250;j1*=1e-250}
+    if(k-1>0&&((k-1)&1)===0)sum+=2*jc;
+    if(k-1===1)j1=jc}
+  const j0=jc;sum+=j0;return [j0/sum,j1/sum]}
+function binom(n,k){if(k<0||k>n)return 0;k=Math.min(k,n-k);let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)}
+/* ways to split n steps into k runs of at least one step */
+function compos(n,k){if(k===0)return n===0?1:0;return n>=k?binom(n-1,k-1):0}
+/* number of N-step paths with nR right steps, R turns and first step s (+1 right, -1 left) */
+function countPaths(N,nR,R,s){
+  const runs=R+1,ka=Math.ceil(runs/2),kb=Math.floor(runs/2),kR=s>0?ka:kb,kL=s>0?kb:ka;
+  return compos(nR,kR)*compos(N-nR,kL)}
+/* N(R) for R = 0..N-1 at the cell x = j*eps (j = nR - nL) */
+function countsByR(N,j,s){
+  const out=new Array(N).fill(0);if(((N+j)&1)!==0)return out;const nR=(N+j)/2;if(nR<0||nR>N)return out;
+  for(let R=0;R<N;R++)out[R]=countPaths(N,nR,R,s);return out}
+/* weight of a step without a turn (stay) and size of the weight of a turn (the turn weight is -i*sw) */
+function stepWeights(g,unitary){return unitary?{stay:Math.cos(g),sw:Math.sin(g)}:{stay:1,sw:g}}
+const MINUS_I_POW=[[1,0],[0,-1],[-1,0],[0,1]];
+/* closed form: sum over R of N(R) stay^(N-1-R) (-i sw)^R, only the R whose parity fits the last direction e */
+function sumByR(N,j,s,e,g,unitary){
+  const {stay,sw}=stepWeights(g,unitary),cnt=countsByR(N,j,s);let re=0,im=0;
+  for(let R=0;R<N;R++){if(((R&1)===1)!==(s!==e)||cnt[R]===0)continue;
+    const w=cnt[R]*Math.pow(stay,N-1-R)*Math.pow(sw,R),u=MINUS_I_POW[R&3];re+=w*u[0];im+=w*u[1]}
+  return [re,im]}
+/* dynamic programming. Index of the cell x = j*eps is j+N. First step is free. onRow(n,Rr,Ri,Lr,Li) is called for n = 1..N.
+   (-i)*(a+ib) = b - ia. */
+function walk(N,g,unitary,s,onRow){
+  const W=2*N+1,{stay,sw}=stepWeights(g,unitary);
+  let Rr=new Float64Array(W),Ri=new Float64Array(W),Lr=new Float64Array(W),Li=new Float64Array(W);
+  let nRr=new Float64Array(W),nRi=new Float64Array(W),nLr=new Float64Array(W),nLi=new Float64Array(W);
+  if(s>0)Rr[N+1]=1;else Lr[N-1]=1;
+  if(onRow)onRow(1,Rr,Ri,Lr,Li);
+  for(let n=2;n<=N;n++){
+    nRr.fill(0);nRi.fill(0);nLr.fill(0);nLi.fill(0);
+    for(let j=1;j<W;j++){nRr[j]=stay*Rr[j-1]+sw*Li[j-1];nRi[j]=stay*Ri[j-1]-sw*Lr[j-1]}
+    for(let j=0;j<W-1;j++){nLr[j]=stay*Lr[j+1]+sw*Ri[j+1];nLi[j]=stay*Li[j+1]-sw*Rr[j+1]}
+    let t;t=Rr;Rr=nRr;nRr=t;t=Ri;Ri=nRi;nRi=t;t=Lr;Lr=nLr;nLr=t;t=Li;Li=nLi;nLi=t;
+    if(onRow)onRow(n,Rr,Ri,Lr,Li)}
+  return {Rr,Ri,Lr,Li}}
+/* brute force: every one of the 2^N direction sequences. out[s][e] with 0 = right, 1 = left. */
+function bruteForce(N,g,unitary){
+  const W=2*N+1,{stay,sw}=stepWeights(g,unitary),out=[[0,1],[0,1]].map(r=>r.map(()=>({re:new Float64Array(W),im:new Float64Array(W)})));
+  const total=1<<N;
+  for(let mask=0;mask<total;mask++){
+    let x=0,wr=1,wi=0,prev=mask&1;x+=prev?-1:1;
+    for(let i=1;i<N;i++){const b=(mask>>i)&1;x+=b?-1:1;
+      if(b===prev){wr*=stay;wi*=stay}else{const a=sw*wi,c=-sw*wr;wr=a;wi=c}
+      prev=b}
+    const o=out[mask&1][prev];o.re[x+N]+=wr;o.im[x+N]+=wi}
+  return out}
+function normSq(w){let s=0;for(let i=0;i<w.Rr.length;i++)s+=w.Rr[i]*w.Rr[i]+w.Ri[i]*w.Ri[i]+w.Lr[i]*w.Lr[i]+w.Li[i]*w.Li[i];return s}
+/* norm after N steps with the first step free */
+function normExpected(N,g,unitary){return unitary?1:Math.pow(1+g*g,N-1)}
+/* exact retarded Dirac propagator inside the light cone, c = hbar = 1. Entries are [re,im]. inside = false outside (or on) the cone. */
+function exactK(x,t,m){
+  const t2=t*t-x*x;if(!(t2>0))return {inside:false,RR:[0,0],LR:[0,0],RL:[0,0],LL:[0,0]};
+  const tau=Math.sqrt(t2),[j0,j1]=besselJ01(m*tau),off=[0,-m/2*j0];
+  return {inside:true,RR:[-m*(t+x)/(2*tau)*j1,0],LL:[-m*(t-x)/(2*tau)*j1,0],LR:off,RL:off}}
+/* residual of the Dirac equation for the exact propagator, central differences with step h.
+   column "start R": (K_RR, K_LR);  column "start L": (K_RL, K_LL).
+   (dt+dx) K_R = -i m K_L  and  (dt-dx) K_L = -i m K_R. Returns the worst residual and the size of the terms. */
+function diracResidual(x,t,m,h){
+  const K=(xx,tt)=>exactK(xx,tt,m),P=K(x+h,t),M=K(x-h,t),U=K(x,t+h),D=K(x,t-h),C=K(x,t);
+  let res=0,scale=0;
+  for(const [r,l] of [["RR","LR"],["RL","LL"]]){
+    const dt=(c)=>[(U[c][0]-D[c][0])/(2*h),(U[c][1]-D[c][1])/(2*h)],dx=(c)=>[(P[c][0]-M[c][0])/(2*h),(P[c][1]-M[c][1])/(2*h)];
+    const a1=dt(r),a2=dx(r),b1=dt(l),b2=dx(l);
+    // (dt+dx)K_r + i m K_l = 0 ; i m (a+ib) = m(-b + i a)
+    const r1=[a1[0]+a2[0]-m*C[l][1],a1[1]+a2[1]+m*C[l][0]];
+    const r2=[b1[0]-b2[0]-m*C[r][1],b1[1]-b2[1]+m*C[r][0]];
+    res=Math.max(res,Math.hypot(r1[0],r1[1]),Math.hypot(r2[0],r2[1]));
+    scale=Math.max(scale,Math.hypot(a1[0]+a2[0],a1[1]+a2[1]),Math.hypot(b1[0]-b2[0],b1[1]-b2[1]),m*Math.hypot(C[l][0],C[l][1]),m*Math.hypot(C[r][0],C[r][1]))}
+  return {res,scale}}
+/* checkerboard sum / (2 eps) against the exact propagator at time t on a grid of N steps (eps = t/N).
+   Cells with |x| <= xfrac*t. Start direction R, both end directions. */
+function convergeError(N,t,m,unitary,xfrac){
+  const eps=t/N,g=m*eps,w=walk(N,g,unitary,1);let errRR=0,errLR=0,ref=0,pts=0;
+  for(let j=-N;j<=N;j++){if(((N+j)&1)!==0||Math.abs(j)*eps>xfrac*t)continue;
+    const K=exactK(j*eps,t,m),i=j+N,f=1/(2*eps);
+    errRR=Math.max(errRR,Math.hypot(w.Rr[i]*f-K.RR[0],w.Ri[i]*f-K.RR[1]));
+    errLR=Math.max(errLR,Math.hypot(w.Lr[i]*f-K.LR[0],w.Li[i]*f-K.LR[1]));
+    ref=Math.max(ref,Math.hypot(K.RR[0],K.RR[1]),Math.hypot(K.LR[0],K.LR[1]));pts++}
+  return {err:Math.max(errRR,errLR),errRR,errLR,ref,pts,eps}}
+/* least-squares slope of log(err) against log(eps) */
+function fitOrder(eps,err){
+  const n=eps.length;let sx=0,sy=0,sxx=0,sxy=0;
+  for(let i=0;i<n;i++){const x=Math.log(eps[i]),y=Math.log(err[i]);sx+=x;sy+=y;sxx+=x*x;sxy+=x*y}
+  return (n*sxy-sx*sy)/(n*sxx-sx*sx)}
+/* ---- unitary walk on a full grid (every cell), for wave packets ---- */
+function latticeOmega(k,m,eps){return Math.acos(Math.max(-1,Math.min(1,Math.cos(m*eps)*Math.cos(k*eps))))/eps}
+function vgLattice(k,m,eps){const om=latticeOmega(k,m,eps);return Math.cos(m*eps)*Math.sin(k*eps)/Math.sin(om*eps)}
+function vgContinuum(k,m){return k/Math.hypot(k,m)}
+/* in-place radix-2 FFT. sign = -1: forward (no scaling), +1: inverse (no scaling) */
+function fft(re,im,sign){
+  const n=re.length;
+  for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){let t=re[i];re[i]=re[j];re[j]=t;t=im[i];im[i]=im[j];im[j]=t}}
+  for(let len=2;len<=n;len<<=1){const ang=sign*TWO_PI/len,wr=Math.cos(ang),wi=Math.sin(ang);
+    for(let i=0;i<n;i+=len){let cr=1,ci=0;
+      for(let k=0;k<len/2;k++){const a=i+k,b=i+k+len/2,xr=re[b]*cr-im[b]*ci,xi=re[b]*ci+im[b]*cr;
+        re[b]=re[a]-xr;im[b]=im[a]-xi;re[a]+=xr;im[a]+=xi;const t=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=t}}}}
+/* Gaussian packet exp(-x^2/(4 sigma^2) + i k x) on 2048 cells (periodic only for the FFT; the walk has open ends).
+   mode "R": right component only.
+   mode "pos": the same packet in the right component, then projected in k-space. For every wave number q the one-tick matrix is
+   M = [[c e^-iq, -i s e^-iq],[-i s e^iq, c e^iq]] (c = cos m eps, s = sin m eps, q in units of 1/eps) with eigenvalues e^(-+i theta), cos(theta) = c cos(q eps).
+   Each q keeps only its part along the eigenvector of e^(-i theta) (positive energy). Then the packet is renormalised. */
+function packetRun(o){
+  const m=o.m,k=o.k,sigma=o.sigma,eps=o.eps,T=o.T,J=2048,L=J*eps/2,g=m*eps,c=Math.cos(g),s=Math.sin(g);
+  const xs=i=>-L+i*eps;
+  let Rr=new Float64Array(J),Ri=new Float64Array(J),Lr=new Float64Array(J),Li=new Float64Array(J);
+  for(let i=0;i<J;i++){const a=Math.exp(-xs(i)*xs(i)/(4*sigma*sigma)),ph=k*xs(i);Rr[i]=a*Math.cos(ph);Ri[i]=a*Math.sin(ph)}
+  if(o.mode==="pos"){
+    fft(Rr,Ri,-1);for(let i=0;i<J;i++){Rr[i]/=J;Ri[i]/=J}
+    for(let n=0;n<J;n++){const q=TWO_PI*(n<J/2?n:n-J)/J,cq=Math.cos(q),sq=Math.sin(q);   /* q = kappa = k eps */
+      const th=Math.acos(Math.max(-1,Math.min(1,c*cq))),lr=Math.cos(th),li=-Math.sin(th);
+      const nr=c*cq-lr,ni=-c*sq-li,dr=s*sq,di=s*cq,dd=dr*dr+di*di;     /* v = (M11 - lam)/(i s e^-iq) with u = 1 */
+      const vr=(nr*dr+ni*di)/dd,vi=(ni*dr-nr*di)/dd,nn2=1+vr*vr+vi*vi;
+      /* coefficient along the unit eigenvector (1,v)/sqrt(nn2): a = (R + conj(v)... ) ; psi = a * (1, v)/nn2 with a = R*1 (the start has L = 0) */
+      const ar=Rr[n],ai=Ri[n];
+      Rr[n]=ar/nn2;Ri[n]=ai/nn2;Lr[n]=(ar*vr-ai*vi)/nn2;Li[n]=(ar*vi+ai*vr)/nn2}
+    fft(Rr,Ri,1);fft(Lr,Li,1)}
+  let nrm=0;for(let i=0;i<J;i++)nrm+=Rr[i]*Rr[i]+Ri[i]*Ri[i]+Lr[i]*Lr[i]+Li[i]*Li[i];nrm=Math.sqrt(nrm);
+  for(let i=0;i<J;i++){Rr[i]/=nrm;Ri[i]/=nrm;Lr[i]/=nrm;Li[i]/=nrm}
+  const mean=new Float64Array(T+1),norm=new Float64Array(T+1),dR=[],dL=[];
+  const rec=n=>{let a=0,b=0;const r=new Float32Array(J),l=new Float32Array(J);
+    for(let i=0;i<J;i++){const pr=Rr[i]*Rr[i]+Ri[i]*Ri[i],pl=Lr[i]*Lr[i]+Li[i]*Li[i];a+=xs(i)*(pr+pl);b+=pr+pl;r[i]=pr;l[i]=pl}
+    mean[n]=a;norm[n]=b;dR.push(r);dL.push(l)};
+  rec(0);
+  let nRr=new Float64Array(J),nRi=new Float64Array(J),nLr=new Float64Array(J),nLi=new Float64Array(J);
+  for(let n=0;n<T;n++){
+    for(let i=0;i<J;i++){let ar=0,ai=0,br=0,bi=0;
+      if(i>0){ar=c*Rr[i-1]+s*Li[i-1];ai=c*Ri[i-1]-s*Lr[i-1]}
+      if(i<J-1){br=c*Lr[i+1]+s*Ri[i+1];bi=c*Li[i+1]-s*Rr[i+1]}
+      nRr[i]=ar;nRi[i]=ai;nLr[i]=br;nLi[i]=bi}
+    let t;t=Rr;Rr=nRr;nRr=t;t=Ri;Ri=nRi;nRi=t;t=Lr;Lr=nLr;nLr=t;t=Li;Li=nLi;nLi=t;rec(n+1)}
+  return {mean,norm,dR,dL,J,L,eps,T}}
+/* straight-line fit of y(t_i), i = n0..n1, t_i = i*eps: returns slope and intercept */
+function lineFit(y,eps,n0,n1){let c=0,sx=0,sy=0,sxx=0,sxy=0;
+  for(let i=n0;i<=n1;i++){const t=i*eps;sx+=t;sy+=y[i];sxx+=t*t;sxy+=t*y[i];c++}
+  const sl=(c*sxy-sx*sy)/(c*sxx-sx*sx);return {slope:sl,icpt:(sy-sl*sx)/c}}
+/* strongest frequency of the straight-line-free part of y(t) in [f0, f1] */
+function peakFreq(y,eps,f0,f1){const n=y.length,lf=lineFit(y,eps,0,n-1);let best=0,bf=f0;
+  for(let f=f0;f<=f1;f+=0.005){let a=0,b=0;for(let i=0;i<n;i++){const d=y[i]-(lf.icpt+lf.slope*i*eps);a+=d*Math.cos(f*i*eps);b+=d*Math.sin(f*i*eps)}
+    const p=Math.hypot(a,b);if(p>best){best=p;bf=f}}
+  return bf}
+/* PHYSICS-CORE END */
+/* ---------------- user interface (not tested from node) ---------------- */
+const $=id=>document.getElementById(id);
+const BG="#07080c",TXT="rgba(255,255,255,.78)";
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,H=Math.round(+c.dataset.h0*(w<420?0.85:1));
+  const pw=Math.round(w*d),ph=Math.round(H*d);
+  if(c.dataset.pw!==String(pw)||c.dataset.ph!==String(ph)){c.width=pw;c.height=ph;c.dataset.pw=pw;c.dataset.ph=ph}
+  c.style.height=H+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h:H}}
+/* phase colour wheel: same code as the other rooms (red, yellow, green, blue, red) */
+const pal=new Uint8Array(256*3);
+for(let h=0;h<256;h++){const H=h/256*6,Xc=1-Math.abs(H%2-1);let r=0,g=0,b=0;
+  if(H<1){r=1;g=Xc}else if(H<2){r=Xc;g=1}else if(H<3){g=1;b=Xc}else if(H<4){g=Xc;b=1}else if(H<5){r=Xc;b=1}else{r=1;b=Xc}
+  pal[h*3]=r*255;pal[h*3+1]=g*255;pal[h*3+2]=b*255}
+const hueIdx=ph=>{let h=ph/TWO_PI;h-=Math.floor(h);return Math.min(255,(h*256)|0)};
+const rgb=(i,b)=>`rgb(${pal[i*3]*b|0},${pal[i*3+1]*b|0},${pal[i*3+2]*b|0})`;
+const fmt=(x,d)=>x.toFixed(d);
+const sci=(x,d)=>x===0?"0":x.toExponential(d===undefined?2:d);
+const pm=(v,d)=>(v<0?"−":"")+Math.abs(v).toFixed(d);
+const cstr=(z,d)=>`${pm(z[0],d)} ${z[1]<0?"−":"+"} ${Math.abs(z[1]).toFixed(d)} i`;
+const isDark=()=>{const r=document.documentElement.getAttribute("data-theme");return r?r==="dark":window.matchMedia("(prefers-color-scheme:dark)").matches};
+function arrow(g,x0,y0,x1,y1,col,lw,head){g.strokeStyle=col;g.fillStyle=col;g.lineWidth=lw;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),h=Math.min(head,Math.hypot(x1-x0,y1-y0)*0.6);if(h<1.5)return;
+  g.beginPath();g.moveTo(x1,y1);g.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));g.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));g.closePath();g.fill()}
+/* colour of the phase of (-i)^R: R mod 4 */
+const turnCol=R=>{const h=hueIdx(-Math.PI/2*R);return rgb(h,1)};
+function readSel(id){return $(id).value}
+
+/* ===================== Part 1 ===================== */
+const P1={path:null,list:[],lastKey:""};
+function enumerate1(N,s,e,nR){const out=[];const tot=1<<N;
+  for(let mask=0;mask<tot;mask++){const first=(mask&1)?-1:1,last=((mask>>(N-1))&1)?-1:1;if(first!==s||last!==e)continue;
+    let r=0;for(let i=0;i<N;i++)if(!((mask>>i)&1))r++;if(r!==nR)continue;out.push(mask)}
+  return out}
+function pathOf(mask,N){const d=[];for(let i=0;i<N;i++)d.push(((mask>>i)&1)?-1:1);return d}
+function newPath1(){const L=P1.list;P1.path=L.length?L[Math.floor(Math.random()*L.length)]:null}
+function setup1(keepPath){
+  const N=+$("n1").value;$("x1").max=N;let nR=Math.min(+$("x1").value,N);$("x1").value=nR;
+  const s=+$("s1").value,e=+$("e1").value;
+  P1.N=N;P1.nR=nR;P1.s=s;P1.e=e;P1.g=+$("g1").value;P1.uni=$("r1").value==="u";
+  P1.list=enumerate1(N,s,e,nR);
+  if(!keepPath||P1.path===null||!P1.list.includes(P1.path))newPath1();
+  P1.j=2*nR-N;
+  const sd=countsByR(N,P1.j,s).map((v,R)=>((R&1)===1)===(s!==e)?v:0),enumCnt=new Array(N).fill(0);
+  for(const mk of P1.list){const d=pathOf(mk,N);let R=0;for(let i=1;i<N;i++)if(d[i]!==d[i-1])R++;enumCnt[R]++}
+  P1.cnt=sd;P1.enumCnt=enumCnt;
+  /* checks */
+  const w=walk(N,P1.g,P1.uni,s),idx=P1.j+N,dp=e>0?[w.Rr[idx],w.Ri[idx]]:[w.Lr[idx],w.Li[idx]];
+  const cf=sumByR(N,P1.j,s,e,P1.g,P1.uni);
+  const key=[N,P1.g,P1.uni].join();
+  if(P1.bfKey!==key){P1.bf=bruteForce(N,P1.g,P1.uni);P1.bfKey=key;
+    const w1=walk(N,P1.g,P1.uni,1),w2=walk(N,P1.g,P1.uni,-1);let md=0,mx=0;
+    for(const [wk,si] of [[w1,0],[w2,1]])for(const [er,ei,ej] of [[wk.Rr,wk.Ri,0],[wk.Lr,wk.Li,1]]){const b=P1.bf[si][ej];
+      for(let i=0;i<er.length;i++){md=Math.max(md,Math.hypot(er[i]-b.re[i],ei[i]-b.im[i]));mx=Math.max(mx,Math.hypot(b.re[i],b.im[i]))}}
+    P1.maxDiff=md;P1.bfMax=mx}
+  const b=P1.bf[s>0?0:1][e>0?0:1],bf=[b.re[idx],b.im[idx]];
+  P1.dp=dp;P1.cf=cf;P1.brute=bf;
+  P1.diffCell=Math.max(Math.hypot(dp[0]-bf[0],dp[1]-bf[1]),Math.hypot(cf[0]-bf[0],cf[1]-bf[1]));
+  draw1()}
+function draw1(){
+  const N=P1.N,s=P1.s,e=P1.e,g=P1.g,uni=P1.uni,L=P1.list,path=P1.path,{stay,sw}=stepWeights(g,uni);
+  $("n1V").textContent=N;$("g1V").textContent=g.toFixed(2);$("x1V").textContent=`${P1.nR} → x = ${P1.j>=0?"+":"−"}${Math.abs(P1.j)}ε`;
+  {const {x:c,w:W,h:H}=fit($("cb1"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const ML=34,MR=14,MT=14,MB=22,pw=W-ML-MR,ph=H-MT-MB,X=j=>ML+(j+N)/(2*N)*pw,Y=n=>MT+n/N*ph;
+   c.fillStyle="rgba(255,255,255,.25)";for(let n=0;n<=N;n++)for(let j=-n;j<=n;j+=2){c.beginPath();c.arc(X(j),Y(n),1.6,0,7);c.fill()}
+   c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="right";for(let n=0;n<=N;n+=Math.max(1,Math.round(N/5)))c.fillText("t="+n+"ε",ML-5,Y(n)+4);
+   c.textAlign="center";c.fillText("x → (one cell = ε)",ML+pw/2,H-6);
+   /* all paths to the end point, coloured by R */
+   const show=L.length<=900?L:L.filter((_,i)=>i%Math.ceil(L.length/900)===0);
+   c.lineWidth=1;const bins=[0,1,2,3].map(()=>new Path2D());
+   for(const mk of show){const d=pathOf(mk,N);let x=0,R=0;const p=bins[0];let pb;
+     // colour bin by R mod 4
+     for(let i=1;i<N;i++)if(d[i]!==d[i-1])R++;pb=bins[R&3];
+     pb.moveTo(X(0),Y(0));for(let i=0;i<N;i++){x+=d[i];pb.lineTo(X(x),Y(i+1))}}
+   const alpha=Math.max(0.05,Math.min(0.5,30/Math.max(1,show.length)));
+   for(let q=0;q<4;q++){c.strokeStyle=turnCol(q).replace("rgb","rgba").replace(")",`,${alpha})`);c.stroke(bins[q])}
+   if(path!==null){const d=pathOf(path,N);let x=0,y=0,px=0;c.strokeStyle="#fff";c.lineWidth=2.6;c.beginPath();c.moveTo(X(0),Y(0));
+     const pts=[[0,0]];for(let i=0;i<N;i++){x+=d[i];pts.push([x,i+1]);c.lineTo(X(x),Y(i+1))}c.stroke();
+     c.fillStyle="#fb923c";for(let i=1;i<N;i++)if(d[i]!==d[i-1]){c.beginPath();c.arc(X(pts[i][0]),Y(pts[i][1]),4.2,0,7);c.fill()}
+     c.fillStyle="#fff";c.beginPath();c.arc(X(0),Y(0),4,0,7);c.fill();c.beginPath();c.arc(X(P1.j),Y(N),4.5,0,7);c.fill()}
+   else{c.fillStyle="rgba(255,255,255,.85)";c.textAlign="center";c.fillText("no path with these choices: change first step, last step or end point",ML+pw/2,Y(N/2))}}
+  const hasP=path!==null;let Rp=0;if(hasP){const d=pathOf(path,N);for(let i=1;i<N;i++)if(d[i]!==d[i-1])Rp++}
+  {const {x:c,w:W,h:H}=fit($("ar1"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const cx=W/2-W*0.12,cy=H/2,Rr=Math.min(H/2-12,W*0.28);
+   c.strokeStyle="rgba(255,255,255,.28)";c.lineWidth=1;c.beginPath();c.arc(cx,cy,Rr,0,7);c.stroke();
+   c.beginPath();c.moveTo(cx-Rr-6,cy);c.lineTo(cx+Rr+6,cy);c.moveTo(cx,cy-Rr-6);c.lineTo(cx,cy+Rr+6);c.stroke();
+   c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="left";c.fillText("unit circle = length 1",8,H-6);
+   if(hasP){const len=Math.pow(sw,Rp)*Math.pow(stay,N-1-Rp),u=MINUS_I_POW[Rp&3];
+     arrow(c,cx,cy,cx+u[0]*len*Rr,cy-u[1]*len*Rr,turnCol(Rp),3,9);
+     c.fillStyle="#fff";c.textAlign="left";c.font="12px system-ui";
+     c.fillText(`R = ${Rp} turns`,cx+Rr+14,cy-10);c.fillText(`length ${len<1e-3&&len>0?len.toExponential(1):len.toFixed(4)}`,cx+Rr+14,cy+6);c.fillText(`turned by −${90*Rp}°`,cx+Rr+14,cy+22)}}
+  {const {x:c,w:W,h:H}=fit($("ch1"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const segs=[];let ax=0,ay=0;
+   for(let R=0;R<N;R++){if(((R&1)===1)!==(s!==e)||P1.cnt[R]===0)continue;const u=MINUS_I_POW[R&3],len=P1.cnt[R]*Math.pow(stay,N-1-R)*Math.pow(sw,R);
+     segs.push({R,n:P1.cnt[R],x0:ax,y0:ay,x1:ax+u[0]*len,y1:ay+u[1]*len});ax+=u[0]*len;ay+=u[1]*len}
+   if(!segs.length){c.fillStyle=TXT;c.font="12px system-ui";c.textAlign="center";c.fillText("no paths",W/2,H/2)}
+   else{let x0=0,x1=0,y0=0,y1=0;for(const q of segs){x0=Math.min(x0,q.x0,q.x1);x1=Math.max(x1,q.x0,q.x1);y0=Math.min(y0,q.y0,q.y1);y1=Math.max(y1,q.y0,q.y1)}
+     const pad=34,sx=(W-2*pad)/Math.max(1e-9,x1-x0),sy=(H-2*pad)/Math.max(1e-9,y1-y0),sc=Math.min(sx,sy,4e5),
+       ox=pad+((W-2*pad)-(x1-x0)*sc)/2-x0*sc,oy=pad+((H-2*pad)-(y1-y0)*sc)/2+y1*sc;
+     const X=v=>ox+v*sc,Y=v=>oy-v*sc;
+     c.font="11px system-ui";const hor=segs.every(q=>q.R%2===0),nS=segs.length;
+     const off=i=>(i-(nS-1)/2)*Math.min(13,(hor?H:W)*0.3/nS),ox2=i=>hor?0:off(i),oy2=i=>hor?off(i):0;
+     segs.forEach((q,i)=>{if(i){const p=segs[i-1];c.setLineDash([2,3]);c.strokeStyle="rgba(255,255,255,.35)";c.lineWidth=1;c.beginPath();c.moveTo(X(p.x1)+ox2(i-1),Y(p.y1)+oy2(i-1));c.lineTo(X(q.x0)+ox2(i),Y(q.y0)+oy2(i));c.stroke();c.setLineDash([])}
+       arrow(c,X(q.x0)+ox2(i),Y(q.y0)+oy2(i),X(q.x1)+ox2(i),Y(q.y1)+oy2(i),turnCol(q.R),2.4,7);
+       const mx=(q.x0+q.x1)/2,my=(q.y0+q.y1)/2;c.fillStyle="#fff";c.textAlign="center";
+       c.fillText(`R=${q.R}`,X(mx)+ox2(i)+(hor?0:16),Y(my)+oy2(i)+(hor?-5:4))});
+     c.setLineDash([5,4]);arrow(c,X(0),Y(0),X(ax),Y(ay),"rgba(255,255,255,.9)",1.4,8);c.setLineDash([]);
+     c.fillStyle="#fff";c.beginPath();c.arc(X(0),Y(0),3,0,7);c.fill();
+     c.textAlign="left";c.fillStyle=TXT;c.fillText("dashed = the sum",8,H-6)}}
+  /* readouts */
+  const rows=[];let tot=0;for(let R=0;R<N;R++){if(P1.cnt[R]||P1.enumCnt[R]){rows.push(`R=${R}: N=${P1.cnt[R]}${P1.cnt[R]===P1.enumCnt[R]?"":" (list "+P1.enumCnt[R]+" !)"}`);tot+=P1.cnt[R]}}
+  $("big1").innerHTML=`<span>recursion = brute force over all ${1<<N} paths (largest difference in any cell):</span> <b>${sci(P1.maxDiff,1)}</b> <span>(exact answer: 0, rounding about 1e-16)</span>
+   <small>the chosen cell: recursion ${cstr(P1.dp,6)} · closed form Σ N(R)·weights ${cstr(P1.cf,6)} · brute force ${cstr(P1.brute,6)} · largest difference ${sci(P1.diffCell,1)}</small>`;
+  $("read1").innerHTML=`<div><span>paths to this end point:</span> <b>${tot}</b> <span>(list: ${L.length})</span></div><div><span>N(R):</span> <b>${rows.join(" · ")||"none"}</b></div>`+
+    (hasP?`<div><span>this path:</span> <b>R = ${Rp}</b></div>`:"")}
+for(const id of ["n1","g1","x1","s1","e1","r1"])$(id).addEventListener("input",()=>setup1(id==="g1"||id==="r1"));
+$("np1").addEventListener("click",()=>{newPath1();draw1()});
+
+/* ===================== Part 2 ===================== */
+const P2={};
+function build2(){
+  const N=+$("n2").value,m=+$("m2").value,uni=$("r2").value==="u",comp=$("c2").value,g=m/N,W=2*N+1;
+  const starts=comp==="prob"?[1,-1]:[comp[1]==="R"?1:-1],buf={};
+  for(const s of starts){const b={Rr:new Float32Array(N*W),Ri:new Float32Array(N*W),Lr:new Float32Array(N*W),Li:new Float32Array(N*W)};buf[s]=b;
+    P2["w"+s]=walk(N,g,uni,s,(n,Rr,Ri,Lr,Li)=>{const o=(n-1)*W;b.Rr.set(Rr,o);b.Ri.set(Ri,o);b.Lr.set(Lr,o);b.Li.set(Li,o)})}
+  const mag=new Float32Array(N*W),hue=new Uint8Array(N*W),mix=new Float32Array(N*W);let ref=0;
+  const val=(n,j)=>{ // value at row n-1, column j; returns [re,im,rShare]
+    const o=(n-1)*W+j;
+    if(comp==="prob"){const a=buf[1],b=buf[-1],s2=Math.SQRT1_2,rr=(a.Rr[o]+b.Rr[o])*s2,ri=(a.Ri[o]+b.Ri[o])*s2,lr=(a.Lr[o]+b.Lr[o])*s2,li=(a.Li[o]+b.Li[o])*s2;
+      const pr=rr*rr+ri*ri,pl=lr*lr+li*li;return [Math.sqrt(pr+pl),0,pr/(pr+pl+1e-300)]}
+    const b=buf[comp[1]==="R"?1:-1];return comp[0]==="R"?[b.Rr[o],b.Ri[o],0]:[b.Lr[o],b.Li[o],0]};
+  for(let n=1;n<=N;n++)for(let j=0;j<W;j++){
+    let jj=j;if(((j-N+n)&1)!==0)jj=j>0?j-1:j+1;
+    const v=val(n,jj),i=(n-1)*W+j;
+    mag[i]=comp==="prob"?v[0]:Math.hypot(v[0],v[1]);hue[i]=comp==="prob"?0:hueIdx(Math.atan2(v[1],v[0]));mix[i]=v[2];
+    if(Math.abs(j-N)<n&&mag[i]>ref)ref=mag[i]}
+  if(ref<1e-12)ref=1e-12;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=N;const cx=cv.getContext("2d"),img=cx.createImageData(W,N),D=img.data;
+  for(let n=1;n<=N;n++)for(let j=0;j<W;j++){const i=(n-1)*W+j,p=i*4,out=Math.abs(j-N)>n;
+    if(out){D[p]=7;D[p+1]=8;D[p+2]=12;D[p+3]=255;continue}
+    const b=Math.min(1,Math.pow(mag[i]/ref,0.5));
+    if(comp==="prob"){const q=mix[i];D[p]=(251*(1-q)+74*q)*b;D[p+1]=(146*(1-q)+163*q)*b;D[p+2]=(60*(1-q)+255*q)*b}
+    else{const h=hue[i];D[p]=pal[h*3]*b;D[p+1]=pal[h*3+1]*b;D[p+2]=pal[h*3+2]*b}
+    D[p+3]=255}
+  cx.putImageData(img,0,0);P2.img=cv;P2.N=N;P2.m=m;P2.uni=uni;P2.g=g;P2.ref=ref;P2.comp=comp;
+  const w0=P2["w"+starts[0]],ns=normSq(w0),ne=normExpected(N,g,uni);
+  P2.ns=ns;P2.ne=ne;
+  draw2()}
+function draw2(){
+  const N=P2.N;$("m2V").textContent=(+$("m2").value).toFixed(1);$("n2V").textContent=N;
+  const {x:c,w:W,h:H}=fit($("lc2"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+  const ML=34,MR=10,MT=8,MB=24,pw=W-ML-MR,ph=H-MT-MB;
+  c.imageSmoothingEnabled=N>150;c.drawImage(P2.img,ML,MT,pw,ph);
+  c.strokeStyle="rgba(255,255,255,.35)";c.setLineDash([4,4]);c.beginPath();c.moveTo(ML,MT+ph);c.lineTo(ML+pw/2,MT);c.lineTo(ML+pw,MT+ph);c.closePath();c.stroke();c.setLineDash([]);
+  c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="center";
+  for(const [x,l] of [[0,"x = −t"],[0.5,"0"],[1,"x = +t"]])c.fillText(l,ML+x*pw,H-8);
+  c.textAlign="right";c.fillText("t = 0",ML-4,MT+10);c.fillText("t = 1",ML-4,MT+ph);
+  c.fillText("↓ time",ML-4,MT+ph/2);
+  $("big2").innerHTML=`<span>norm of the wave after ${N} steps, grid sum:</span> <b>${P2.ns.toFixed(12)}</b> <span>(exact answer ${P2.uni?"1":`(1+ε²m²)<sup>N−1</sup> = ${P2.ne.toFixed(12)}`})</span>
+   <small>difference ${sci(Math.abs(P2.ns-P2.ne),1)} · ε = 1/${N}, εm = ${P2.g.toFixed(4)} · the plain rule overshoots by ${((P2.ne-1)*100).toFixed(2)} % in norm at t = 1; the limit ε → 0 gives 0 %</small>`;
+  const w=P2["w"+(P2.comp==="prob"?1:(P2.comp[1]==="R"?1:-1))],edge=Math.hypot(P2.comp[0]==="R"?w.Rr[2*N]:w.Lr[0],P2.comp[0]==="R"?w.Ri[2*N]:w.Li[0]);
+  $("read2").innerHTML=`<div><span>strongest cell inside the cone:</span> <b>${P2.ref>1e-11?sci(P2.ref,2):"0 (no mass: nothing inside)"}</b></div>`+
+   (P2.comp==="RR"||P2.comp==="LL"?`<div><span>edge cell (the path with no turn):</span> <b>${edge.toFixed(6)}</b> <span>(exact: ${P2.uni?`cos(εm)<sup>N−1</sup>`:"1"} = ${(P2.uni?Math.pow(Math.cos(P2.g),N-1):1).toFixed(6)})</span></div>`:"")}
+for(const id of ["m2","n2","c2","r2"])$(id).addEventListener("input",build2);
+
+/* ===================== Part 3 ===================== */
+const P3={};
+function build3(){
+  const m=+$("m3").value,N0=+$("n3").value,uni=$("r3").value==="u",comp=$("c3").value;
+  const Ns=[N0,2*N0,4*N0,8*N0],res=Ns.map(N=>convergeError(N,1,m,uni,0.9));
+  const order=fitOrder(res.map(r=>r.eps),res.map(r=>r.err));
+  P3.m=m;P3.N0=N0;P3.uni=uni;P3.comp=comp;P3.Ns=Ns;P3.res=res;P3.order=order;
+  P3.w=walk(N0,m/N0,uni,1);
+  draw3()}
+function draw3(){
+  const m=P3.m,N0=P3.N0,comp=P3.comp,res=P3.res;$("m3V").textContent=m.toFixed(1);
+  const val=K=>comp==="RR"?K.RR[0]:K.LR[1];
+  {const {x:c,w:W,h:H}=fit($("sl3"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const ML=40,MR=10,MT=12,MB=24,pw=W-ML-MR,ph=H-MT-MB;
+   const xs=[];for(let i=0;i<=800;i++)xs.push(-0.995+1.99*i/800);
+   const ys=xs.map(x=>val(exactK(x,1,m)));let lo=Infinity,hi=-Infinity;xs.forEach((x,i)=>{if(Math.abs(x)<=0.9){lo=Math.min(lo,ys[i]);hi=Math.max(hi,ys[i])}});if(hi-lo<1e-9){hi+=1;lo-=1}const pad=(hi-lo)*0.08;lo-=pad;hi+=pad;
+   const X=x=>ML+(x+1)/2*pw,Y=v=>MT+(hi-v)/(hi-lo)*ph;
+   c.strokeStyle="rgba(255,255,255,.18)";c.beginPath();c.moveTo(ML,Y(0));c.lineTo(ML+pw,Y(0));c.stroke();
+   c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="center";for(const x of [-1,-0.5,0,0.5,1])c.fillText(String(x),X(x),H-8);
+   c.textAlign="right";for(const v of [lo+pad,0,hi-pad]){if(v>=lo&&v<=hi)c.fillText(v.toFixed(2),ML-4,Y(v)+4)}
+   c.save();c.beginPath();c.rect(ML,MT,pw,ph);c.clip();
+   c.strokeStyle="#7fb0ff";c.lineWidth=1.8;c.beginPath();xs.forEach((x,i)=>i?c.lineTo(X(x),Y(ys[i])):c.moveTo(X(x),Y(ys[i])));c.stroke();
+   const eps=1/N0,f=1/(2*eps),w=P3.w;c.fillStyle="#fb923c";
+   for(let j=-N0+1;j<=N0-1;j++){if(((N0+j)&1)!==0)continue;const i=j+N0,v=comp==="RR"?w.Rr[i]*f:w.Li[i]*f;
+     c.beginPath();c.arc(X(j*eps),Y(v),N0>100?1.6:2.8,0,7);c.fill()}
+   c.restore();
+   c.fillStyle=TXT;c.textAlign="left";c.fillText("line: exact Dirac wave   dots: checkerboard, N = "+N0+"  (cut near the edges)",ML+6,MT+10)}
+  {const {x:c,w:W,h:H}=fit($("lg3"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const ML=46,MR=12,MT=12,MB=28,pw=W-ML-MR,ph=H-MT-MB;
+   const le=res.map(r=>Math.log10(r.eps)),ee=res.map(r=>Math.log10(r.err));
+   const x0=Math.floor(Math.min(...le)-0.2),x1=Math.ceil(Math.max(...le)+0.2),y0=Math.min(...ee)-0.35,y1=Math.max(...ee)+0.35;
+   const X=v=>ML+(v-x0)/(x1-x0)*pw,Y=v=>MT+(y1-v)/(y1-y0)*ph;
+   c.strokeStyle="rgba(255,255,255,.14)";c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="center";
+   for(let v=Math.ceil(x0);v<=x1;v++){c.beginPath();c.moveTo(X(v),MT);c.lineTo(X(v),MT+ph);c.stroke();c.fillText("1e"+v,X(v),H-12)}
+   c.textAlign="right";for(let v=Math.ceil(y0);v<=y1;v++){c.beginPath();c.moveTo(ML,Y(v));c.lineTo(ML+pw,Y(v));c.stroke();c.fillText("1e"+v,ML-4,Y(v)+4)}
+   c.textAlign="center";c.fillText("step size ε",ML+pw/2,H-1);
+   /* slope-1 guide through the first point */
+   c.setLineDash([5,4]);c.strokeStyle="rgba(255,255,255,.55)";c.beginPath();c.moveTo(X(le[0]-0.15),Y(ee[0]-0.15));c.lineTo(X(le[3]+0.15),Y(ee[0]+(le[3]-le[0])+0.15));c.stroke();c.setLineDash([]);
+   c.fillStyle="#fb923c";c.strokeStyle="#fb923c";c.lineWidth=1.8;c.beginPath();le.forEach((v,i)=>i?c.lineTo(X(v),Y(ee[i])):c.moveTo(X(v),Y(ee[i])));c.stroke();
+   le.forEach((v,i)=>{c.beginPath();c.arc(X(v),Y(ee[i]),4,0,7);c.fill()});
+   c.fillStyle=TXT;c.textAlign="left";c.fillText("dashed: slope 1",ML+6,MT+12)}
+  $("big3").innerHTML=`<span>order of convergence p (error ∝ ε<sup>p</sup>), fitted over N = ${P3.Ns.join(", ")}:</span> <b>${P3.order.toFixed(3)}</b> <span>(this scheme is first order: p = 1)</span>
+   <small>largest error at N = ${P3.Ns[3]}: ${sci(res[3].err,2)} (${(100*res[3].err/res[3].ref).toFixed(2)} % of the largest wave value ${res[3].ref.toFixed(3)}) · when ε is halved, the error falls by the factor ${(res[2].err/res[3].err).toFixed(3)}</small>`;
+  $("read3").innerHTML=`<div><span>ε at the coarsest grid:</span> <b>1/${P3.N0}</b></div><div><span>εm:</span> <b>${(m/N0).toFixed(4)}</b></div><div><span>rule:</span> <b>${P3.uni?"unitary":"plain"}</b></div>`;
+  let t=`<table class="tb"><tr><th>N</th><th>ε</th><th>cells</th><th>error RR</th><th>error LR</th><th>largest</th><th>relative</th></tr>`;
+  res.forEach((r,i)=>{t+=`<tr><td>${P3.Ns[i]}</td><td>${r.eps.toFixed(5)}</td><td>${r.pts}</td><td>${sci(r.errRR,2)}</td><td>${sci(r.errLR,2)}</td><td>${sci(r.err,2)}</td><td>${(100*r.err/r.ref).toFixed(3)} %</td></tr>`});
+  $("tb3").innerHTML=t+"</table>"}
+for(const id of ["m3","n3","c3","r3"])$(id).addEventListener("input",build3);
+
+/* ===================== Part 4 ===================== */
+const P4={};
+function build4(){
+  const m=+$("m4").value,k=+$("k4").value,sigma=+$("s4").value,mode=$("md4").value,eps=0.05,T=240;
+  const run=packetRun({m,k,sigma,eps,T,mode});P4.run=run;P4.m=m;P4.k=k;P4.sigma=sigma;P4.mode=mode;P4.eps=eps;
+  const lf=lineFit(run.mean,eps,Math.round(T*0.25),T);P4.fit=lf;
+  const n=T+1,dev=new Float64Array(n),all=lineFit(run.mean,eps,0,T);for(let i=0;i<n;i++)dev[i]=run.mean[i]-(all.icpt+all.slope*i*eps);P4.dev=dev;P4.all=all;
+  /* density image */
+  let mx=0;for(let n2=0;n2<=T;n2++)for(let i=0;i<run.J;i++){const q=run.dR[n2][i]+run.dL[n2][i];if(q>mx)mx=q}
+  const cv=document.createElement("canvas");cv.width=run.J;cv.height=T+1;const cx=cv.getContext("2d"),img=cx.createImageData(run.J,T+1),D=img.data;
+  for(let r=0;r<=T;r++)for(let i=0;i<run.J;i++){const a=run.dR[r][i],b=run.dL[r][i],q=a+b,br=Math.min(1,Math.pow(q/mx,0.5)),sh=q>0?a/q:0,p=(r*run.J+i)*4;
+    D[p]=(251*(1-sh)+74*sh)*br;D[p+1]=(146*(1-sh)+163*sh)*br;D[p+2]=(60*(1-sh)+255*sh)*br;D[p+3]=255}
+  cx.putImageData(img,0,0);P4.img=cv;
+  draw4()}
+function draw4(){
+  const r=P4.run,eps=P4.eps,T=r.T;$("m4V").textContent=(+$("m4").value).toFixed(1);$("k4V").textContent=(+$("k4").value).toFixed(1);$("s4V").textContent=(+$("s4").value).toFixed(1);
+  {const {x:c,w:W,h:H}=fit($("st4"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const ML=36,MR=8,MT=8,MB=22,pw=W-ML-MR,ph=H-MT-MB,XR=14,X=x=>ML+(x+XR)/(2*XR)*pw,Y=t=>MT+t/(T*eps)*ph;
+   const sx0=(r.L-XR)/(2*r.L)*r.J,sw0=2*XR/(2*r.L)*r.J;
+   c.imageSmoothingEnabled=true;c.drawImage(P4.img,sx0,0,sw0,T+1,ML,MT,pw,ph);
+   c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="center";for(const x of [-10,-5,0,5,10])c.fillText(String(x),X(x),H-8);
+   c.textAlign="right";for(const t of [0,3,6,9,12])c.fillText("t="+t,ML-4,Y(t)+4);
+   c.setLineDash([4,4]);c.strokeStyle="rgba(255,255,255,.3)";c.beginPath();c.moveTo(X(0),Y(0));c.lineTo(X(T*eps),Y(T*eps));c.moveTo(X(0),Y(0));c.lineTo(X(-T*eps),Y(T*eps));c.stroke();
+   const vc=vgContinuum(P4.k,P4.m);c.strokeStyle="#fcd34d";c.beginPath();c.moveTo(X(0),Y(0));c.lineTo(X(vc*T*eps),Y(T*eps));c.stroke();c.setLineDash([]);
+   c.strokeStyle="#fff";c.lineWidth=1.6;c.beginPath();for(let i=0;i<=T;i++){const x=X(r.mean[i]),y=Y(i*eps);i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();
+   c.fillStyle="rgba(255,255,255,.7)";c.textAlign="left";c.fillText("dotted: light  yellow: k/√(k²+m²)  white: mean position",ML+4,MT+11)}
+  {const {x:c,w:W,h:H}=fit($("zb4"));c.fillStyle=BG;c.fillRect(0,0,W,H);
+   const ML=44,MR=8,MT=12,MB=22,pw=W-ML-MR,ph=H-MT-MB,d=P4.dev;let a=0;for(const v of d)a=Math.max(a,Math.abs(v));P4.rawAmp=a;a=Math.max(a*1.15,0.05/P4.m);P4.scale=a;
+   const X=t=>ML+t/(T*eps)*pw,Y=v=>MT+ph/2-v/a*ph/2;
+   c.strokeStyle="rgba(255,255,255,.2)";c.beginPath();c.moveTo(ML,Y(0));c.lineTo(ML+pw,Y(0));c.stroke();
+   c.fillStyle=TXT;c.font="11px system-ui";c.textAlign="center";for(const t of [0,3,6,9,12])c.fillText("t="+t,X(t),H-8);
+   c.textAlign="right";for(const v of [-a,0,a])c.fillText(v.toFixed(3),ML-4,Y(v)+4);
+   c.strokeStyle="#fb923c";c.lineWidth=1.6;c.beginPath();for(let i=0;i<d.length;i++){const x=X(i*eps),y=Y(d[i]);i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();
+   c.fillStyle=TXT;c.textAlign="left";c.fillText("⟨x⟩(t) − straight line, fixed scale ±"+a.toFixed(3)+" (at least 0.05/m)",ML+4,MT+2)}
+  const m=P4.m,k=P4.k,om=latticeOmega(k,m,eps),vl=vgLattice(k,m,eps),vc=vgContinuum(k,m),vm=P4.fit.slope;
+  let amp=0;for(const v of P4.dev)amp=Math.max(amp,Math.abs(v));
+  $("big4").innerHTML=`<span>measured speed of the packet (slope of ⟨x⟩ for t &gt; 3):</span> <b>${vm.toFixed(4)}</b> <span>(light: 1 · formula on the grid ${vl.toFixed(4)} · limit ε → 0: k/√(k²+m²) = ${vc.toFixed(4)})</span>
+   <small>norm after ${T} ticks: ${r.norm[T].toFixed(12)} (exact: 1) · the measured speed is an average over the packet, so it differs a little from the formula for one k${P4.mode==="R"?" · with the right component only, the packet is a mix of both energies and also drifts, so the formula for one k does not apply":""}</small>`;
+  $("read4").innerHTML=`<div><span>energy ω on the grid:</span> <b>${om.toFixed(4)}</b> <span>(√(k²+m²) = ${Math.hypot(k,m).toFixed(4)})</span></div>`+
+    `<div><span>wiggle size (largest |⟨x⟩ − line|):</span> <b>${amp<1e-8?"below 1e-8 (rounding level)":amp.toFixed(4)}</b> <span>(Compton length 1/m = ${(1/m).toFixed(3)})</span></div>`+
+    `<div><span>wiggle period expected, π/ω:</span> <b>${(Math.PI/om).toFixed(4)}</b></div>`}
+for(const id of ["m4","k4","s4","md4"])$(id).addEventListener("input",()=>{["m4V","k4V","s4V"].forEach(i=>{});build4()});
+$("re4").addEventListener("click",build4);
+
+function all(){setup1(true);build2();build3();build4()}
+let rz=0;window.addEventListener("resize",()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{draw1();draw2();draw3();draw4()})});
+all();
+</script>
+</body>
+</html>
