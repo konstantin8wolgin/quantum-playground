@@ -34,6 +34,8 @@ a.card:hover{border-color:var(--accent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lvl-e{color:#34d399}:root:not([data-theme="light"]) .lvl-s{color:#fbbf24}:root:not([data-theme="light"]) .lvl-t{color:#c4a1ff}}
 :root[data-theme="dark"] .lvl-e{color:#34d399}:root[data-theme="dark"] .lvl-s{color:#fbbf24}:root[data-theme="dark"] .lvl-t{color:#c4a1ff}
 a{color:var(--accent)}
+.first{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:12px 16px;margin:6px 0 4px;max-width:720px}
+.first ol{margin:6px 0 0;padding-left:22px}.first li{margin:4px 0}.first .t{color:var(--muted);font-size:14px}
 footer{margin-top:36px;font-size:13px;color:var(--muted)}
 </style>
 </head>
@@ -45,8 +47,14 @@ footer{margin-top:36px;font-size:13px;color:var(--muted)}
 
 <h2>How to visit</h2>
 <p class="story" style="font-size:15px">Follow a route from left to right, or pick any room. Every room has a short <i>How to use</i> box at the top and a full guide at the bottom. Unknown words are in the <a href="glossary.html">glossary</a>. The tag on each card says who the room is for.</p>
+<div class="first"><b>First visit? Three rooms, about 10 minutes each:</b>
+<ol>
+<li><a href="demos/feynman-mirror.html">Light takes every path</a> <span class="t">· Feynman's arrows for a mirror: the core idea of the whole site.</span></li>
+<li><a href="demos/double-slit.html">Double slit flow</a> <span class="t">· one electron, two slits, and stripes that build up dot by dot.</span></li>
+<li><a href="demos/spinor-flag.html">The spinor flag</a> <span class="t">· why an electron must turn twice to come back.</span></li>
+</ol></div>
 <h2>Route 1 · Paths and arrows</h2>
-<p class="route">Start here. Feynman's idea: a particle goes every way at once, and each way is a turning arrow.</p>
+<p class="route">Feynman's idea: a particle goes every way at once, and each way is a turning arrow.</p>
 <div class="grid">
   <a class="card" href="demos/feynman-mirror.html"><div class="room">Paths · <span class="lvl lvl-e">for everybody</span></div><h3>Light takes every path</h3><p>Light reflects from every point of a mirror, not only the middle. Scrape the mirror in the right places, and it reflects at a strange angle.</p></a>
   <a class="card" href="demos/double-slit.html"><div class="room">Quantum basics · <span class="lvl lvl-e">for everybody</span></div><h3>Double slit flow</h3><p>A wave goes through two slits. Flow lines bunch into stripes, single dots build the pattern, and the path sum predicts it.</p></a>
