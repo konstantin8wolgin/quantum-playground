@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A Phase From the Shape of the Path</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d;--on-accent:#0b1020}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d;--on-accent:#0b1020}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2.sec{font-size:18px;margin:0 0 6px}
+h3.cap{font-size:14px;margin:10px 0 4px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+canvas.drag{touch-action:pan-y;cursor:grab}
+.grid2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+.grid11{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2,.grid11{grid-template-columns:minmax(0,1fr)}}
+.legend{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;max-width:100%}
+button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px;overflow-wrap:anywhere}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.big{margin-top:12px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.big b{font-size:19px;color:var(--chip-exact);font-variant-numeric:tabular-nums}
+.big small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+.status{margin-top:10px;font-size:14px;min-height:22px}
+.status .warn{color:var(--warn);font-weight:600}
+.status .ok{color:var(--chip-exact);font-weight:600}
+table.tb{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}
+table.tb th,table.tb td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;font-variant-numeric:tabular-nums}
+table.tb th{color:var(--muted);font-weight:600}
+.tbw{overflow-x:auto}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style></head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>A Phase From the Shape of the Path</h1>
+<p class="sub">A spin follows a magnetic field. The field turns slowly around a loop and comes back. The spin comes back too, but its arrow has turned by an extra angle. Part of this angle depends on how long the loop took. The other part does not. It depends only on the area the loop encloses on a sphere. This is the Berry phase.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: press <i>Play</i>. The orange dot is the direction of the field. The blue arrow is the spin. Watch the blue arrow follow the orange dot around the loop. Drag the sphere to look from another side.</li>
+<li>Part 2: keep the loop slow (10 turns or more) and read the big number. It compares the simulated phase with the exact answer −Ω/2. Then move <i>loop time</i> to the left and watch the match break.</li>
+<li>Part 3: move the cone angle <i>α</i>. The geometric phase moves along a straight line. Then look at the table: speed, direction and spin state change the phase only in the way the area says.</li>
+<li>Part 4: look at the same phase as the flux of a tiny magnet (a monopole) through the loop. Compare it with the <a href="aharonov-bohm.html">Aharonov–Bohm</a> room.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
+<section id="part1">
+<h2 class="sec">Part 1 · The field draws a loop</h2>
+<p>A spin ½ sits in a magnetic field of fixed strength B. The direction of the field moves around a loop on a sphere. At the start the spin points along the field. Here the field turns slowly, so the spin follows it. The picture shows the <a class="term" href="../glossary.html#bloch-sphere">Bloch sphere</a>: the arrow is the direction of the spin (see the <a href="spinor-flag.html">spinor flag</a> room).</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Bloch sphere: field direction (orange) and spin (blue)</h3>
+    <canvas id="bl" class="drag" data-h0="330"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">How well the spin follows: fidelity with the field direction</h3>
+    <canvas id="fd" data-h0="150"></canvas>
+    <div class="read" id="read1"></div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>blue arrow, blue trail and fidelity curve: the time-dependent Schrödinger equation, solved in small exact steps (one 2×2 rotation per step, fourth-order, 360 samples are shown). The norm stays 1 (the check is in the readouts).</div>
+  <div><span class="chip c-exact">exact</span>orange loop, orange dot and the solid angle Ω: given by the loop itself. Ω is the area on the unit sphere that the loop encloses.</div>
+  <div><span class="chip c-cartoon">cartoon</span>a spin has no real arrow. The arrow shows the expected values (⟨σx⟩, ⟨σy⟩, ⟨σz⟩) of the spin. A field strength B = 1 and a loop of 10 spin turns are chosen only to make the picture clear.</div>
+</div>
+<div class="controls">
+  <div class="btns"><button id="run" class="primary">Pause</button><button id="rs">to start</button></div>
+  <label>time in the loop t/T <b id="uV"></b><input id="u" type="range" min="0" max="1000" step="1" value="0"></label>
+  <label>cone angle α <b class="aV"></b><input class="sA" type="range" min="5" max="175" step="1" value="60"></label>
+  <label>loop time T (spin turns, T·B/2π) <b class="nV"></b><input class="sN" type="range" min="0" max="100" step="1" value="63"></label>
+  <label>loop shape <select id="shape"><option value="cone">circle around z (a cone)</option><option value="tilted">tilted circle, same area</option><option value="wobble">wobbly loop</option></select></label>
+  <label>speed along the loop <select id="prof"><option value="uniform">steady</option><option value="stopgo">slow at the start, fast in the middle</option><option value="reverse">steady, but backwards</option></select></label>
+  <label>spin at the start <select id="up"><option value="1">along the field (aligned)</option><option value="0">against the field (anti-aligned)</option></select></label>
+  <label>animation speed <b id="spV"></b><input id="sp" type="range" min="1" max="8" step="1" value="3"></label>
+</div>
+<div class="predict"><b>Predict, then test:</b> make the loop fast (T = 0.3 turns). Does the blue arrow stay on the orange dot? Look at the fidelity curve. Then make the loop slow (30 turns) and look again.</div>
+<details><summary>What the numbers mean</summary>
+<p>The field is B(t) = B·n(t), where n is a unit vector on the loop. The Hamiltonian is H = −(B/2) n·σ (ħ = 1). The spin along n has the energy −B/2. The spin against n has +B/2. The "fidelity" is |⟨+n(t)|ψ(t)⟩|², the chance to find the spin along the field now. It is 1 when the spin follows the field perfectly.</p>
+<p>The "norm error" is the largest deviation of ⟨ψ|ψ⟩ from 1 during the run. Each step is an exact rotation (a unitary 2×2 matrix), so it stays near 1e-15.</p>
+</details>
+</section>
+
+<section id="part2">
+<h2 class="sec">Part 2 · Split the phase</h2>
+<p>After one loop the spin points along the field again. Its state has been multiplied by a phase e<sup>iΦ</sup>. Φ has two parts. The <i>dynamical phase</i> is the usual one: energy times time. For the aligned spin it is +BT/2 (E = −B/2). The rest is the <i>geometric phase</i>. For a slow loop it is −Ω/2, where Ω is the <a class="term" href="../glossary.html#solid-angle">solid angle</a> of the loop. For a cone, Ω = 2π(1 − cos α).</p>
+<div class="grid11">
+  <div>
+    <h3 class="cap">Phase circle (angles of the phase factor)</h3>
+    <canvas id="pc" data-h0="310"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Distance from −Ω/2 against loop time (log scale)</h3>
+    <canvas id="dv" data-h0="310"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>yellow arrow Φ (total phase from the run), grey arrow (dynamical phase), blue arrow (their difference: the geometric phase from the run), and the blue dot in the right picture.</div>
+  <div><span class="chip c-exact">exact</span>green arrow: −Ω/2. Orange curve in the right picture: the exact solution of the cone problem for every loop time (in a frame that turns with the field the field is constant, and the problem has a closed formula). Dashed line: the leading slow-loop error π²sin²α/(BT).</div>
+  <div><span class="chip c-int">interpretation</span>"The phase is geometric." The total phase is real. The split into two parts is a choice: we call the part that grows with time dynamical, and the rest geometric. For fast loops the split is not clean.</div>
+</div>
+<div class="controls">
+  <label>cone angle α <b class="aV"></b><input class="sA" type="range" min="5" max="175" step="1" value="60"></label>
+  <label>loop time T (spin turns, T·B/2π) <b class="nV"></b><input class="sN" type="range" min="0" max="100" step="1" value="63"></label>
+</div>
+<div class="status" id="st2"></div>
+<div class="big" id="big2"></div>
+<div class="read" id="read2"></div>
+<div class="predict"><b>Predict, then test:</b> double the loop time. By what factor does the distance from −Ω/2 shrink? Look at the dot in the right picture. Then set α = 90° and ask the same question again.</div>
+<details><summary>What the numbers mean</summary>
+<p>The big number uses its own run: T = 10 000/B, which is 1 600 spin turns. The loop is so slow that the leading error π²sin²α/(BT) is below 10⁻³ (for α = 60°). The line below it removes this error, and the rest is the error of the numerical method and the next order. The check "against the exact rotating frame" compares the amplitude of the run at the end with the closed formula. It uses the same T, so it is not tied to slow loops.</p>
+<p>The phases are angles. Only Φ mod 2π means anything. So all differences are shown in the range −π to π.</p>
+</details>
+</section>
+
+<section id="part3">
+<h2 class="sec">Part 3 · Area, not time</h2>
+<p>The geometric phase is a straight line in the solid angle: γ = −Ω/2. The slope is −½. At α = 90° the loop is a great circle. Ω = 2π and γ = −π. The state is multiplied by −1. This is the same sign flip as in the <a href="spinor-flag.html">spinor flag</a>: a turn by 360° changes the sign of a spin.</p>
+<div class="grid11">
+  <div>
+    <h3 class="cap">Geometric phase against the solid angle</h3>
+    <canvas id="ar" data-h0="290"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Same area, different run (slow loop, T·B = 2000)</h3>
+    <div class="tbw" id="tab"></div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>green line (aligned spin) and purple dashed line (anti-aligned spin): γ = ∓Ω/2. Green dots: the exact cone solution at T·B = 10⁶ for α = 10°, 20°, …, 170°.</div>
+  <div><span class="chip c-sim">simulation</span>the white dot and every row of the table: runs with the loop shape and α chosen in Part 1. Each is one full run with 20 000 steps.</div>
+  <div><span class="chip c-exact">exact</span>the "expected" column: the solid angle Ω is computed from the loop (sum of small spherical triangles).</div>
+</div>
+<div class="controls">
+  <label>cone angle α <b class="aV"></b><input class="sA" type="range" min="5" max="175" step="1" value="60"></label>
+  <div class="btns"><button id="gc">great circle (α = 90°)</button></div>
+</div>
+<div class="status" id="st3"></div>
+<div class="predict"><b>Predict, then test:</b> in the table, the "start–stop" run has a different speed all along the loop. Do you expect a different phase? Then compare the row "backwards" with the first row.</div>
+<details><summary>What the numbers mean</summary>
+<p>For the loop shape you picked in Part 1, the area Ω is computed once from the loop. Each row then runs the Schrödinger equation with another speed profile or direction. The differences are small and shrink like 1/T. They are not exactly equal because the loop is slow but not infinitely slow. The "start–stop" row has a larger difference: its fastest part is faster, so it is less adiabatic.</p>
+</details>
+</section>
+
+<section id="part4">
+<h2 class="sec">Part 4 · The same idea as a magnetic flux</h2>
+<p>There is a second way to see −Ω/2. Imagine a tiny magnet with only one pole (a <i>monopole</i>) at the centre of the sphere. Its field points straight out. The flux of this field through a loop on the sphere is proportional to the area Ω. If the monopole has the strength ½, the flux is Ω/2. The geometric phase is minus this flux. This is the same rule as in the <a href="aharonov-bohm.html">Aharonov–Bohm</a> room: a phase equal to the flux through the loop.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Monopole at the centre, loop on the sphere</h3>
+    <canvas id="mp" class="drag" data-h0="300"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Flux and phase</h3>
+    <div class="big" id="big4"></div>
+    <div class="read" id="read4"></div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-int">interpretation</span>the monopole is not in the lab. It lives in the space of field directions (the sphere). It is a way to compute the Berry phase: the "Berry curvature" of the spin is the field of a monopole of strength ½ in that space.</div>
+  <div><span class="chip c-exact">exact</span>flux = Ω/2 and the curvature value −½ per unit area (checked against a numerical derivative of the spin state).</div>
+  <div><span class="chip c-cartoon">cartoon</span>grey arrows (the radial field), orange rays and the shaded cone are drawn for the picture. Only the numbers in the box are computed.</div>
+</div>
+<div class="controls">
+  <label>cone angle α <b class="aV"></b><input class="sA" type="range" min="5" max="175" step="1" value="60"></label>
+  <label>spin state <select id="up4"><option value="1">along the field: monopole +½</option><option value="0">against the field: monopole −½</option></select></label>
+</div>
+<div class="predict"><b>Predict, then test:</b> switch to the anti-aligned spin. Which way does the radial field point now? What is the sign of the phase? Then push α to 175°: the loop is almost the whole sphere. What is the flux?</div>
+<details><summary>What the numbers mean</summary>
+<p>The total flux of a monopole of strength ½ through the whole sphere is 4π·½ = 2π. A phase of 2π is invisible. This is why the strength must be a half-integer: the same fact as the spin being ½ (Dirac's rule). Moving the loop over the whole sphere changes the phase by exactly 2π and nothing else.</p>
+<p>The Berry curvature F is the "magnetic field" of the Berry phase. For the aligned spin, F = −½ per unit solid angle. A loop gives γ = ∫F dΩ over the enclosed area. This uses Stokes' rule, as for a normal vector potential. The picture draws the monopole with the plus sign and writes the minus sign in front of its flux: phase = −flux.</p>
+</details>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>Take a <a class="term" href="../glossary.html#spin">spin</a> ½ (for example an electron or a neutron) in a magnetic field. The spin lines up with the field, like a compass needle. Now turn the direction of the field slowly around a loop and bring it back. The spin follows, and it points along the field again. Is it the same as before? Its arrow is. But the quantum state has gained a <a class="term" href="../glossary.html#phase">phase</a>.</p>
+<p>Part of this phase is the normal one: the state turns with the energy, and a longer loop gives a larger phase. The other part is strange. It does not depend on the time. It does not depend on the speed of the field. It depends only on the shape of the loop: the area that it encloses on a sphere. This extra phase is the <a class="term" href="../glossary.html#berry-phase">Berry phase</a>. It was found by Michael Berry in 1984, and it was measured soon after with light and with neutrons.</p>
+<p>The result is a "memory of the path". The spin does not remember how fast the field moved. It remembers which way around the sphere the field went and how much area it enclosed.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Bloch sphere</dt><dd>The sphere of directions. Orange: the path of the field direction (the loop) and the dot on it now. Blue arrow: the spin direction. Blue trail: where the arrow tip went.</dd>
+<dt>Fidelity curve</dt><dd>The chance to find the spin along the field now, from 0 to 1. For a slow loop it stays close to 1. For a fast loop it falls: the spin cannot follow.</dd>
+<dt>Phase circle</dt><dd>Each arrow is an angle on a circle. Yellow: the total phase of one loop. Grey: the dynamical phase. Blue: the difference (the geometric phase from the run). Green: −Ω/2, the exact answer for a slow loop.</dd>
+<dt>Distance plot</dt><dd>Both axes are logarithmic. The orange curve is the distance between the geometric phase and −Ω/2 for each loop time. It falls like 1/T for a slow loop (the dashed line). For a fast loop it is large and it oscillates.</dd>
+<dt>Area plot</dt><dd>Solid angle across, phase up. Both lines are straight. Dots from the simulation sit on the line.</dd>
+<dt>Table</dt><dd>Four runs with the same loop: normal speed, a speed that changes along the loop, the loop backwards, and the other spin state. All results are given as a difference from the expected value.</dd>
+<dt>Monopole picture</dt><dd>A point at the centre of the sphere that sends out radial lines. The rays through the loop form a cone. The flux through the cone is Ω/2.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: set a slow loop (30 spin turns) and press <i>Play</i>. Compare the arrow with the dot. <details><summary>What happens and why</summary>The blue arrow stays almost on the orange dot. The fidelity is close to 1. The field turns so slowly (it is <a class="term" href="../glossary.html#adiabatic">adiabatic</a>) that the spin has time to follow. This is the <i>adiabatic</i> case. The field direction changes little during one spin turn.</details></li>
+<li>Part 1: set a fast loop (0.3 turns). <details><summary>What happens and why</summary>The field direction moves more than the spin can follow in one turn. The spin lags behind and spins around the field. The fidelity falls. The state at the end is not the same direction as at the start, so the geometric phase is not clean any more.</details></li>
+<li>Part 2: read the big number at α = 60°. Then set α = 90°. <details><summary>What happens and why</summary>At 60° the loop encloses Ω = π. The phase is −π/2 (−1.5708). At 90° the loop is a great circle. Ω = 2π and the phase is −π (3.1416 in size). The state is multiplied by −1. The simulation agrees with these numbers to 1 part in 1000 or better. The small rest is the slow-loop error.</details></li>
+<li>Part 2: double the loop time and look at the dot in the right picture. <details><summary>What happens and why</summary>The distance from −Ω/2 becomes half as large. This is the 1/T law: the error is π²sin²α/(BT). It is the price of a finite speed. The geometric phase itself does not change.</details></li>
+<li>Part 2: make the loop very fast (0.1 turns). <details><summary>What happens and why</summary>The distance is not small. The spin does not follow the field, and the total phase has no simple split. A different split, found by Aharonov and Anandan, still gives a geometric phase for a fast loop. It is the area of the path of the <i>spin</i> (not of the field) on the sphere.</details></li>
+<li>Part 3: choose a loop shape other than the circle. Is the phase still on the line? <details><summary>What happens and why</summary>Yes. The tilted circle has the same area as the cone, so it has the same phase. The wobbly loop has another area, and the dot moves along the line to its new area. The phase follows the area, not the shape.</details></li>
+<li>Part 3: look at the table. <details><summary>What happens and why</summary>A different speed along the loop gives the same phase (as the area), apart from a small difference from the finite loop time. The backwards loop gives the opposite sign: the area is now on the other side. The anti-aligned spin also has the opposite sign: its phase is +Ω/2.</details></li>
+<li>Part 4: switch the spin state and push α to 175°. <details><summary>What happens and why</summary>For the anti-aligned spin the monopole has the strength −½, and the radial arrows point inward. The phase changes sign. For α near 180° the loop shrinks to a point at the south pole, and the flux is nearly 2π (the whole sphere). The phase is nearly −2π. This is the same as no phase, because 2π cannot be seen.</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>A spin ½ in the field B n(t) has the Hamiltonian H = −(B/2) n·σ. Here σ are the Pauli matrices and ħ = 1. The two <a class="term" href="../glossary.html#eigenstate">eigenstates</a> are "along n" (energy −B/2) and "against n" (energy +B/2). If n changes slowly compared with the spin precession (one turn takes 2π/B), the <a class="term" href="../glossary.html#schrodinger">Schrödinger</a> equation keeps the spin in the same eigenstate. This is the adiabatic theorem.</p>
+<p>After a closed loop the state is e<sup>iΦ</sup> times the start. The first part of Φ is the dynamical phase −∫E dt = +BT/2 for the aligned state. The second part is the Berry phase γ = −Ω/2. Berry's discovery was that γ does not depend on the speed at all. A different speed changes only T, and so only the dynamical part. The geometric part depends on the loop. It is the same under a change of the arbitrary phase of the eigenstate (a <a class="term" href="../glossary.html#gauge-field">gauge</a> change) because the loop is closed.</p>
+<p>The Berry phase is a phase picked up by moving around a closed loop in a parameter space. It has the same form as the Aharonov–Bohm phase: the integral of a "vector potential" A (the <a class="term" href="../glossary.html#vector-potential">vector potential</a> of the spin) around the loop. By Stokes' rule it equals the <a class="term" href="../glossary.html#flux">flux</a> of the "magnetic field" of this potential through the loop. For a spin ½ this field is that of a monopole of strength ½ at the centre of the sphere. The state space of a spin is an <a class="term" href="../glossary.html#su2">SU(2)</a> story. The same sign flip appears in the <a class="term" href="../glossary.html#spinor">spinor</a> in the <a href="spinor-flag.html">spinor flag</a> room: for the great circle the Berry phase is −π, so the state gets a factor −1.</p>
+<p>The field here is moved around a loop. In the experiments of Tomita and Chiao the same thing happened with light in a coiled fibre: the direction of the light's momentum drew a loop, and the polarisation turned by the Berry angle. Bitter and Dubbers saw it with neutrons in a twisted magnetic field. In both, the angle was set by the area of the loop on a sphere.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">H(t) = −(B/2) n(t)·σ, &nbsp; n = (sin α cos φ, sin α sin φ, cos α), &nbsp; φ = 2πt/T</span>
+<span>The cone loop. The aligned spin has the energy E = −B/2, the dynamical phase is −∫E dt = +BT/2.</span>
+<span class="eq">ψ(t) = e<sup>−iφσ<sub>z</sub>/2</sub> χ(t), &nbsp; i dχ/dt = −½ (b·σ) χ, &nbsp; b = (B sin α, 0, B cos α + 2π/T)</span>
+<span>The rotating frame. In it the field b is constant, so χ(t) = exp(i t b·σ/2) χ(0) is exact for every T. At t = T the factor e<sup>−iπσ<sub>z</sub></sup> is −1.</span>
+<span class="eq">|b| = B √(1 + 2ε cos α + ε²) ≈ B + (2π/T) cos α + (2π/T)² sin²α/(2B), &nbsp; ε = 2π/(BT)</span>
+<span>The size of b. The slow loop gives Φ = π + |b|T/2.</span>
+<span class="eq">γ = Φ − BT/2 = π(1 + cos α) + π² sin²α/(BT) ≡ −π(1 − cos α) + π² sin²α/(BT) (mod 2π)</span>
+<span>So γ = −Ω/2 + (error ∝ 1/T), with Ω = 2π(1 − cos α) the solid angle of the cone. The test checks the 1/T law.</span>
+<span class="eq">γ<sub>n</sub> = i ∮ ⟨n|∇<sub>n</sub> n⟩ · dn = −½ Ω, &nbsp; γ<sub>−n</sub> = +½ Ω</span>
+<span>Berry's formula for the aligned and anti-aligned state. In the spinor gauge (cos(θ/2), e<sup>iφ</sup> sin(θ/2)) the connection is A<sub>φ</sub> = −sin²(θ/2).</span>
+<span class="eq">γ ≈ −arg ∏<sub>k</sub> ⟨n<sub>k</sub>|n<sub>k+1</sub>⟩</span>
+<span>The discrete form. It uses only overlaps of neighbours on the loop. A phase factor e<sup>iχ<sub>k</sub></sup> on each |n<sub>k</sub>⟩ cancels in the product of a closed loop: it is gauge independent.</span>
+<span class="eq">F = ∇<sub>n</sub> × A = −(1/2) n/|n|², &nbsp; γ = ∫ F·dS</span>
+<span>The Berry curvature is the field of a monopole of strength ½ (for the aligned state). Its flux through the loop is Ω/2.</span>
+<span class="eq">U = exp( i v·σ ), &nbsp; v = (hB/4)(n₁ + n₂) + (√3 h²B²/24)(n₁ × n₂)</span>
+<span>The step of the simulation. n₁ and n₂ are the field directions at the two Gauss points of the step h. The matrix U is in SU(2), so it is exactly unitary. The error per step is of order h⁵.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The spin sees a field of fixed size that is perfectly controlled. There is no noise, no relaxation, and the field has no quantum part. The "time" is in units where B = 1, so a loop of 10 turns is not a real time. The big number is a numerical result with a leading 1/T error (the error is below 10⁻³ for the default angle α = 60°, and up to 5·10⁻³ near α = 90°), not an infinite-time limit. The Aharonov–Anandan split for fast loops is named but not drawn. The tilted circle and the wobbly loop have no closed formula in this room: only the cone is compared with an exact solution. Their solid angle is a sum of small triangles (accurate to about 1e-6). The monopole is a picture in the space of field directions, not a real magnet. In a real lab (neutron beam, light in a fibre) the phase is measured with an interferometer, and the beam passes only once, so the loop is not repeated.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>M. V. Berry, "Quantal phase factors accompanying adiabatic changes", Proc. R. Soc. Lond. A 392, 45 (1984): the paper that found the phase.</li>
+<li>Y. Aharonov and J. Anandan, "Phase change during a cyclic quantum evolution", Phys. Rev. Lett. 58, 1593 (1987): the geometric phase without the slow-loop condition.</li>
+<li>A. Tomita and R. Y. Chiao, "Observation of Berry's topological phase by use of an optical fiber", Phys. Rev. Lett. 57, 937 (1986): light in a coiled fibre.</li>
+<li>T. Bitter and D. Dubbers, "Manifestation of Berry's topological phase in neutron spin rotation", Phys. Rev. Lett. 59, 251 (1987): neutrons.</li>
+<li>Related rooms: <a href="spinor-flag.html">The spinor flag</a>, <a href="aharonov-bohm.html">A phase without a force</a>.</li>
+</ul>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TWO_PI=2*Math.PI,SQ3=Math.sqrt(3);
+/* ---------- small helpers ---------- */
+function wrapPi(x){const y=x-TWO_PI*Math.round(x/TWO_PI);return y<=-Math.PI+1e-15?Math.PI:y}
+function dot3(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
+function cross3(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
+function unitVec(th,ph){return[Math.sin(th)*Math.cos(ph),Math.sin(th)*Math.sin(ph),Math.cos(th)]}
+function anglesOf(n){return[Math.acos(Math.max(-1,Math.min(1,n[2]))),Math.atan2(n[1],n[0])]}
+/* spinor [Re a, Im a, Re b, Im b] along (up) or against (down) the direction (th, ph) */
+function spinorAt(th,ph,up){const c=Math.cos(th/2),s=Math.sin(th/2);
+  return up?[c,0,s*Math.cos(ph),s*Math.sin(ph)]:[-s*Math.cos(ph),s*Math.sin(ph),c,0]}
+/* <p|q> as [re, im] */
+function overlap(p,q){return[p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3],p[0]*q[1]-p[1]*q[0]+p[2]*q[3]-p[3]*q[2]]}
+function blochVec(p){const re=p[0]*p[2]+p[1]*p[3],im=p[0]*p[3]-p[1]*p[2];
+  return[2*re,2*im,p[0]*p[0]+p[1]*p[1]-p[2]*p[2]-p[3]*p[3]]}
+/* ---------- the exact 2x2 step ----------
+   H(t) = -(B/2) n(t).sigma  (hbar = 1). The spin along n has E = -B/2, against n has E = +B/2.
+   One step of length h, fourth-order Magnus with two Gauss points:
+   U = exp(i v.sigma), v = (hB/4)(n1+n2) + (sqrt3 h^2 B^2/24)(n1 x n2).  U is exactly in SU(2). */
+function stepU(B,h,n1,n2){
+  const k=h*B/4,kk=SQ3*h*h*B*B/24,w=cross3(n1,n2);
+  const vx=k*(n1[0]+n2[0])+kk*w[0],vy=k*(n1[1]+n2[1])+kk*w[1],vz=k*(n1[2]+n2[2])+kk*w[2];
+  const a=Math.sqrt(vx*vx+vy*vy+vz*vz),c=Math.cos(a),s=a>1e-300?Math.sin(a)/a:1;
+  return[c,s*vz, s*vy,s*vx, -s*vy,s*vx, c,-s*vz]}
+function applyU(U,p){return[
+  U[0]*p[0]-U[1]*p[1]+U[2]*p[2]-U[3]*p[3], U[0]*p[1]+U[1]*p[0]+U[2]*p[3]+U[3]*p[2],
+  U[4]*p[0]-U[5]*p[1]+U[6]*p[2]-U[7]*p[3], U[4]*p[1]+U[5]*p[0]+U[6]*p[3]+U[7]*p[2]]}
+/* ---------- loops of the field direction ---------- */
+function makePath(kind,alpha){
+  if(kind==="tilted"){const tau=0.7,c=[Math.sin(tau),0,Math.cos(tau)],e1=[Math.cos(tau),0,-Math.sin(tau)],e2=[0,1,0],cr=Math.cos(alpha),sr=Math.sin(alpha);
+    return{kind,alpha,n:s=>{const u=TWO_PI*s,cu=Math.cos(u),su=Math.sin(u);return[0,1,2].map(i=>cr*c[i]+sr*(cu*e1[i]+su*e2[i]))}}}
+  if(kind==="wobble"){const a=0.3*Math.min(alpha,Math.PI-alpha,1);
+    return{kind,alpha,n:s=>unitVec(alpha+a*Math.sin(3*TWO_PI*s),TWO_PI*s)}}
+  return{kind:"cone",alpha,n:s=>unitVec(alpha,TWO_PI*s)}}
+/* speed profile: u = t/T, returns the position s along the loop (0..1). */
+function profile(kind,u){
+  if(kind==="stopgo")return u-0.8*Math.sin(TWO_PI*u)/TWO_PI;
+  if(kind==="reverse")return 1-u;
+  return u}
+/* ---------- the integrator ---------- */
+/* N steps in total, M samples (N must be a multiple of M). Starts along (or against) the field at t = 0. */
+function simulate(path,prof,B,T,N,M,up){
+  const h=T/N,per=N/M,g1=0.5-SQ3/6,g2=0.5+SQ3/6;
+  const n0=path.n(profile(prof,0)),a0=anglesOf(n0);let p=spinorAt(a0[0],a0[1],up);const p0=p.slice();
+  const samples=new Float64Array((M+1)*4),fid=new Float64Array(M+1);let fidMin=1,normErr=0;
+  const rec=(j)=>{for(let i=0;i<4;i++)samples[j*4+i]=p[i];
+    const a=anglesOf(path.n(profile(prof,j/M))),e=spinorAt(a[0],a[1],up),o=overlap(e,p),f=o[0]*o[0]+o[1]*o[1];fid[j]=f;if(f<fidMin)fidMin=f;
+    normErr=Math.max(normErr,Math.abs(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]+p[3]*p[3]-1))};
+  rec(0);
+  for(let j=1;j<=M;j++){
+    for(let q=0;q<per;q++){const k=(j-1)*per+q,t0=k*h;
+      const n1=path.n(profile(prof,(t0+g1*h)/T)),n2=path.n(profile(prof,(t0+g2*h)/T));
+      p=applyU(stepU(B,h,n1,n2),p)}
+    rec(j)}
+  return{psi:p,psi0:p0,samples,fid,fidMin,normErr,N,M}}
+/* exact solution for the cone (rotating-frame trick): psi(t) = diag(e^{-i f/2}, e^{+i f/2}) chi(t), f = 2 pi t / T,
+   chi(t) = exp( i (t/2) b.sigma ) chi0, b = (B sin a, 0, B cos a + 2 pi / T). Valid for every T. */
+function coneExactState(alpha,B,T,t,up){
+  const W=TWO_PI/T,bx=B*Math.sin(alpha),bz=B*Math.cos(alpha)+W,bm=Math.hypot(bx,bz),a=bm*t/2,c=Math.cos(a),s=Math.sin(a),ux=bx/bm,uz=bz/bm;
+  const chi=applyU([c,s*uz, 0,s*ux, 0,s*ux, c,-s*uz],spinorAt(alpha,0,up));
+  const f=W*t,cf=Math.cos(f/2),sf=Math.sin(f/2);
+  return[chi[0]*cf+chi[1]*sf, chi[1]*cf-chi[0]*sf, chi[2]*cf-chi[3]*sf, chi[3]*cf+chi[2]*sf]}
+/* ---------- phases ---------- */
+/* total phase of the closed loop = arg <psi0|psi(T)>; dynamical phase = -integral of E dt = +-BT/2 */
+function totalPhase(p0,pT){const o=overlap(p0,pT);return Math.atan2(o[1],o[0])}
+function dynPhase(B,T,up){return(up?1:-1)*B*T/2}
+function geometricPhase(p0,pT,B,T,up){return wrapPi(totalPhase(p0,pT)-dynPhase(B,T,up))}
+function omegaCone(alpha){return TWO_PI*(1-Math.cos(alpha))}
+/* solid angle (mod 4 pi, in [0, 4 pi)) of a closed polygon of unit vectors: sum of the signed triangles (r, p_k, p_k+1) */
+function solidAngle(pts){
+  const r0=[0.31,0.43,-0.85],rl=Math.hypot(r0[0],r0[1],r0[2]),r=[r0[0]/rl,r0[1]/rl,r0[2]/rl];let sum=0;
+  for(let k=0;k<pts.length;k++){const b=pts[k],c=pts[(k+1)%pts.length];
+    sum+=2*Math.atan2(dot3(r,cross3(b,c)),1+dot3(r,b)+dot3(b,c)+dot3(c,r))}
+  sum%=2*TWO_PI;return sum<0?sum+2*TWO_PI:sum}
+function loopPoints(path,prof,n){const a=[];for(let k=0;k<n;k++)a.push(path.n(profile(prof,k/n)));return a}
+/* a state with direction sign: the Berry phase of the aligned state is -Omega/2, of the anti-aligned state +Omega/2 */
+function monopoleFlux(Om,up){return(up?1:-1)*Om/2}
+function berryExpected(Om,up){return wrapPi(-monopoleFlux(Om,up))}
+/* discrete Berry phase of the eigenstates along the polygon: -arg prod <psi_k|psi_k+1>; gauge(k) is an optional phase per point */
+function discreteBerry(pts,up,gauge){
+  let re=1,im=0;const sp=pts.map((n,k)=>{const a=anglesOf(n),s=spinorAt(a[0],a[1],up),g=gauge?gauge(k):0,c=Math.cos(g),si=Math.sin(g);
+    return[s[0]*c-s[1]*si,s[0]*si+s[1]*c,s[2]*c-s[3]*si,s[2]*si+s[3]*c]});
+  for(let k=0;k<pts.length;k++){const o=overlap(sp[k],sp[(k+1)%pts.length]);const r2=re*o[0]-im*o[1];im=re*o[1]+im*o[0];re=r2}
+  return wrapPi(-Math.atan2(im,re))}
+/* Berry curvature of the aligned state, F = i(<d_th psi|d_ph psi> - c.c.) per unit solid angle, by central differences */
+function berryCurvature(th,ph,up){
+  const e=1e-5,sp=(t,p)=>spinorAt(t,p,up),a=sp(th+e,ph),b=sp(th-e,ph),c=sp(th,ph+e),d=sp(th,ph-e);
+  const dt=[0,1,2,3].map(i=>(a[i]-b[i])/(2*e)),dp=[0,1,2,3].map(i=>(c[i]-d[i])/(2*e)),o=overlap(dt,dp);
+  return -2*o[1]/Math.sin(th)}
+/* leading slow-loop error of (total - dynamical): pi^2 sin^2 a / (B T)  (cone, aligned state) */
+function adiabaticCorrection(alpha,B,T){return Math.PI*Math.PI*Math.sin(alpha)*Math.sin(alpha)/(B*T)}
+/* exact phase deviation of the cone from -Omega/2, any loop time */
+function phaseDeviationExact(alpha,B,T,up){
+  const p0=spinorAt(alpha,0,up),pT=coneExactState(alpha,B,T,T,up);
+  return wrapPi(geometricPhase(p0,pT,B,T,up)-berryExpected(omegaCone(alpha),up))}
+/* one full analysis, used for every readout on the page. o = {shape, alpha, turns, prof, up}; B = 1 */
+function analyze(o,hB){
+  const B=1,T=TWO_PI*o.turns,M=360,N=M*Math.max(1,Math.ceil(T*B/((hB||0.04)*M))),path=makePath(o.shape,o.alpha);
+  const sim=simulate(path,o.prof,B,T,N,M,o.up),Phi=totalPhase(sim.psi0,sim.psi),dyn=wrapPi(dynPhase(B,T,o.up)),gam=wrapPi(Phi-dynPhase(B,T,o.up));
+  const Om=solidAngle(loopPoints(path,o.prof,20000)),exp=berryExpected(Om,o.up),ov=overlap(sim.psi0,sim.psi);
+  const r={B,T,N,M,path,sim,Phi,dyn,gam,Om,exp,diff:wrapPi(gam-exp),retFid:ov[0]*ov[0]+ov[1]*ov[1],fidMin:sim.fidMin,flux:monopoleFlux(Om,o.up)};
+  if(o.shape==="cone"&&o.prof==="uniform"){const ex=coneExactState(o.alpha,B,T,T,o.up);
+    r.exact={Phi:totalPhase(sim.psi0,ex),gam:geometricPhase(sim.psi0,ex,B,T,o.up),err:Math.hypot(ex[0]-sim.psi[0],ex[1]-sim.psi[1],ex[2]-sim.psi[2],ex[3]-sim.psi[3])}}
+  return r}
+/* a slow loop (fixed T, only the end point is kept): geometric phase minus its expected value */
+function slowRun(o,T,hB){
+  const B=1,M=1,N=Math.ceil(T*B/hB),path=makePath(o.shape,o.alpha),sim=simulate(path,o.prof,B,T,N,M,o.up);
+  const gam=geometricPhase(sim.psi0,sim.psi,B,T,o.up),Om=solidAngle(loopPoints(path,o.prof,20000)),exp=berryExpected(Om,o.up);
+  const r={T,N,gam,Om,exp,diff:wrapPi(gam-exp)};
+  if(o.shape==="cone"&&o.prof==="uniform"){const ex=coneExactState(o.alpha,B,T,T,o.up);
+    r.exactErr=Math.hypot(ex[0]-sim.psi[0],ex[1]-sim.psi[1],ex[2]-sim.psi[2],ex[3]-sim.psi[3]);r.corr=adiabaticCorrection(o.alpha,B,T)}
+  return r}
+/* PHYSICS-CORE END */
+/* ---------------- user interface (not tested from node) ---------------- */
+const $=id=>document.getElementById(id);
+const TXT="rgba(255,255,255,.78)",ORG="#fb923c",BLU="#7fb0ff",GRN="#5eead4",YEL="#fcd34d",PUR="#d8b4fe",GRY="#9a9fa8";
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,H=Math.round(+c.dataset.h0*(w<420?0.85:1));
+  const pw=Math.round(w*d),ph=Math.round(H*d);
+  if(c.dataset.pw!==String(pw)||c.dataset.ph!==String(ph)){c.width=pw;c.height=ph;c.dataset.pw=pw;c.dataset.ph=ph}
+  c.style.height=H+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h:H}}
+function pm(v,d){return (v<0?"−":"")+Math.abs(v).toFixed(d)}
+function sci(v){return v===0?"0":v.toExponential(1).replace("e-","e−").replace("e+","e")}
+const S={alpha:Math.PI/3,turns:10,shape:"cone",prof:"uniform",up:true,u:0,run:true,yaw:0.7,sp:3,
+  needA:true,needBig:true,dirty:true};
+let R=null,BIG=null,TAB=null,heavyTimer=0;
+const turnsOf=v=>0.2*Math.pow(10,v/100*2.7);
+const degs=a=>Math.round(a*180/Math.PI);
+function opts(){return{shape:S.shape,alpha:S.alpha,turns:S.turns,prof:S.prof,up:S.up}}
+function recompute(){R=analyze(opts());S.dirty=true}
+function recomputeHeavy(){
+  const o=opts();
+  BIG=slowRun({shape:o.shape,alpha:o.alpha,prof:"uniform",up:o.up},10000,0.1);
+  BIG.cone=o.shape==="cone";
+  const T=2000,rows=[["steady speed, aligned spin",{prof:"uniform",up:o.up}],["start–stop speed",{prof:"stopgo",up:o.up}],
+    ["loop backwards",{prof:"reverse",up:o.up}],["steady, other spin state",{prof:"uniform",up:!o.up}]];
+  TAB=rows.map(([name,d])=>{const r=slowRun({shape:o.shape,alpha:o.alpha,prof:d.prof,up:d.up},T,0.1);return{name,r}});
+  S.dirty=true}
+function scheduleHeavy(){clearTimeout(heavyTimer);BIG=null;TAB=null;S.dirty=true;heavyTimer=setTimeout(recomputeHeavy,120)}
+/* ----- exact scan (cone) for the area plot, computed once ----- */
+const SCAN=(()=>{const a=[];for(let d=10;d<=170;d+=10){const al=d*Math.PI/180,p0=spinorAt(al,0,true),pT=coneExactState(al,1,1e6,1e6,true);
+  a.push({Om:omegaCone(al),g:geometricPhase(p0,pT,1,1e6,true)})}return a})();
+
+/* ---------- 3D helpers ---------- */
+const PITCH=0.5;
+function proj(p,cx,cy,Rr){const cyw=Math.cos(S.yaw),syw=Math.sin(S.yaw),x1=p[0]*cyw-p[1]*syw,y1=p[0]*syw+p[1]*cyw,
+  cp=Math.cos(PITCH),sp=Math.sin(PITCH),y2=y1*cp-p[2]*sp,z2=y1*sp+p[2]*cp;return{x:cx+Rr*x1,y:cy-Rr*z2,d:y2}}
+function polyline(g,pts,cx,cy,Rr,col,lw,aF,aB){
+  for(let i=0;i<pts.length-1;i++){const a=proj(pts[i],cx,cy,Rr),b=proj(pts[i+1],cx,cy,Rr),front=(a.d+b.d)/2<0;
+    g.globalAlpha=front?aF:aB;g.strokeStyle=col;g.lineWidth=lw;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()}
+  g.globalAlpha=1}
+function baseSphere(g,cx,cy,Rr){
+  g.strokeStyle="rgba(255,255,255,.35)";g.lineWidth=1;g.beginPath();g.arc(cx,cy,Rr,0,7);g.stroke();
+  const eq=[],m1=[],m2=[];for(let i=0;i<=64;i++){const a=i/64*TWO_PI;eq.push([Math.cos(a),Math.sin(a),0]);m1.push([Math.cos(a),0,Math.sin(a)]);m2.push([0,Math.cos(a),Math.sin(a)])}
+  for(const l of [eq,m1,m2])polyline(g,l,cx,cy,Rr,"#ffffff",1,0.22,0.07);
+  const t=proj([0,0,1],cx,cy,Rr);g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="center";g.fillText("z",t.x,t.y-6)}
+function arrow(g,x0,y0,x1,y1,col,lw){g.strokeStyle=col;g.fillStyle=col;g.lineWidth=lw;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),L=9;g.beginPath();g.moveTo(x1,y1);g.lineTo(x1-L*Math.cos(a-0.4),y1-L*Math.sin(a-0.4));g.lineTo(x1-L*Math.cos(a+0.4),y1-L*Math.sin(a+0.4));g.closePath();g.fill()}
+function loopPts(n,n0,n1){const a=[];for(let k=0;k<=n;k++)a.push(S.path.n(profile("uniform",n0+(n1-n0)*k/n)));return a}
+function blochVecAt(j){const p=[R.sim.samples[j*4],R.sim.samples[j*4+1],R.sim.samples[j*4+2],R.sim.samples[j*4+3]];return blochVec(p)}
+
+/* ---------- Part 1 ---------- */
+function drawBloch(){
+  const {x:g,w:W,h:H}=fit($("bl")),cx=W/2,cy=H/2+4,Rr=Math.min(W,H)*0.40;
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);baseSphere(g,cx,cy,Rr);
+  /* the loop (always the same curve; the speed profile only changes how fast the dot moves) */
+  const lp=[];for(let k=0;k<=240;k++)lp.push(S.path.n(k/240));polyline(g,lp,cx,cy,Rr,ORG,1.6,0.9,0.3);
+  const M=R.M,jf=S.u*M,j0=Math.min(M,Math.floor(jf));
+  /* spin trail */
+  const tr=[];for(let j=0;j<=j0;j++)tr.push(blochVecAt(j));if(j0<M){const b0=blochVecAt(j0),b1=blochVecAt(Math.min(M,j0+1)),f=jf-j0;tr.push([0,1,2].map(i=>b0[i]+(b1[i]-b0[i])*f))}
+  polyline(g,tr,cx,cy,Rr,BLU,1.6,0.85,0.3);
+  const spinV=tr[tr.length-1],fn=S.path.n(profile(S.prof,S.u)),o=proj([0,0,0],cx,cy,Rr),fp=proj(fn,cx,cy,Rr),sp=proj(spinV,cx,cy,Rr);
+  g.strokeStyle=ORG;g.lineWidth=1.2;g.setLineDash([4,4]);g.beginPath();g.moveTo(o.x,o.y);g.lineTo(fp.x,fp.y);g.stroke();g.setLineDash([]);
+  g.fillStyle=ORG;g.beginPath();g.arc(fp.x,fp.y,5,0,7);g.fill();
+  arrow(g,o.x,o.y,sp.x,sp.y,BLU,2.4);
+  g.font="11px system-ui";g.textAlign="left";g.fillStyle=ORG;g.fillText("● field direction",8,14);g.fillStyle=BLU;g.fillText("➤ spin (Bloch vector)",8,28);
+  g.fillStyle=TXT;g.fillText("drag to turn the sphere",8,H-8);
+  /* fidelity */
+  {const {x:g2,w:W2,h:H2}=fit($("fd"));g2.fillStyle="#07080c";g2.fillRect(0,0,W2,H2);
+   const ML=30,pw=W2-ML-8,top=8,base=H2-20,X=t=>ML+t*pw,Y=v=>base-v*(base-top);
+   g2.fillStyle=TXT;g2.font="11px system-ui";g2.textAlign="right";g2.fillText("1",ML-4,Y(1)+4);g2.fillText("0",ML-4,Y(0)+4);
+   g2.textAlign="center";for(const [t,l] of [[0,"0"],[0.5,"T/2"],[1,"T"]])g2.fillText(l,X(t),H2-6);
+   g2.strokeStyle="rgba(255,255,255,.18)";g2.beginPath();g2.moveTo(ML,Y(1));g2.lineTo(ML+pw,Y(1));g2.stroke();
+   g2.strokeStyle=BLU;g2.lineWidth=1.8;g2.beginPath();for(let k=0;k<=M;k++){const x=X(k/M),y=Y(R.sim.fid[k]);k?g2.lineTo(x,y):g2.moveTo(x,y)}g2.stroke();
+   g2.strokeStyle="#fff";g2.lineWidth=1;g2.beginPath();g2.moveTo(X(S.u),top);g2.lineTo(X(S.u),base);g2.stroke()}
+  const fi=R.sim.fid[Math.round(S.u*M)],a=anglesOf(fn);
+  $("read1").innerHTML=`<div><span>fidelity now </span><b>${fi.toFixed(4)}</b> <span>· lowest in the loop </span><b>${R.fidMin.toFixed(4)}</b></div>
+   <div><span>field direction: polar angle </span><b>${degs(a[0])}°</b> <span>azimuth </span><b>${((degs(a[1])%360)+360)%360}°</b></div>
+   <div><span>loop time T = </span><b>${S.turns.toFixed(2)}</b> <span>spin turns · steps </span><b>${R.N}</b> <span>· norm error </span><b>${sci(R.sim.normErr)}</b></div>`;
+  $("u").value=Math.round(S.u*1000);$("uV").textContent=S.u.toFixed(3)}
+
+/* ---------- Part 2 ---------- */
+function drawPhase(){
+  const {x:g,w:W,h:H}=fit($("pc")),cx=W/2,LH=64,cy=LH+(H-LH)/2,Rr=Math.min(W*0.36,(H-LH)/2-20);
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);g.strokeStyle="rgba(255,255,255,.35)";g.lineWidth=1;g.beginPath();g.arc(cx,cy,Rr,0,7);g.stroke();
+  g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="center";
+  for(const [a,l] of [[0,"0"],[Math.PI/2,"π/2"],[Math.PI,"π"],[-Math.PI/2,"−π/2"]]){const x=cx+(Rr+16)*Math.cos(a),y=cy-(Rr+16)*Math.sin(a);g.fillText(l,x,y+4);
+    g.strokeStyle="rgba(255,255,255,.35)";g.beginPath();g.moveTo(cx+Rr*Math.cos(a),cy-Rr*Math.sin(a));g.lineTo(cx+(Rr-6)*Math.cos(a),cy-(Rr-6)*Math.sin(a));g.stroke()}
+  const pt=(a,r)=>[cx+r*Math.cos(a),cy-r*Math.sin(a)];
+  /* blue arc from the dynamical to the total phase (the geometric part) */
+  let d0=R.dyn,gm=R.gam;g.strokeStyle=BLU;g.lineWidth=5;g.globalAlpha=0.5;g.beginPath();
+  for(let k=0;k<=40;k++){const a=d0+gm*k/40,p=pt(a,Rr*0.55);k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])}g.stroke();g.globalAlpha=1;
+  const A=(a,col,lw,r)=>{const p=pt(a,Rr*r);arrow(g,cx,cy,p[0],p[1],col,lw)};
+  A(R.dyn,GRY,2,0.95);A(R.Phi,YEL,2.4,1.0);A(R.exp,GRN,2,0.8);
+  const pb=pt(R.dyn+R.gam,Rr*0.55);g.fillStyle=BLU;g.beginPath();g.arc(pb[0],pb[1],4.5,0,7);g.fill();
+  g.font="11px system-ui";g.textAlign="left";let y=14;
+  for(const [c,t] of [[YEL,"total Φ"],[GRY,"dynamical +BT/2 (mod 2π)"],[BLU,"geometric = Φ − dynamical (run)"],[GRN,"exact −Ω/2"]]){g.fillStyle=c;g.fillText("■ "+t,8,y);y+=14}
+  /* distance plot */
+  {const {x:g2,w:W2,h:H2}=fit($("dv"));g2.fillStyle="#07080c";g2.fillRect(0,0,W2,H2);
+   const ML=40,MB=32,pw=W2-ML-8,top=8,base=H2-MB,x0=Math.log10(0.1),x1=Math.log10(300),y0=-6,y1=0.6;
+   const X=t=>ML+(Math.log10(t)-x0)/(x1-x0)*pw,Y=v=>{const l=Math.max(y0,Math.min(y1,Math.log10(Math.max(v,1e-12))));return base-(l-y0)/(y1-y0)*(base-top)};
+   g2.font="11px system-ui";g2.fillStyle=TXT;g2.textAlign="right";
+   for(let e=-5;e<=0;e++){g2.fillText("1e"+(e<0?"−"+(-e):e),ML-4,Y(Math.pow(10,e))+4);g2.strokeStyle="rgba(255,255,255,.1)";g2.beginPath();g2.moveTo(ML,Y(Math.pow(10,e)));g2.lineTo(ML+pw,Y(Math.pow(10,e)));g2.stroke()}
+   g2.textAlign="center";for(const t of [0.1,1,10,100]){g2.fillText(String(t),X(t),base+13);g2.strokeStyle="rgba(255,255,255,.1)";g2.beginPath();g2.moveTo(X(t),top);g2.lineTo(X(t),base);g2.stroke()}
+   g2.fillText("loop time T·B/2π (spin turns)",ML+pw/2,H2-3);
+   g2.save();g2.beginPath();g2.rect(ML,top,pw,base-top);g2.clip();
+   g2.strokeStyle=ORG;g2.lineWidth=1.6;g2.beginPath();
+   for(let k=0;k<=500;k++){const t=Math.pow(10,x0+(x1-x0)*k/500),v=Math.abs(phaseDeviationExact(S.alpha,1,TWO_PI*t,S.up));k?g2.lineTo(X(t),Y(v)):g2.moveTo(X(t),Y(v))}g2.stroke();
+   g2.strokeStyle="rgba(255,255,255,.6)";g2.setLineDash([5,4]);g2.beginPath();g2.moveTo(X(0.1),Y(adiabaticCorrection(S.alpha,1,TWO_PI*0.1)));g2.lineTo(X(300),Y(adiabaticCorrection(S.alpha,1,TWO_PI*300)));g2.stroke();g2.setLineDash([]);
+   g2.restore();
+   g2.strokeStyle="rgba(255,255,255,.4)";g2.beginPath();g2.moveTo(X(S.turns),top);g2.lineTo(X(S.turns),base);g2.stroke();
+   g2.fillStyle=BLU;g2.beginPath();g2.arc(X(S.turns),Y(Math.abs(R.diff)),5,0,7);g2.fill();
+   g2.textAlign="left";g2.fillStyle=ORG;g2.fillText("— exact (cone)",ML+6,base-40);g2.fillStyle="rgba(255,255,255,.7)";g2.fillText("- - π²sin²α/(BT)",ML+6,base-26);g2.fillStyle=BLU;g2.fillText("● this run",ML+6,base-12)}
+  const slow=R.fidMin>0.97;
+  $("st2").innerHTML=slow?`<span class="ok">Slow loop.</span> The spin follows the field (lowest fidelity ${R.fidMin.toFixed(3)}). The run gives −Ω/2 up to a small 1/T error.`
+    :`<span class="warn">Fast loop.</span> The spin lags behind the field (lowest fidelity ${R.fidMin.toFixed(3)}). The geometric phase is not −Ω/2 now.`;
+  const ex=R.exact;
+  $("read2").innerHTML=`<div><span>loop time </span><b>${S.turns.toFixed(2)}</b> <span>spin turns (T = ${R.T.toFixed(1)}/B) · steps </span><b>${R.N}</b></div>
+   <div><span>solid angle Ω </span><b>${R.Om.toFixed(5)}</b> <span>(${R.Om.toFixed(3)} rad = ${(R.Om/Math.PI).toFixed(4)} π)</span></div>
+   <div><span>total phase Φ </span><b>${pm(R.Phi,5)}</b> <span>· dynamical (±BT/2 mod 2π) </span><b>${pm(R.dyn,5)}</b></div>
+   <div><span>geometric from the run </span><b>${pm(R.gam,5)}</b> <span>· expected </span><b>${pm(R.exp,5)}</b> <span>· difference </span><b>${pm(R.diff,5)}</b></div>
+   <div><span>chance to be back in the start state </span><b>${R.retFid.toFixed(5)}</b></div>
+   <div><span>exact rotating frame: </span>${ex?`<b>geometric ${pm(ex.gam,5)}</b> <span>· run minus exact: amplitude difference </span><b>${sci(ex.err)}</b>`:"<span>exact formula only for the steady cone (choose it in Part 1)</span>"}</div>`;
+  if(BIG){const c=BIG.corr!==undefined;
+    $("big2").innerHTML=`<span>Berry phase from the run (loop time T = 10 000/B, ${BIG.N.toLocaleString("en")} steps):</span> <b>γ = ${pm(BIG.gam,5)}</b> <span>· exact −Ω/2 = </span><b>${pm(BIG.exp,5)}</b> <span>· difference </span><b>${pm(BIG.diff,5)}</b>
+     <small>${c?`The leading slow-loop error π²sin²α/(BT) is ${pm(BIG.corr,5)}. After removing it the rest is ${pm(BIG.diff-BIG.corr,7)}. Run against the exact rotating-frame solution at the same T: amplitude difference ${sci(BIG.exactErr)}.`:"For this loop shape there is no closed formula; the exact value is −Ω/2 with Ω from the sum of triangles."} The difference falls like 1/T. The spin used is ${S.up?"aligned (−Ω/2)":"anti-aligned (+Ω/2)"}.</small>`}
+  else $("big2").innerHTML=`<span>Computing the slow run …</span>`}
+
+/* ---------- Part 3 ---------- */
+function drawArea(){
+  const {x:g,w:W,h:H}=fit($("ar")),ML=44,MB=34,pw=W-ML-12,top=10,base=H-MB,X=o=>ML+o/(2*TWO_PI)*pw,Y=v=>top+(2*Math.PI-v)/(2*TWO_PI)*(base-top);
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";
+  for(const [v,l] of [[2*Math.PI,"2π"],[Math.PI,"π"],[0,"0"],[-Math.PI,"−π"],[-2*Math.PI,"−2π"]]){g.fillText(l,ML-4,Y(v)+4);g.strokeStyle=v===0?"rgba(255,255,255,.35)":"rgba(255,255,255,.1)";g.beginPath();g.moveTo(ML,Y(v));g.lineTo(ML+pw,Y(v));g.stroke()}
+  g.textAlign="center";for(const [o,l] of [[0,"0"],[Math.PI,"π"],[2*Math.PI,"2π"],[3*Math.PI,"3π"],[4*Math.PI,"4π"]]){g.fillText(l,X(o),base+14);g.strokeStyle="rgba(255,255,255,.1)";g.beginPath();g.moveTo(X(o),top);g.lineTo(X(o),base);g.stroke()}
+  g.fillText("solid angle Ω of the loop",ML+pw/2,H-3);
+  g.strokeStyle=GRN;g.lineWidth=1.8;g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(2*TWO_PI),Y(-TWO_PI));g.stroke();
+  g.strokeStyle=PUR;g.setLineDash([6,4]);g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(2*TWO_PI),Y(TWO_PI));g.stroke();g.setLineDash([]);
+  g.fillStyle=GRN;for(const d of SCAN){const v=d.g-TWO_PI*Math.ceil(d.g/TWO_PI-1e-9);g.beginPath();g.arc(X(d.Om),Y(v),3,0,7);g.fill()}
+  /* great circle mark */
+  g.strokeStyle="#fff";g.lineWidth=1;g.beginPath();g.arc(X(TWO_PI),Y(-Math.PI),8,0,7);g.stroke();g.fillStyle="#fff";g.textAlign="left";g.fillText("great circle: −π",X(TWO_PI)+11,Y(-Math.PI)-2);
+  /* current run */
+  if(BIG){const v=S.up?BIG.gam-TWO_PI*Math.ceil(BIG.gam/TWO_PI-1e-9):BIG.gam-TWO_PI*Math.floor(BIG.gam/TWO_PI);
+    g.fillStyle="#fff";g.beginPath();g.arc(X(BIG.Om),Y(v),5,0,7);g.fill();g.strokeStyle="rgba(255,255,255,.45)";g.setLineDash([3,3]);g.beginPath();g.moveTo(X(BIG.Om),base);g.lineTo(X(BIG.Om),Y(v));g.stroke();g.setLineDash([])}
+  g.textAlign="left";g.fillStyle=GRN;g.fillText("— aligned: γ = −Ω/2",ML+8,top+12);g.fillStyle=PUR;g.fillText("- - anti-aligned: γ = +Ω/2",ML+8,top+26);g.fillStyle="#fff";g.fillText("● this loop (run)",ML+8,top+40);
+  if(TAB){let h=`<table class="tb"><tr><th>run</th><th>γ from the run</th><th>expected</th><th>difference</th></tr>`;
+    for(const {name,r} of TAB)h+=`<tr><td>${name}</td><td>${pm(r.gam,5)}</td><td>${pm(r.exp,5)}</td><td>${pm(r.diff,5)}</td></tr>`;
+    $("tab").innerHTML=h+`</table><div class="cap" style="font-size:12.5px;color:var(--muted);margin-top:4px">Ω = ${TAB[0].r.Om.toFixed(5)} for the loop as it is run first; the backwards loop has Ω = ${TAB[2].r.Om.toFixed(5)} (4π − Ω).</div>`;
+    const spread=Math.max(...TAB.map(t=>Math.abs(t.r.diff)));
+    $("st3").innerHTML=`<span class="ok">Area, not time:</span> all four runs are within ${sci(spread)} rad of their expected value. The loop is the same. Only the speed, the direction or the spin state changed.`}
+  else{$("tab").innerHTML="<p>Computing the runs …</p>";$("st3").textContent=""}}
+
+/* ---------- Part 4 ---------- */
+function drawMono(){
+  const {x:g,w:W,h:H}=fit($("mp")),cx=W/2,cy=H/2+2,Rr=Math.min(W,H)*0.40,sgn=S.up?1:-1;
+  g.fillStyle="#07080c";g.fillRect(0,0,W,H);baseSphere(g,cx,cy,Rr);
+  const o=proj([0,0,0],cx,cy,Rr),lp=[];for(let k=0;k<=240;k++)lp.push(S.path.n(k/240));
+  /* shaded cone: projected loop polygon */
+  g.globalAlpha=0.16;g.fillStyle=ORG;g.beginPath();lp.forEach((p,i)=>{const q=proj(p,cx,cy,Rr);i?g.lineTo(q.x,q.y):g.moveTo(q.x,q.y)});g.fill();g.globalAlpha=1;
+  /* rays from the centre through the loop */
+  g.strokeStyle=ORG;g.lineWidth=1;g.globalAlpha=0.3;for(let k=0;k<240;k+=12){const q=proj(lp[k],cx,cy,Rr);g.beginPath();g.moveTo(o.x,o.y);g.lineTo(q.x,q.y);g.stroke()}g.globalAlpha=1;
+  /* radial field arrows (Fibonacci points) */
+  for(let i=0;i<22;i++){const z=1-2*(i+0.5)/22,r=Math.sqrt(1-z*z),a=i*2.399963,p=[r*Math.cos(a),r*Math.sin(a),z],q0=proj([p[0]*0.55,p[1]*0.55,p[2]*0.55],cx,cy,Rr),q1=proj([p[0]*0.9,p[1]*0.9,p[2]*0.9],cx,cy,Rr);
+    if(q1.d>0)continue;g.globalAlpha=0.55;if(sgn>0)arrow(g,q0.x,q0.y,q1.x,q1.y,GRY,1.1);else arrow(g,q1.x,q1.y,q0.x,q0.y,GRY,1.1);g.globalAlpha=1}
+  polyline(g,lp,cx,cy,Rr,ORG,2.4,1,0.4);
+  g.fillStyle=PUR;g.beginPath();g.arc(o.x,o.y,5,0,7);g.fill();g.font="11px system-ui";g.textAlign="left";g.fillStyle=PUR;g.fillText("monopole g = "+(sgn>0?"+":"−")+"½",o.x+8,o.y+14);
+  g.fillStyle=TXT;g.fillText("orange: the loop and the cone of rays through it",8,14);g.fillText("grey arrows: radial field of the monopole",8,28);
+  const fl=monopoleFlux(R.Om,S.up);
+  $("big4").innerHTML=`<span>flux of the monopole through the loop = g·Ω:</span> <b>${pm(fl,5)}</b> <span>rad</span>
+   <small>Berry phase γ = −flux = <b style="font-size:15px">${pm(-fl,5)}</b>. From the Schrödinger run (Part 2, at the current loop time): γ = ${pm(R.gam,4)} (close to it for a slow loop; Part 2 shows the gap). For the aligned spin, g = +½. For the anti-aligned spin, g = −½.</small>`;
+  const cv=berryCurvature(0.7,0.4,S.up);
+  $("read4").innerHTML=`<div><span>solid angle Ω </span><b>${R.Om.toFixed(5)}</b></div>
+   <div><span>Berry curvature from the spin state (numerical derivative, one point): </span><b>${pm(cv,6)}</b> <span>per unit solid angle (exact ${S.up?"−0.5":"+0.5"})</span></div>
+   <div><span>flux through the whole sphere: </span><b>${pm(monopoleFlux(4*Math.PI,S.up),5)}</b> <span>= ${S.up?"+":"−"}2π (one full turn, invisible as a phase)</span></div>
+   <div><span>Aharonov–Bohm, for comparison: phase = (q/ħ) × flux of B through the loop. Here: phase = −(flux of the monopole).</span></div>`}
+
+function drawAll(){
+  if(!R)return;S.path=R.path;
+  drawBloch();
+  if(S.dirty){drawPhase();drawArea();drawMono();S.dirty=false}
+  else if(S.run)drawMono()}
+
+/* ---------- controls ---------- */
+function setAlpha(deg){S.alpha=deg*Math.PI/180;document.querySelectorAll(".sA").forEach(e=>e.value=deg);document.querySelectorAll(".aV").forEach(e=>e.textContent=deg+"°");recompute();scheduleHeavy()}
+function setTurns(v){S.turns=turnsOf(+v);document.querySelectorAll(".sN").forEach(e=>e.value=v);document.querySelectorAll(".nV").forEach(e=>e.textContent=S.turns.toFixed(2));recompute()}
+document.querySelectorAll(".sA").forEach(e=>e.addEventListener("input",()=>setAlpha(+e.value)));
+document.querySelectorAll(".sN").forEach(e=>e.addEventListener("input",()=>setTurns(e.value)));
+$("shape").addEventListener("change",()=>{S.shape=$("shape").value;recompute();scheduleHeavy()});
+$("prof").addEventListener("change",()=>{S.prof=$("prof").value;recompute()});
+function setUp(v){S.up=v==="1";$("up").value=v;$("up4").value=v;recompute();scheduleHeavy()}
+$("up").addEventListener("change",()=>setUp($("up").value));$("up4").addEventListener("change",()=>setUp($("up4").value));
+$("run").addEventListener("click",()=>{S.run=!S.run;$("run").textContent=S.run?"Pause":"Play"});
+$("rs").addEventListener("click",()=>{S.u=0;S.dirty=true});
+$("u").addEventListener("input",()=>{S.u=+$("u").value/1000;S.run=false;$("run").textContent="Play"});
+$("sp").addEventListener("input",()=>{S.sp=+$("sp").value;$("spV").textContent=S.sp});
+$("gc").addEventListener("click",()=>setAlpha(90));
+for(const id of ["bl","mp"]){const c=$(id);let drag=null;
+  c.addEventListener("pointerdown",e=>{drag=e.clientX;c.setPointerCapture(e.pointerId)});
+  c.addEventListener("pointermove",e=>{if(drag===null)return;S.yaw+=(e.clientX-drag)*0.01;drag=e.clientX;S.dirty=true});
+  c.addEventListener("pointerup",()=>{drag=null});c.addEventListener("pointercancel",()=>{drag=null})}
+let last=0;
+function frame(ts){const dt=Math.min(0.1,(ts-last)/1000);last=ts;
+  if(S.run){S.u+=dt*S.sp/14;if(S.u>=1)S.u-=1}
+  drawAll();requestAnimationFrame(frame)}
+window.addEventListener("resize",()=>{S.dirty=true});
+$("spV").textContent=S.sp;
+setAlpha(60);setTurns(63);clearTimeout(heavyTimer);recomputeHeavy();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
