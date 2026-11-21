@@ -13,7 +13,7 @@ Rules for the night:
 3. [x] (74b6117) New room "Watching the slits": double slit with a which-path marker of adjustable strength; stripe visibility = |⟨χ₁|χ₂⟩|; the quantum eraser. File `demos/which-path.html`.
 4. [x] (e1b5c03) QA pass: every room at 375 px width and in light theme; fix layout and contrast problems.
 5. [x] (4b5a86b) Add the new rooms to `index.html` routes, README, PROMPT, decisions; glossary entries for any new terms.
-6. [ ] Final check: all node tests pass, all links resolve, commit and push (private).
+6. [x] Final check (14/14 node tests pass, all links resolve, 17 rooms load at 375 px with no console errors): all node tests pass, all links resolve, commit and push (private).
 
 ## Backlog round 2 (added 23:45, optional, same rules)
 7. [ ] New room "Feynman's checkerboard": a particle zig-zags at light speed on a space-time grid; each turn multiplies the amplitude by −iεm. The sum over zig-zag paths gives the 1+1D Dirac propagator. Check: path count/sum by dynamic programming vs exact Bessel-function propagator as ε → 0. File `demos/checkerboard.html`.
