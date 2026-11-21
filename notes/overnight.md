@@ -17,5 +17,5 @@ Rules for the night:
 
 ## Backlog round 2 (added 23:45, optional, same rules)
 7. [ ] New room "Feynman's checkerboard": a particle zig-zags at light speed on a space-time grid; each turn multiplies the amplitude by −iεm. The sum over zig-zag paths gives the 1+1D Dirac propagator. Check: path count/sum by dynamic programming vs exact Bessel-function propagator as ε → 0. File `demos/checkerboard.html`.
-8. [ ] New room "From paths to Schrödinger": slice time into N steps, multiply short-time kernels (the path integral as a product), watch the result converge to the exact propagator (free particle, harmonic trap); error ∝ 1/N (Trotter). File `demos/time-slicing.html`.
+8. [x] (5da0a84) New room "From paths to Schrödinger": slice time into N steps, multiply short-time kernels (the path integral as a product), watch the result converge to the exact propagator (free particle, harmonic trap); error ∝ 1/N (Trotter). File `demos/time-slicing.html`.
 9. [ ] Integrate rooms 7–8: index cards, glossary, README, PROMPT, decisions; all tests; commit and push (private).
