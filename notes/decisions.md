@@ -45,5 +45,8 @@ scope, because visuals can teach them better than the usual formalism.
 - Demo 1: spinor flag and 720° — built 2026-11-21 (`demos/spinor-flag.html`).
 - Landing page `index.html`.
 - Rooms built 2026-11-21 in one run: broken symmetry (`xy-vortices.html`), three colours (`su3-colours.html`), phases around a loop (`wilson-loops.html`), order matters (`order-matters.html`), a phase without a force (`aharonov-bohm.html`). Each has node tests in `tests/` or checked numbers on the page.
-- Still proposed: vacuum chain / Casimir (field fluctuations), Wick morph and instantons, Abelian Higgs (vortices with a gauge field), string breaking.
+- Rooms built 2026-11-21 (second run): the restless vacuum (`restless-vacuum.html`), tunnelling in imaginary time (`tunnelling.html`), vortices that trap flux (`flux-vortices.html`), pull two charges apart (`string-breaking.html`). Each has a node test.
+- Fix during review: the tunnelling sampler had only local moves and gave ΔE between 0.25 and 0.67 (exact 0.571), depending on the seed. A kink-pair move (shift a stretch of path into the other well, kink-shaped edges, symmetric proposal) brings it to within a few %. The test now checks three seeds.
+- Also added `tests/xy-vortices.test.mjs`. It found that "add vortex pair" made two vortices of the same sign when the click hit a grid point exactly; fixed by putting the cores at cell centres.
+- Possible next rooms: SU(2) gauge field on a lattice (non-Abelian Wilson loops), quark model hadrons from SU(3) weights, a "Wick morph" video export.
 - Review gate: the user reviews every room before the repo goes public.

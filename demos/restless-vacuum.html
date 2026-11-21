@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Restless Vacuum</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+h2{font-size:18px;margin:0 0 8px}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid,.grid2{grid-template-columns:minmax(0,1fr)}}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 22px;margin-top:14px;align-items:end}
+@media (max-width:820px){.controls{grid-template-columns:minmax(0,1fr)}}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button{font:inherit;background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer}
+button.ghost{background:var(--bg);color:var(--ink);border-color:var(--line)}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.big{display:flex;flex-wrap:wrap;gap:4px 28px;align-items:baseline;margin:10px 0 4px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.big .n{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.big .l{font-size:12.5px;color:var(--muted)}
+.big .ok{font-size:13px;color:var(--chip-exact);font-weight:600}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:8px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.legend{display:grid;gap:4px;margin-top:12px;font-size:13px;color:var(--muted)}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>The Restless Vacuum</h1>
+<p class="sub">Take a field at its lowest energy. Nothing is added, nothing can be taken away. It still shakes. Put two walls close together, and the shaking leaves a tiny pull between them.</p>
+
+<section>
+<h2>1 · The field never sits still</h2>
+<h3>A chain of springs in its ground state <span class="chip c-exact">exact</span><span class="chip c-cartoon">cartoon</span></h3>
+<div class="grid">
+  <div>
+    <canvas id="string" data-h0="230" aria-label="A wiggling string: the field value at each site of the chain."></canvas>
+    <div class="cap"><span class="chip c-exact">exact</span> Each frame is a true sample of the ground state: every normal mode has the right Gaussian size. <span class="chip c-cartoon">cartoon</span> The smooth motion between frames is not real time evolution. It is a random walk that keeps the same statistics. Dashed lines: ± the exact spread. Shaded: the window of sites that is averaged.</div>
+  </div>
+  <div>
+    <canvas id="hist" data-h0="230" aria-label="Histogram of the field value at one site against the exact Gaussian."></canvas>
+    <div class="cap"><span class="chip c-sim">simulation</span> Bars: field value at the marked site, collected over time. <span class="chip c-exact">exact</span> Line: the Gaussian with variance (1/N) Σ 1/(2ω).</div>
+  </div>
+</div>
+
+<div class="big">
+  <div><div class="l">⟨φ²⟩ sampled (running)</div><div class="n" id="nSamp">…</div></div>
+  <div><div class="l">⟨φ²⟩ exact = (1/N) Σ 1/(2ω<sub>k</sub>)</div><div class="n" id="nExact">…</div></div>
+  <div class="ok" id="nOk"></div>
+</div>
+
+<div class="controls">
+  <label>mass m <b id="mV"></b><input id="mass" type="range" min="0.02" max="2" step="0.01" value="0.3"></label>
+  <label>chain length N <b id="NV"></b><input id="Nsl" type="range" min="64" max="256" step="32" value="128"></label>
+  <label>window w (sites) <b id="wV"></b><input id="win" type="range" min="1" max="32" step="1" value="8"></label>
+  <label>speed <b id="spV"></b><input id="speed" type="range" min="1" max="10" step="1" value="3"></label>
+</div>
+<div class="btns" style="margin-top:10px"><button id="play">Pause</button><button class="ghost" id="fresh">new exact snapshot</button><button class="ghost" id="clear">restart averages</button></div>
+<div class="predict"><b>Predict, then test:</b> make the field heavier (raise m). Does it jitter more or less? Then make the window wider. Does the average over many sites jitter more or less than one site?</div>
+
+<h3 style="margin-top:16px">Jitter of a local average <span class="chip c-sim">simulation</span><span class="chip c-exact">exact</span></h3>
+<canvas id="wplot" data-h0="230" aria-label="Spread of the window average against window width, log scales."></canvas>
+<div class="cap">Both axes are logarithmic. Line: the exact spread of the average over w sites. Small dots: measured for every w. Big dot: your window. Wider windows average the jitter away, but slowly.</div>
+<div class="read" id="wread"></div>
+</section>
+
+<section>
+<h2>2 · Every mode keeps some energy</h2>
+<h3>Zero-point energy per mode <span class="chip c-exact">exact</span></h3>
+<canvas id="modes" data-h0="200" aria-label="Bars of the zero-point energy half omega for each mode."></canvas>
+<div class="cap">Each bar is ½ω<sub>k</sub> for one wave on the chain. Short waves on the right, long waves on the left. No bar is zero. Even at zero temperature, every wave keeps a little energy.</div>
+<div class="read" id="mread"></div>
+</section>
+
+<section>
+<h2>3 · Two walls and a tiny pull</h2>
+<h3>Which waves fit between the walls? <span class="chip c-cartoon">cartoon</span><span class="chip c-exact">exact</span></h3>
+<div class="grid2">
+  <div>
+    <canvas id="cas" data-h0="220" aria-label="Two walls with standing waves between them."></canvas>
+    <div class="cap"><span class="chip c-cartoon">cartoon</span> Between the walls, only standing waves with zero value at both walls fit. Outside, any wave fits (drawn faint). The wave counts and energies below are <span class="chip c-exact">exact</span>.</div>
+  </div>
+  <div>
+    <canvas id="cplot" data-h0="220" aria-label="Casimir energy against wall distance."></canvas>
+    <div class="cap">Dots: exact Casimir energy E(L) − bulk − surface on the chain. Line: the continuum result −π/(24L). Big dot: your L.</div>
+  </div>
+</div>
+<div class="big">
+  <div><div class="l">L · (E − bulk − surface)</div><div class="n" id="cNum">…</div></div>
+  <div><div class="l">continuum −π/24</div><div class="n" id="cTarget">…</div></div>
+  <div class="ok" id="cOk"></div>
+</div>
+<div class="controls" style="grid-template-columns:minmax(0,1fr)">
+  <label>wall distance L (sites) <b id="LV"></b><input id="Lsl" type="range" min="3" max="60" step="1" value="12"></label>
+</div>
+<div class="predict"><b>Predict, then test:</b> halve L. Does the pull between the walls get 2 times, 4 times or 8 times stronger? Read the force below at L and at L/2.</div>
+<div class="read" id="cread"></div>
+</section>
+
+<section>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>the ground-state Gaussian, the sum over modes, the Casimir sum and its closed form</div>
+  <div><span class="chip c-sim">simulation</span>running averages and histograms of the random samples</div>
+  <div><span class="chip c-int">interpretation</span>"the vacuum shakes": the same field would show this in any measurement of φ at one instant</div>
+  <div><span class="chip c-cartoon">cartoon</span>the smooth motion between frames, and the drawing of the walls and waves</div>
+</div>
+<details><summary>What the numbers mean</summary>
+<p>The field is a chain of N sites. Each site has a value φ<sub>i</sub> and is joined to its neighbours by springs. The energy is <span class="eq">H = Σ ½π<sub>i</sub>² + ½(φ<sub>i+1</sub> − φ<sub>i</sub>)² + ½m²φ<sub>i</sub>²</span>. The mass m makes each site also feel a pull to zero. We use ħ = 1 and wave speed 1. The chain is a ring: it closes on itself, so the first and last sites are neighbours.</p>
+<p>The chain splits into independent waves (normal modes). The wave with wave number k has frequency <span class="eq">ω<sub>k</sub> = √(m² + 4 sin²(k/2))</span>. In the ground state every wave is in the lowest level of its own oscillator. Its amplitude is a Gaussian random number with variance 1/(2ω<sub>k</sub>). This is exact quantum mechanics. It means the field value at one site has the variance <span class="eq">⟨φ²⟩ = (1/N) Σ<sub>k</sub> 1/(2ω<sub>k</sub>)</span>.</p>
+<p>A heavy field has large ω<sub>k</sub> in all modes. So 1/(2ω) is small and the jitter is smaller. A light field jitters more, mostly in its long waves. With m = 0 the longest wave (k = 0) has no restoring force. We leave it out.</p>
+<p>The value of one site is a snapshot of a random number. Neighbouring sites are partly in step with each other, so averaging over w sites cuts the jitter, but only slowly. The exact spread of the average over w sites is computed from the same sum with an extra factor sin²(wk/2)/sin²(k/2).</p>
+<p>Each wave also holds the energy ½ω<sub>k</sub>. The sum E₀ = Σ ½ω<sub>k</sub> is the energy of the vacuum. It is never zero.</p>
+<p>Now put walls where φ = 0, a distance L apart. Only standing waves n = 1 … L−1 fit, with ω<sub>n</sub> = 2 sin(nπ/(2L)). The energy between the walls is <span class="eq">E(L) = ½ Σ ω<sub>n</sub> = Σ sin(nπ/(2L))</span>. The identity Σ sin(nx) = sin(Mx/2) sin((M+1)x/2) / sin(x/2) gives the closed form <span class="eq">E(L) = ½ (cot(π/(4L)) − 1)</span>. Expand it for large L: <span class="eq">E(L) = (2/π) L − ½ − π/(24L) + …</span>. The first term grows with L: it is the bulk energy. The second term is a fixed surface energy of the walls. Neither depends on the gap in a way that pulls. What is left is <span class="eq">−π/(24L)</span>, the Casimir energy. It gets more negative as L gets smaller. The force is <span class="eq">−dE/dL = −π/(24L²)</span>. Negative means attractive: the walls are pulled together.</p>
+<p>This is the lattice version of the Casimir effect. In real 3D electromagnetism, with metal plates, the force per area is −π²ħc/(240 L⁴). The idea is the same: leave out the waves that do not fit, and the energy depends on L.</p>
+<p>Caution on the picture. Subtracting bulk and surface energy is a choice made in the sum. On the lattice it is clean, because the closed form is exact. In a real experiment the plates are real objects, and only the L-dependent force is measured.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+function mulberry32(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+const TWO_PI=2*Math.PI;
+/* standard normal random number (Box-Muller) */
+function gauss(rng){let u=0;while(u===0)u=rng();const v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(TWO_PI*v)}
+/* mode frequency on the chain, hbar = 1 and wave speed 1 */
+function omegaK(k,m){const s=Math.sin(k/2);return Math.sqrt(m*m+4*s*s)}
+/* real normal modes of a ring of N sites. Mode q has frequency om[q] and shape U[q*N+i] (orthonormal).
+   s2[q] = ground-state variance of its amplitude = 1/(2 om). gam[q] = rate of the cartoon motion. */
+function modeSetup(N,m){
+  const om=new Float64Array(N),kk=new Float64Array(N),s2=new Float64Array(N),gam=new Float64Array(N),U=new Float64Array(N*N);
+  let q=0;
+  const put=(k,fn)=>{om[q]=omegaK(k,m);kk[q]=k;for(let i=0;i<N;i++)U[q*N+i]=fn(i);q++};
+  put(0,()=>1/Math.sqrt(N));
+  for(let j=1;2*j<N;j++){const k=TWO_PI*j/N,c=Math.sqrt(2/N);
+    put(k,i=>c*Math.cos(k*i));put(k,i=>c*Math.sin(k*i))}
+  if(N%2===0)put(Math.PI,i=>(i%2?-1:1)/Math.sqrt(N));
+  for(let r=0;r<N;r++){s2[r]=om[r]>1e-12?1/(2*om[r]):0;gam[r]=Math.max(om[r],0.6)}
+  return{N,m,om,kk,s2,gam,U}}
+/* exact <phi_0 phi_d> on a ring: (1/N) sum_j cos(k d)/(2 omega) (the zero mode is left out when m = 0) */
+function phiCovExact(N,m,d){let s=0;for(let j=0;j<N;j++){const k=TWO_PI*j/N,w=omegaK(k,m);if(w>1e-12)s+=Math.cos(k*d)/(2*w)}return s/N}
+function phiVarExact(N,m){return phiCovExact(N,m,0)}
+/* exact variance of the average of w neighbouring sites */
+function windowVarExact(N,m,w){let s=0;for(let j=0;j<N;j++){const k=TWO_PI*j/N,om=omegaK(k,m);if(om<=1e-12)continue;
+  let g;if(j===0)g=w*w;else{const a=Math.sin(w*k/2),b=Math.sin(k/2);g=a*a/(b*b)}
+  s+=g/(2*om)}return s/(N*w*w)}
+/* total zero-point energy of the ring: sum of omega/2 */
+function zeroPointEnergy(N,m){let s=0;for(let j=0;j<N;j++)s+=0.5*omegaK(TWO_PI*j/N,m);return s}
+function fieldFromAmps(ms,a,out){const N=ms.N,U=ms.U;out=out||new Float64Array(N);out.fill(0);
+  for(let q=0;q<N;q++){const aq=a[q],o=q*N;for(let i=0;i<N;i++)out[i]+=aq*U[o+i]}return out}
+/* one exact sample of the ground state: independent amplitudes */
+function sampleAmps(ms,rng,a){a=a||new Float64Array(ms.N);for(let q=0;q<ms.N;q++)a[q]=Math.sqrt(ms.s2[q])*gauss(rng);return a}
+function sampleField(ms,rng,out){return fieldFromAmps(ms,sampleAmps(ms,rng),out)}
+/* Ornstein-Uhlenbeck step per mode: keeps the ground-state variance exactly */
+function ouStep(a,s2,gam,dt,rng){for(let q=0;q<a.length;q++){const f=Math.exp(-gam[q]*dt);a[q]=a[q]*f+Math.sqrt(s2[q]*(1-f*f))*gauss(rng)}}
+/* add to acc[w] the mean over all N windows of (window average)^2, for w = 1..wmax. P is scratch of length 2N+1 */
+function windowAccumulate(phi,N,wmax,acc,P){P[0]=0;for(let i=0;i<2*N;i++)P[i+1]=P[i]+phi[i%N];
+  for(let w=1;w<=wmax;w++){let s=0;for(let i=0;i<N;i++){const d=P[i+w]-P[i];s+=d*d}acc[w]+=s/(N*w*w)}}
+/* Casimir: Dirichlet walls L sites apart, modes n = 1..L-1, omega_n = 2 sin(n pi/(2L)); E = (1/2) sum omega_n */
+function casimirSum(L){let s=0;for(let n=1;n<L;n++)s+=Math.sin(n*Math.PI/(2*L));return s}
+/* closed form from sum sin(n x) = sin(Mx/2) sin((M+1)x/2)/sin(x/2) with x = pi/(2L), M = L-1:  E = (cot(pi/(4L)) - 1)/2 */
+function casimirClosed(L){return 0.5*(1/Math.tan(Math.PI/(4*L))-1)}
+const CAS_A=2/Math.PI,CAS_B=-0.5; /* bulk energy per site, surface energy */
+function casimirRemainder(L){return casimirClosed(L)-CAS_A*L-CAS_B}
+function casimirForce(L){return -(casimirRemainder(L+1)-casimirRemainder(L-1))/2}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let N=128,m=0.3,wsz=8,speed=3,Lw=12,playing=!reduce;
+let ms,a,phi,rng=mulberry32(20240921);
+let P,accW,framesW=0,sumSq=0,cntSq=0,hist,histN=0,var0=0,site=0;
+const NB=41;
+let wExact=null;
+
+function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=+c.dataset.h0;
+  c.style.height=h+"px";
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);return{g,w,h}}
+
+function setup(){
+  N=+$("Nsl").value;m=+$("mass").value;
+  ms=modeSetup(N,m);a=sampleAmps(ms,rng);phi=fieldFromAmps(ms,a);
+  P=new Float64Array(2*N+1);
+  var0=phiVarExact(N,m);site=Math.floor(N/4);
+  const wm=$("win");wm.max=N/2;if(+wm.value>N/2)wm.value=N/2;wsz=+wm.value;
+  wExact=new Float64Array(N/2+1);for(let w=1;w<=N/2;w++)wExact[w]=windowVarExact(N,m,w);
+  resetStats();
+}
+function resetStats(){accW=new Float64Array(N/2+1);framesW=0;sumSq=0;cntSq=0;hist=new Float64Array(NB);histN=0}
+function measure(){
+  let s=0;for(let i=0;i<N;i++)s+=phi[i]*phi[i];sumSq+=s/N;cntSq++;
+  const R=4*Math.sqrt(var0),b=Math.floor((phi[site]+R)/(2*R)*NB);if(b>=0&&b<NB)hist[b]++;histN++;
+  windowAccumulate(phi,N,N/2,accW,P);framesW++;
+}
+function advance(){ouStep(a,ms.s2,ms.gam,0.08*speed,rng);fieldFromAmps(ms,a,phi);measure()}
+
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function drawString(){
+  const {g,w,h}=fit($("string")),pad=10,sc=(h/2-6)/3; // fixed scale: +-3 units
+  g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const X=i=>pad+(w-2*pad)*i/(N-1),Y=v=>h/2-v*sc,sd=Math.sqrt(var0);
+  g.strokeStyle="rgba(170,180,200,.25)";g.lineWidth=1;g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
+  g.setLineDash([4,4]);g.strokeStyle="rgba(94,234,212,.6)";
+  for(const s of[-1,1]){g.beginPath();g.moveTo(0,Y(s*sd));g.lineTo(w,Y(s*sd));g.stroke()}g.setLineDash([]);
+  // window
+  const w1=Math.min(site+wsz-1,N-1);let mean=0;for(let i=site;i<=w1;i++)mean+=phi[i];mean/=(w1-site+1);
+  g.fillStyle="rgba(251,146,60,.16)";g.fillRect(X(site),0,X(w1)-X(site),h);
+  g.strokeStyle="#fb923c";g.lineWidth=2.5;g.beginPath();g.moveTo(X(site),Y(mean));g.lineTo(X(w1),Y(mean));g.stroke();
+  // field
+  g.strokeStyle="#93c5fd";g.lineWidth=2;g.beginPath();
+  for(let i=0;i<N;i++){const x=X(i),y=Y(Math.max(-3.2,Math.min(3.2,phi[i])));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+  g.fillStyle="#fff";g.beginPath();g.arc(X(site),Y(phi[site]),4,0,7);g.fill();
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.textAlign="left";
+  g.fillText("φ = 0",4,h/2-4);g.fillText("± exact spread",4,Y(sd)-4);g.fillText("white dot: site in the histogram · orange: window average",4,h-6);
+}
+function drawHist(){
+  const {g,w,h}=fit($("hist")),Lm=8,Rm=w-8,Tm=14,Bm=h-26;g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const sd=Math.sqrt(var0),R=4*sd,bw=2*R/NB,X=v=>Lm+(Rm-Lm)*(v+R)/(2*R);
+  const pdf=v=>Math.exp(-v*v/(2*var0))/Math.sqrt(TWO_PI*var0);
+  let top=pdf(0);const dens=new Float64Array(NB);
+  for(let b=0;b<NB;b++){dens[b]=histN?hist[b]/(histN*bw):0;if(dens[b]>top)top=dens[b]}
+  top*=1.12;const Y=d=>Bm-(Bm-Tm)*d/top;
+  g.fillStyle="rgba(147,197,253,.55)";
+  for(let b=0;b<NB;b++){const x0=X(-R+b*bw),x1=X(-R+(b+1)*bw);g.fillRect(x0+0.5,Y(dens[b]),Math.max(1,x1-x0-1),Bm-Y(dens[b]))}
+  g.strokeStyle="#5eead4";g.lineWidth=2;g.beginPath();
+  for(let i=0;i<=120;i++){const v=-R+2*R*i/120,x=X(v),y=Y(pdf(v));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+  g.strokeStyle="rgba(170,180,200,.4)";g.lineWidth=1;g.beginPath();g.moveTo(Lm,Bm);g.lineTo(Rm,Bm);g.stroke();
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.textAlign="center";
+  for(const k of[-3,-2,-1,0,1,2,3]){g.fillText(k+"σ",X(k*sd),Bm+14)}
+  g.textAlign="right";g.fillStyle="#5eead4";g.fillText("exact Gaussian",Rm,Tm+2);g.fillStyle="#93c5fd";g.fillText("measured at one site",Rm,Tm+15);
+}
+function logPlotAxes(g,w,h,xmin,xmax,ymin,ymax){
+  const Lm=46,Rm=w-12,Tm=12,Bm=h-30;
+  const X=v=>Lm+(Rm-Lm)*Math.log(v/xmin)/Math.log(xmax/xmin),Y=v=>Bm-(Bm-Tm)*Math.log(v/ymin)/Math.log(ymax/ymin);
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.strokeStyle="rgba(170,180,200,.22)";g.lineWidth=1;
+  g.textAlign="center";for(let v=1;v<=xmax;v*=2){g.beginPath();g.moveTo(X(v),Tm);g.lineTo(X(v),Bm);g.stroke();g.fillText(String(v),X(v),Bm+13)}
+  g.fillText("window width w (sites)",(Lm+Rm)/2,h-3);
+  g.textAlign="right";for(let e=Math.ceil(Math.log10(ymin));Math.pow(10,e)<=ymax;e++){const v=Math.pow(10,e);g.beginPath();g.moveTo(Lm,Y(v));g.lineTo(Rm,Y(v));g.stroke();g.fillText(String(+v.toPrecision(2)),Lm-4,Y(v)+4)}
+  g.save();g.translate(11,(Tm+Bm)/2);g.rotate(-Math.PI/2);g.textAlign="center";g.fillText("spread of the average",0,0);g.restore();
+  return{X,Y,Lm,Rm,Tm,Bm};
+}
+function drawWplot(){
+  const {g,w,h}=fit($("wplot"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const W=N/2,sdOf=v=>Math.sqrt(Math.max(v,1e-300));
+  let lo=1e9,hi=0;for(let k=1;k<=W;k++){const v=sdOf(wExact[k]);lo=Math.min(lo,v);hi=Math.max(hi,v)}
+  const ymin=Math.pow(10,Math.floor(Math.log10(lo*0.7))),ymax=Math.pow(10,Math.ceil(Math.log10(hi*1.2)));
+  const A=logPlotAxes(g,w,h,1,Math.max(W,2),ymin,Math.max(ymax,ymin*10));
+  g.strokeStyle="#5eead4";g.lineWidth=2;g.beginPath();
+  for(let k=1;k<=W;k++){const x=A.X(k),y=A.Y(sdOf(wExact[k]));k>1?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+  if(framesW){g.fillStyle="rgba(147,197,253,.75)";
+    for(let k=1;k<=W;k++){const v=sdOf(accW[k]/framesW);g.beginPath();g.arc(A.X(k),A.Y(v),k===wsz?0:2,0,7);g.fill()}
+    const v=sdOf(accW[wsz]/framesW);g.fillStyle="#fb923c";g.beginPath();g.arc(A.X(wsz),A.Y(v),5.5,0,7);g.fill()}
+  g.textAlign="right";g.fillStyle="#5eead4";g.fillText("exact",A.Rm-4,A.Tm+12);g.fillStyle="#93c5fd";g.fillText("measured",A.Rm-4,A.Tm+25);
+}
+function drawModes(){
+  const {g,w,h}=fit($("modes")),Lm=44,Rm=w-10,Tm=12,Bm=h-30;g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const nb=N/2+1,e=j=>0.5*omegaK(TWO_PI*j/N,m);let top=0;for(let j=0;j<nb;j++)top=Math.max(top,e(j));top*=1.1;
+  const bwid=(Rm-Lm)/nb;
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.strokeStyle="rgba(170,180,200,.22)";g.lineWidth=1;g.textAlign="right";
+  for(let t=0;t<=4;t++){const v=top*t/4,y=Bm-(Bm-Tm)*t/4;g.beginPath();g.moveTo(Lm,y);g.lineTo(Rm,y);g.stroke();g.fillText(v.toFixed(2),Lm-4,y+4)}
+  for(let j=0;j<nb;j++){const v=e(j),y=Bm-(Bm-Tm)*v/top;g.fillStyle=`hsl(${200-90*j/nb},75%,65%)`;g.fillRect(Lm+j*bwid+0.5,y,Math.max(1,bwid-1),Bm-y)}
+  g.fillStyle="rgba(255,255,255,.6)";g.textAlign="center";
+  g.fillText("wave number k:  0 (long wave)",Lm+90,h-4);g.fillText("π (shortest wave)",Rm-60,h-4);
+  g.save();g.translate(11,(Tm+Bm)/2);g.rotate(-Math.PI/2);g.fillText("energy ½ω",0,0);g.restore();
+}
+function drawCas(){
+  const {g,w,h}=fit($("cas"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const u=(w-30)/72,cx=w/2,x0=cx-Lw*u/2,x1=cx+Lw*u/2,mid=h/2,amp=h*0.32;
+  // outside: any wavelength fits (faint cartoon)
+  g.lineWidth=1.2;
+  for(let r=0;r<4;r++){g.strokeStyle="rgba(170,180,200,.22)";const lam=(10+r*7)*u/1.4,sg=r%2?1:-1;
+    for(const [xa,xb] of [[0,x0-6],[x1+6,w]]){g.beginPath();
+      for(let x=xa;x<=xb;x+=2){const y=mid+amp*0.5*Math.sin((x-x0)/lam*TWO_PI+r*1.3)*sg;x===xa?g.moveTo(x,y):g.lineTo(x,y)}g.stroke()}}
+  // inside: standing waves n = 1..
+  const nShow=Math.min(Lw-1,5),cols=["#5eead4","#93c5fd","#d8b4fe","#fcd34d","#fb923c"];
+  for(let n=1;n<=nShow;n++){g.strokeStyle=cols[n-1];g.lineWidth=2;g.beginPath();
+    for(let i=0;i<=80;i++){const x=x0+(x1-x0)*i/80,y=mid-amp*0.9*Math.sin(n*Math.PI*i/80)/n**0.5;i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
+  g.fillStyle="#e7e8ea";g.fillRect(x0-4,10,5,h-20);g.fillRect(x1-1,10,5,h-20);
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.7)";g.textAlign="center";
+  g.fillText("L = "+Lw+" sites",cx,h-4);g.fillText(`${Lw-1} waves fit (n = 1 … ${Lw-1}), first ${nShow} drawn`,cx,14);
+  g.textAlign="left";g.fillText("outside: any wave fits",6,h-4);
+}
+function drawCplot(){
+  const {g,w,h}=fit($("cplot")),Lm=48,Rm=w-12,Tm=12,Bm=h-30,Lmin=3,Lmax=40;g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const lo=casimirRemainder(Lmin)*1.15,X=v=>Lm+(Rm-Lm)*(v-Lmin)/(Lmax-Lmin),Y=v=>Tm+(Bm-Tm)*v/lo;
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.strokeStyle="rgba(170,180,200,.22)";g.lineWidth=1;
+  g.textAlign="center";for(let v=5;v<=Lmax;v+=5){g.beginPath();g.moveTo(X(v),Tm);g.lineTo(X(v),Bm);g.stroke();g.fillText(String(v),X(v),Bm+13)}
+  g.fillText("wall distance L",(Lm+Rm)/2,h-3);
+  g.textAlign="right";for(let t=0;t<=4;t++){const v=lo*t/4,y=Y(v);g.beginPath();g.moveTo(Lm,y);g.lineTo(Rm,y);g.stroke();g.fillText(v.toFixed(3),Lm-4,y+4)}
+  g.save();g.translate(11,(Tm+Bm)/2);g.rotate(-Math.PI/2);g.textAlign="center";g.fillText("E − bulk − surface",0,0);g.restore();
+  g.strokeStyle="#5eead4";g.lineWidth=2;g.beginPath();
+  for(let i=0;i<=100;i++){const L=Lmin+(Lmax-Lmin)*i/100,x=X(L),y=Y(-Math.PI/(24*L));i?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+  g.fillStyle="#93c5fd";for(let L=Lmin;L<=Lmax;L++){g.beginPath();g.arc(X(L),Y(casimirRemainder(L)),2.6,0,7);g.fill()}
+  const Lc=Math.max(Lmin,Math.min(Lmax,Lw));g.fillStyle="#fb923c";g.beginPath();g.arc(X(Lc),Y(casimirRemainder(Lc)),6,0,7);g.fill();
+  g.textAlign="right";g.fillStyle="#5eead4";g.fillText("continuum −π/(24L)",Rm-4,Bm-22);g.fillStyle="#93c5fd";g.fillText("exact on the chain",Rm-4,Bm-9);
+}
+const f4=v=>isFinite(v)?v.toFixed(4):"…";
+function readSamp(){
+  const meas=cntSq?sumSq/cntSq:NaN,sd=Math.sqrt(var0);
+  $("nSamp").textContent=f4(meas);$("nExact").textContent=var0.toFixed(4);
+  const rel=Math.abs(meas/var0-1)*100;$("nOk").textContent=cntSq>20?`off by ${rel.toFixed(1)} % after ${cntSq} frames`:"collecting…";
+  const mw=framesW?Math.sqrt(accW[wsz]/framesW):NaN;
+  $("wread").innerHTML=`<div><span>one site: spread √⟨φ²⟩ exact </span><b>${sd.toFixed(4)}</b></div>
+   <div><span>average over w = ${wsz} sites: measured </span><b>${f4(mw)}</b> <span>· exact </span><b>${Math.sqrt(wExact[wsz]).toFixed(4)}</b></div>
+   <div><span>ratio window/one site (exact) </span><b>${(Math.sqrt(wExact[wsz])/sd).toFixed(3)}</b></div>`;
+}
+function readStatic(){
+  $("mV").textContent=m.toFixed(2);$("NV").textContent=N;$("wV").textContent=wsz;$("spV").textContent=speed;$("LV").textContent=Lw;
+  const E0=zeroPointEnergy(N,m);
+  $("mread").innerHTML=`<div><span>smallest bar ½ω<sub>min</sub> = </span><b>${(0.5*m).toFixed(3)}</b> <span>(never zero for m &gt; 0)</span></div>
+   <div><span>vacuum energy E₀ = Σ ½ω<sub>k</sub> over all ${N} modes = </span><b>${E0.toFixed(3)}</b></div>`;
+  const E=casimirSum(Lw),Ec=E-CAS_A*Lw-CAS_B,F=casimirForce(Lw),Fc=-Math.PI/(24*Lw*Lw),x=Lw*Ec;
+  $("cNum").textContent=x.toFixed(4);$("cTarget").textContent=(-Math.PI/24).toFixed(4);
+  $("cOk").textContent=`off by ${(Math.abs(x/(-Math.PI/24)-1)*100).toFixed(2)} % at L = ${Lw}`;
+  $("cread").innerHTML=`<div><span>E(L) = ½Σω<sub>n</sub> direct sum </span><b>${E.toFixed(5)}</b> <span>· closed form </span><b>${casimirClosed(Lw).toFixed(5)}</b></div>
+   <div><span>bulk (2/π)L = </span><b>${(CAS_A*Lw).toFixed(5)}</b> <span>· surface = </span><b>−0.5</b> <span>· remainder E − bulk − surface = </span><b>${Ec.toFixed(5)}</b> <span>· −π/(24L) = </span><b>${(-Math.PI/(24*Lw)).toFixed(5)}</b></div>
+   <div><span>force −dE/dL on the chain </span><b>${F.toFixed(5)}</b> <span>· continuum −π/(24L²) </span><b>${Fc.toFixed(5)}</b> <span>(negative: attractive)</span></div>`;
+}
+function drawStatic(){drawModes();drawCas();drawCplot();readStatic()}
+function drawDynamic(){drawString();drawHist();drawWplot();readSamp()}
+let last=0;
+function frame(t){if(playing&&t-last>=16){last=t;advance();drawDynamic()}requestAnimationFrame(frame)}
+
+function paramChange(){setup();drawStatic();drawDynamic()}
+$("mass").addEventListener("input",paramChange);
+$("Nsl").addEventListener("input",paramChange);
+$("win").addEventListener("input",e=>{wsz=+e.target.value;readStatic();drawDynamic()});
+$("speed").addEventListener("input",e=>{speed=+e.target.value;readStatic()});
+$("Lsl").addEventListener("input",e=>{Lw=+e.target.value;drawStatic()});
+$("play").onclick=()=>{if(reduce){for(let i=0;i<20;i++)advance();drawDynamic();return}playing=!playing;$("play").textContent=playing?"Pause":"Play"};
+$("fresh").onclick=()=>{sampleAmps(ms,rng,a);fieldFromAmps(ms,a,phi);measure();drawDynamic()};
+$("clear").onclick=()=>{resetStats();drawDynamic()};
+addEventListener("resize",()=>{drawStatic();drawDynamic()});
+
+setup();readStatic();
+for(let i=0;i<30;i++)advance();
+drawStatic();drawDynamic();
+if(reduce)$("play").textContent="Run 20 steps";
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

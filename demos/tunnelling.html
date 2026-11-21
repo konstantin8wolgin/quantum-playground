@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tunnelling in Imaginary Time</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:18px;margin:0 0 8px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px;touch-action:none}
+.grid3{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.grid2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:820px){.grid3,.grid2{grid-template-columns:minmax(0,1fr)}}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 22px;margin-top:14px;align-items:end}
+@media (max-width:700px){.controls{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button{font:inherit;background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+button.ghost{background:var(--bg);color:var(--ink);border-color:var(--line)}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.legend{display:grid;gap:4px;margin-top:12px;font-size:13px;color:var(--muted)}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+.big{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;margin:6px 0 12px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.big .n{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.big .l{font-size:12px;color:var(--muted);display:block}
+.big .ok{color:var(--chip-exact)}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Tunnelling in Imaginary Time</h1>
+<p class="sub">Quantum amplitudes are turning arrows. Turn time by 90° in the complex plane, and the arrows stop turning: they become plain positive weights. Then a computer can draw paths like a random walk, and you can watch a particle tunnel as a kink in the path.</p>
+
+<section>
+<h2>1 · Turn time into space</h2>
+<h3>A fan of paths <span class="chip c-exact">exact</span><span class="chip c-cartoon">cartoon</span></h3>
+<div class="grid3">
+  <div>
+    <canvas id="fan" data-r="0.78" aria-label="Fan of paths from a start point to an end point"></canvas>
+    <div class="cap">Paths from A to B: a straight line plus a sine bump of size c. Colour = phase of the weight. Brightness = its length.</div>
+  </div>
+  <div>
+    <canvas id="wheel" data-r="1" aria-label="Weights of all paths as arrows from one centre"></canvas>
+    <div class="cap">All weights <span class="eq">e<sup>iS/ħ</sup></span> from one centre. Real time: all on the unit circle. Imaginary time: all on the positive axis.</div>
+  </div>
+  <div>
+    <canvas id="chain" data-r="1" aria-label="Arrows added head to tail"></canvas>
+    <div class="cap">The same arrows added head to tail (c from −2.5 to 2.5). White: the sum. Cyan dot: the exact Gaussian integral over c.</div>
+  </div>
+</div>
+<div class="controls">
+  <label>rotation angle θ <b id="thV"></b><input id="theta" type="range" min="0" max="90" step="1" value="0"></label>
+  <div class="btns"><button id="morph">Rotate time</button><button class="ghost" id="th0">θ = 0 (real)</button><button class="ghost" id="th90">θ = 90° (imaginary)</button></div>
+  <div class="cap">Time is <span class="eq">t = τ·e<sup>−iθ</sup></span>. The weight is <span class="eq">exp(iS/ħ)</span> with this t.</div>
+</div>
+<div class="read" id="read1"></div>
+<div class="predict"><b>Predict, then test:</b> at θ = 0, do the arrows add up to a big arrow or a small one? Slide θ to 90°. Which paths now dominate: the straight line, or the wild ones? Does the sum arrow turn, or stay on the positive axis?</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>each weight: the action of a line-plus-bump path is <span class="eq">S = m(Δ² + π²c²/2)/(2t)</span>, put in as a formula with complex t. The cyan dot is the closed-form Gaussian integral.</div>
+  <div><span class="chip c-cartoon">cartoon</span>only a one-parameter family of paths (the bump size c). The true path integral sums over all wiggles. So the fan sum has the right shape, not the right size.</div>
+</div>
+<details><summary>What the numbers mean</summary>
+<p>With real time t, each path has weight <span class="eq">e<sup>iS/ħ</sup></span>, a unit arrow. Its angle is the action. Paths with a big bump have a big action, so their arrows spin fast and cancel. This is interference.</p>
+<p>Put <span class="eq">t = τe<sup>−iθ</sup></span>. Then <span class="eq">iS/ħ = (q)(−sinθ + i cosθ)</span>, with <span class="eq">q = m(Δ²+π²c²/2)/(2ħτ)</span>. The arrow length is <span class="eq">e<sup>−q sinθ</sup></span>. The turning rate is <span class="eq">q cosθ</span>. At θ = 90° the turning stops. The weight is <span class="eq">e<sup>−S<sub>E</sub>/ħ</sup></span>, a positive number. A path far from the straight line is suppressed. Now the sum is a statistics problem.</p>
+<p>The free-particle propagator is <span class="eq">K = √(m/(2πiħt)) · exp(imΔ²/(2ħt))</span>. At θ = 90° it becomes <span class="eq">√(m/(2πħτ)) · e<sup>−mΔ²/(2ħτ)</sup></span>. This is the heat kernel: diffusion of a random walker. The row "K" below the plots shows this exact formula.</p>
+<p>The Gaussian integral over c has a closed form, <span class="eq">√(π/A)</span>, with <span class="eq">A = (mπ²/4ħτ)(sinθ − i cosθ)</span>. At θ = 0 the integral converges only because of the oscillation (a Fresnel integral). The finite sum (51 paths) cuts the spiral, so it differs a little there.</p>
+</details>
+</section>
+
+<section>
+<h2>2 · Watch a particle tunnel</h2>
+<div class="big" id="big"></div>
+<h3>Imaginary-time paths in a double well <span class="chip c-sim">simulation</span><span class="chip c-exact">exact</span><span class="chip c-cartoon">cartoon</span></h3>
+<div class="grid2">
+  <div>
+    <canvas id="pth" data-r="0.62" aria-label="Live imaginary time path in a double well with an ideal kink overlay"></canvas>
+    <div class="cap">White line: one live Monte-Carlo path <span class="eq">x(τ)</span>, periodic in τ. It sits in one well (dashed lines at ±a) and jumps. Each jump is a kink (instanton) or an anti-kink. Cyan: the exact classical kink <span class="eq">a·tanh(ω(τ−τ₀)/2)</span>, placed on the first jump.</div>
+  </div>
+  <div>
+    <canvas id="cor" data-r="0.78" aria-label="Correlator of x with a fit"></canvas>
+    <div class="cap"><span class="chip c-sim">simulation</span>Dots: measured <span class="eq">⟨x(0)x(τ)⟩/⟨x²⟩</span> (log scale). Line: fit with <span class="eq">e<sup>−ΔEτ/ħ</sup></span>. Dashed: the exact ΔE from diagonalisation.</div>
+  </div>
+</div>
+<div class="controls">
+  <label>barrier steepness λ (V = λ(x²−a²)², a = 1) <b id="lamV"></b><input id="lam" type="range" min="1.5" max="6" step="0.1" value="3"></label>
+  <label>path length β (total imaginary time) <b id="betaV"></b><input id="beta" type="range" min="4" max="14" step="0.5" value="10"></label>
+  <label>Planck constant ħ (m = 1) <b id="hbV"></b><input id="hbar" type="range" min="0.5" max="1.5" step="0.05" value="1"></label>
+  <label>sweeps per frame <b id="sV"></b><input id="spf" type="range" min="1" max="30" step="1" value="10"></label>
+  <div class="btns"><button id="play">Pause</button><button class="ghost" id="restart">restart</button></div>
+</div>
+<div class="read" id="read2"></div>
+<div class="predict"><b>Predict, then test:</b> raise λ, so the barrier gets higher. Do the jumps get rarer? By how much does ΔE fall: a little, or by a big factor for a small change? Then make ħ larger. Does the particle tunnel more or less? (Watch e<sup>−S₀/ħ</sup> in the numbers.)</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>paths and correlator: Metropolis sampling of a periodic path with N slices (local moves, short block shifts, a move that shifts a whole stretch of the path into the other well (this makes and removes kink pairs), and a global flip x→−x, which is an exact symmetry)</div>
+  <div><span class="chip c-exact">exact</span>ΔE = E₁ − E₀ from diagonalising the Hamiltonian on a 400-point grid (finite differences); kink shape; S₀</div>
+  <div><span class="chip c-int">interpretation</span>"instanton gas": the semiclassical ΔE formula is only approximate. It is good when S₀/ħ is large (many times 1).</div>
+  <div><span class="chip c-cartoon">cartoon</span>the cyan kink is the classical solution, drawn by hand on the live path. The live path is noisy, so it only follows it roughly.</div>
+</div>
+<details><summary>What the numbers mean</summary>
+<p>The particle has mass 1 in the potential <span class="eq">V(x) = λ(x²−a²)²</span>. It has two wells, at x = ±a. In imaginary time the weight of a path is <span class="eq">e<sup>−S<sub>E</sub>/ħ</sup></span>, with <span class="eq">S<sub>E</sub> = ∫[ẋ²/2 + V(x)]dτ</span>. Now the potential is turned upside down in the equation of motion: <span class="eq">ẍ = V′(x)</span>. A solution that rolls from −a to +a is the kink.</p>
+<p>First integral: <span class="eq">ẋ²/2 = V</span>. So <span class="eq">ẋ = √(2λ)(a²−x²)</span>. The solution is <span class="eq">x = a·tanh(ωτ/2)</span> with <span class="eq">ω = 2a√(2λ) = √(8λa²)</span>. This ω is also the oscillation frequency at the bottom of one well, since <span class="eq">V″(a) = 8λa²</span>.</p>
+<p>The instanton action is <span class="eq">S₀ = ∫<sub>−a</sub><sup>a</sup> √(2V) dx = √(2λ)·(4a³/3) = (4√2/3)·√λ·a³</span>. One kink costs the factor <span class="eq">e<sup>−S₀/ħ</sup></span>. The page shows S₀ from a numerical integral and from this formula.</p>
+<p>The two lowest levels are a symmetric and an antisymmetric state. Their gap ΔE = E₁ − E₀ is the tunnelling splitting. A particle that starts in the left well oscillates between the wells with period 2πħ/ΔE. In imaginary time, the correlator <span class="eq">⟨x(0)x(τ)⟩</span> falls like <span class="eq">e<sup>−ΔEτ/ħ</sup></span>, since every kink flips the sign of x.</p>
+<p>Semiclassical (instanton gas) estimate: <span class="eq">ΔE ≈ 2ħω·√(6S₀/(πħ))·e<sup>−S₀/ħ</sup></span>. This is approximate: it ignores corrections of order ħ/S₀. For a dilute gas of kinks, the number of kinks on a path of length β is about <span class="eq">βΔE/(2ħ)</span>.</p>
+<p>Errors you can see: the path has N slices, so the step is ε = β/N. A big ε adds a small error to ΔE. The Monte-Carlo fit also has noise. For a very high barrier, jumps are so rare that the sampler needs a long time. That is the same physics: tunnelling is slow.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+function mulberry32(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+
+/* ---------- Part 1: Wick rotation of a free particle, fan of paths ---------- */
+/* complex numbers are [re, im] pairs */
+function cexp(z){const e=Math.exp(z[0]);return[e*Math.cos(z[1]),e*Math.sin(z[1])]}
+function csqrt(z){const r=Math.hypot(z[0],z[1]);if(r===0)return[0,0];const re=Math.sqrt((r+z[0])/2);let im=Math.sqrt(Math.max(0,(r-z[0])/2));if(z[1]<0)im=-im;return[re,im]}
+function cdiv(a,b){const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]}
+function cmul(a,b){return[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]]}
+/* rotated time t = tau e^{-i theta} */
+function rotTime(tau,theta){return[tau*Math.cos(theta),-tau*Math.sin(theta)]}
+/* action of path x(u)=Delta u + c sin(pi u), u in [0,1], duration t (complex): S = m(Delta^2+pi^2 c^2/2)/(2t) */
+function pathQ(m,hbar,tau,Delta,c){return m*(Delta*Delta+Math.PI*Math.PI*c*c/2)/(2*hbar*tau)}
+/* weight exp(i S/hbar) with t = tau e^{-i theta}: exponent q(-sin th + i cos th) */
+function fanWeight(m,hbar,tau,theta,Delta,c){const q=pathQ(m,hbar,tau,Delta,c);
+  return cexp([-q*Math.sin(theta),q*Math.cos(theta)])}
+/* M paths, c from -cmax..cmax (midpoint rule); returns weights, chain points, sum (times dc) */
+function fanSum(m,hbar,tau,theta,Delta,cmax,M){const dc=2*cmax/M,w=[],cs=[],pts=[[0,0]];let sr=0,si=0;
+  for(let k=0;k<M;k++){const c=-cmax+(k+0.5)*dc,z=fanWeight(m,hbar,tau,theta,Delta,c);
+    w.push(z);cs.push(c);sr+=z[0]*dc;si+=z[1]*dc;pts.push([sr,si])}
+  return{w,cs,pts,sum:[sr,si],dc}}
+/* closed-form integral over all c: exp(i m Delta^2/(2 hbar t)) * sqrt(pi/A), A=(m pi^2/(4 hbar tau))(sin th - i cos th) */
+function gaussFan(m,hbar,tau,theta,Delta){const q0=m*Delta*Delta/(2*hbar*tau),kap=m*Math.PI*Math.PI/(4*hbar*tau);
+  const A=[kap*Math.sin(theta),-kap*Math.cos(theta)];
+  const pre=cexp([-q0*Math.sin(theta),q0*Math.cos(theta)]);
+  return cmul(pre,csqrt(cdiv([Math.PI,0],A)))}
+/* exact free propagator with complex time t = tau e^{-i theta} */
+function propK(m,hbar,tau,theta,Delta){const t=rotTime(tau,theta);
+  const it=[-t[1],t[0]];                                   /* i*t */
+  const pre=csqrt(cdiv([m/(2*Math.PI*hbar),0],it));
+  const ex=cexp(cmul([0,m*Delta*Delta/(2*hbar)],cdiv([1,0],t)));
+  return cmul(pre,ex)}
+/* heat kernel (diffusion) */
+function heatKernel(m,hbar,tau,Delta){return Math.sqrt(m/(2*Math.PI*hbar*tau))*Math.exp(-m*Delta*Delta/(2*hbar*tau))}
+
+/* ---------- Part 2: double well V = lam (x^2 - a^2)^2, m = 1 ---------- */
+function potV(x,lam,a){const u=x*x-a*a;return lam*u*u}
+function potDV(x,lam,a){return 4*lam*x*(x*x-a*a)}
+function omegaWell(lam,a){return Math.sqrt(8*lam*a*a)}
+function S0Closed(lam,a){return 4*Math.sqrt(2)/3*Math.sqrt(lam)*a*a*a}
+/* S0 = integral of sqrt(2V) dx from -a to a, Simpson */
+function S0Numeric(lam,a,n){n=n||2000;if(n%2)n++;const h=2*a/n;let s=0;
+  for(let i=0;i<=n;i++){const x=-a+i*h,f=Math.sqrt(2*potV(x,lam,a)),wgt=(i===0||i===n)?1:(i%2?4:2);s+=wgt*f}
+  return s*h/3}
+function kinkX(tau,tau0,lam,a){return a*Math.tanh(omegaWell(lam,a)*(tau-tau0)/2)}
+/* residual of x'' - V'(x) for the kink, by a second difference of the exact profile */
+function kinkResidual(tau,tau0,lam,a,h){h=h||1e-3;
+  const xpp=(kinkX(tau+h,tau0,lam,a)-2*kinkX(tau,tau0,lam,a)+kinkX(tau-h,tau0,lam,a))/(h*h);
+  return xpp-potDV(kinkX(tau,tau0,lam,a),lam,a)}
+/* semiclassical (instanton gas) splitting, approximate */
+function deltaESemi(lam,a,hbar){const w=omegaWell(lam,a),S0=S0Closed(lam,a);
+  return 2*hbar*w*Math.sqrt(6*S0/(Math.PI*hbar))*Math.exp(-S0/hbar)}
+
+/* symmetric tridiagonal eigenvalues by Sturm-sequence bisection */
+function sturmCount(d,e,x){let cnt=0,q=d[0]-x;if(q<0)cnt++;
+  for(let i=1;i<d.length;i++){if(q===0)q=1e-300;q=d[i]-x-e[i-1]*e[i-1]/q;if(q<0)cnt++}return cnt}
+function tridiagEig(d,e,k){let lo=Infinity,hi=-Infinity,n=d.length;
+  for(let i=0;i<n;i++){const r=(i>0?Math.abs(e[i-1]):0)+(i<n-1?Math.abs(e[i]):0);lo=Math.min(lo,d[i]-r);hi=Math.max(hi,d[i]+r)}
+  for(let it=0;it<200&&hi-lo>1e-13*Math.max(1,Math.abs(hi));it++){const mid=(lo+hi)/2;
+    if(sturmCount(d,e,mid)>k)hi=mid;else lo=mid}
+  return(lo+hi)/2}
+/* H = -hbar^2/(2m) d^2/dx^2 + V on N points in [-L, L]; returns the lowest nev eigenvalues */
+function gridSpectrum(Vf,hbar,m,N,L,nev){const h=2*L/(N+1),off=-hbar*hbar/(2*m*h*h),d=new Float64Array(N),e=new Float64Array(N-1).fill(off);
+  for(let i=0;i<N;i++)d[i]=-2*off+Vf(-L+(i+1)*h);
+  const out=[];for(let k=0;k<nev;k++)out.push(tridiagEig(d,e,k));return out}
+function splittingExact(lam,a,hbar,N){
+  const ev=gridSpectrum(x=>potV(x,lam,a),hbar,1,N||400,Math.max(2.4*a,a+6*Math.sqrt(hbar/Math.sqrt(8*lam*a*a))),2);
+  return{E0:ev[0],E1:ev[1],dE:ev[1]-ev[0]}}
+
+/* Metropolis sampling of a periodic path, N slices, total length beta, weight exp(-S_E/hbar) */
+function makePath(N,beta,lam,a,hbar,seed){const rng=mulberry32(seed),x=new Float64Array(N).fill(a);
+  return{N,beta,eps:beta/N,lam,a,hbar,x,rng,acc:0,tries:0}}
+function sweepPath(p){const N=p.N,x=p.x,eps=p.eps,lam=p.lam,a=p.a,hb=p.hbar,rng=p.rng,ih=1/(2*eps*hb);
+  const s1=1.3*Math.sqrt(hb*eps),s2=0.45*a;
+  for(let i=0;i<N;i++){const im=i?i-1:N-1,ip=i+1<N?i+1:0,xo=x[i],xn=xo+(rng()*2-1)*(rng()<0.6?s1:s2),pr=x[im],nx=x[ip];
+    const dS=((xn-pr)*(xn-pr)+(nx-xn)*(nx-xn)-(xo-pr)*(xo-pr)-(nx-xo)*(nx-xo))*ih+eps*(potV(xn,lam,a)-potV(xo,lam,a))/hb;
+    p.tries++;if(dS<=0||rng()<Math.exp(-dS)){x[i]=xn;p.acc++}}
+  /* short block shifts: move l neighbouring slices together by the same amount */
+  const nb=Math.max(1,Math.floor(N/8)),lmax=Math.max(2,Math.min(24,Math.floor(N/4)));
+  for(let b=0;b<nb;b++){const l=2+Math.floor(rng()*(lmax-1)),i0=Math.floor(rng()*N),dl=(rng()*2-1)*1.2*Math.sqrt(hb*eps)*Math.min(3,Math.sqrt(l));
+    const ia=(i0-1+N)%N,ib=(i0+l)%N;let dV=0;
+    for(let j=0;j<l;j++){const k=(i0+j)%N;dV+=potV(x[k]+dl,lam,a)-potV(x[k],lam,a)}
+    const f=x[i0],g=x[(i0+l-1)%N];
+    const dK=(((f+dl-x[ia])**2-(f-x[ia])**2)+((x[ib]-g-dl)**2-(x[ib]-g)**2))*ih;
+    const dS=dK+eps*dV/hb;p.tries++;
+    if(dS<=0||rng()<Math.exp(-dS)){for(let j=0;j<l;j++)x[(i0+j)%N]+=dl;p.acc++}}
+  /* kink-pair move: shift a segment by sigma*2a*b(t), with b a smooth bump whose edges have the classical
+     kink shape. The shift vector is fixed for given (start, length) and sigma = +-1 is chosen at random,
+     so the proposal is symmetric and Metropolis keeps the exact weight. It creates and removes
+     instanton/anti-instanton pairs, which local moves almost never do. */
+  const om=Math.sqrt(8*lam*a*a),mg=Math.min(Math.floor(N/4),Math.ceil(6/(om*eps))),ox=new Float64Array(N);
+  for(let tr=0;tr<6;tr++){const ls=1+Math.floor(rng()*(N/2)),W=ls+2*mg;if(W>=N-2)continue;
+    const i0=Math.floor(rng()*N),sg=(rng()<0.5?-2:2)*a,t1=mg*eps,t2=(mg+ls)*eps;
+    let dS=0;
+    for(let j=0;j<W;j++){const k=(i0+j)%N,t=(j+0.5)*eps,bj=0.5*(Math.tanh(om*(t-t1)/2)-Math.tanh(om*(t-t2)/2));
+      ox[j]=x[k]+sg*bj;dS+=eps*(potV(ox[j],lam,a)-potV(x[k],lam,a))/hb}
+    for(let j=-1;j<W;j++){const ka=(i0+j+N)%N,kb=(i0+j+1)%N,xa=j<0?x[ka]:ox[j],xb=j+1<W?ox[j+1]:x[kb];
+      dS+=((xb-xa)*(xb-xa)-(x[kb]-x[ka])*(x[kb]-x[ka]))*ih}
+    p.tries++;if(dS<=0||rng()<Math.exp(-dS)){for(let j=0;j<W;j++)x[(i0+j)%N]=ox[j];p.acc++}}
+  if(rng()<0.1)for(let i=0;i<N;i++)x[i]=-x[i]; /* exact symmetry V(-x)=V(x) */
+}
+/* kinks: crossings between the two wells, cyclic, with a dead zone |x| < a/2. Returns centres in tau. */
+function kinkCenters(x,a,eps){const N=x.length,idx=[],st=[];
+  for(let i=0;i<N;i++){if(x[i]>a/2){idx.push(i);st.push(1)}else if(x[i]<-a/2){idx.push(i);st.push(-1)}}
+  const out=[];if(idx.length<2)return out;
+  for(let q=0;q<idx.length;q++){const q2=(q+1)%idx.length;if(st[q]===st[q2])continue;
+    let i1=idx[q],i2=idx[q2];if(i2<=i1)i2+=N;
+    let best=i1;for(let j=i1;j<i2;j++){const xa=x[j%N],xb=x[(j+1)%N];if(xa*xb<=0){best=j+xa/(xa-xb||1);break}}
+    out.push({tau:best*eps,dir:st[q2]})}
+  return out}
+function countKinks(x,a){return kinkCenters(x,a,1).length}
+/* correlator sums C(k) = (1/N) sum_i x_i x_{i+k}, k = 0..N/2 */
+function accumCorr(p,sum){const N=p.N,x=p.x,K=N>>1;
+  for(let k=0;k<=K;k++){let s=0;for(let i=0;i<N-k;i++)s+=x[i]*x[i+k];for(let i=N-k;i<N;i++)s+=x[i]*x[i+k-N];sum[k]+=s/N}}
+/* fit C(tau)=A[e^{-r tau}+e^{-r(beta-tau)}] on tau >= tmin; returns rate r (= dE/hbar) */
+function fitDecay(C,eps,beta,tmin){const K=C.length-1,k0=Math.max(1,Math.ceil(tmin/eps));if(K-k0<3)return{r:NaN,A:NaN};
+  const sse=r=>{let sff=0,sfc=0,scc=0;for(let k=k0;k<=K;k++){const t=k*eps,f=Math.exp(-r*t)+Math.exp(-r*(beta-t));sff+=f*f;sfc+=f*C[k];scc+=C[k]*C[k]}
+    return{e:scc-sfc*sfc/sff,A:sfc/sff}};
+  let lo=1e-4,hi=8,best=lo;
+  for(let pass=0;pass<4;pass++){let be=Infinity;const n=120;
+    for(let i=0;i<=n;i++){const r=lo*Math.pow(hi/lo,i/n),s=sse(r).e;if(s<be){be=s;best=r}}
+    const f=Math.pow(hi/lo,1/n);lo=best/f;hi=best*f}
+  return{r:best,A:sse(best).A}}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function fit(c){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=Math.round(w*parseFloat(c.dataset.r));
+  c.style.height=h+"px";c.dataset.h0=h;
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);return{g,w,h}}
+function hue(ph){return`hsl(${((ph*180/Math.PI)%360+360)%360},85%,62%)`}
+function arrow(g,x0,y0,x1,y1,col,lw){g.strokeStyle=col;g.fillStyle=col;g.lineWidth=lw||1.2;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+  const L=Math.hypot(x1-x0,y1-y0);if(L<5)return;const ux=(x1-x0)/L,uy=(y1-y0)/L,s=Math.min(6,L*0.4);
+  g.beginPath();g.moveTo(x1,y1);g.lineTo(x1-s*ux+s*0.45*uy,y1-s*uy-s*0.45*ux);g.lineTo(x1-s*ux-s*0.45*uy,y1-s*uy+s*0.45*ux);g.fill()}
+
+/* ================= Part 1 ================= */
+const P1={m:1,hbar:1,tau:1,Delta:1,cmax:2.5,M:51};
+let theta=0,morphDir=0;
+function drawFan(F){const{g,w,h}=fit($("fan"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const X=u=>30+(w-45)*u,ymax=2.9,Y=x=>h/2-(h/2-14)*(x/ymax);
+  g.strokeStyle="rgba(170,180,200,.2)";g.lineWidth=1;g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(1),Y(0));g.stroke();
+  for(let k=0;k<F.cs.length;k+=2){const c=F.cs[k],z=F.w[k],mag=Math.hypot(z[0],z[1]),ph=Math.atan2(z[1],z[0]);
+    g.globalAlpha=Math.max(0.06,Math.min(1,mag));g.strokeStyle=hue(ph);g.lineWidth=1+1.6*Math.min(1,mag);g.beginPath();
+    for(let i=0;i<=60;i++){const u=i/60,x=P1.Delta*u+c*Math.sin(Math.PI*u);i?g.lineTo(X(u),Y(x)):g.moveTo(X(u),Y(x))}g.stroke()}
+  g.globalAlpha=1;g.fillStyle="#fff";g.beginPath();g.arc(X(0),Y(0),4,0,7);g.fill();g.beginPath();g.arc(X(1),Y(P1.Delta),4,0,7);g.fill();
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.65)";g.fillText("A",X(0)+6,Y(0)+14);g.fillText("B",X(1)-12,Y(P1.Delta)-8);g.fillText("position x",4,12);g.textAlign="right";g.fillText("time (rotated)",w-6,h-6);g.textAlign="start"}
+function drawWheel(F){const{g,w,h}=fit($("wheel"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const cx=w/2,cy=h/2,R=Math.min(w,h)*0.42;
+  g.strokeStyle="rgba(170,180,200,.3)";g.lineWidth=1;g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+  g.beginPath();g.moveTo(cx-R-8,cy);g.lineTo(cx+R+8,cy);g.moveTo(cx,cy-R-8);g.lineTo(cx,cy+R+8);g.stroke();
+  for(let k=0;k<F.w.length;k++){const z=F.w[k],ph=Math.atan2(z[1],z[0]);g.globalAlpha=0.8;arrow(g,cx,cy,cx+R*z[0],cy-R*z[1],hue(ph),1.1)}
+  g.globalAlpha=1;g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.fillText("length 1",cx+R*0.72,cy-R*0.74);g.fillText("Re",cx+R+2-18,cy+14)}
+function drawChain(F,G){const{g,w,h}=fit($("chain"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  let x0=0,x1=0,y0=0,y1=0;for(const p of F.pts){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])}
+  x0=Math.min(x0,G[0]);x1=Math.max(x1,G[0]);y0=Math.min(y0,G[1]);y1=Math.max(y1,G[1]);
+  const pad=0.12,span=Math.max(x1-x0,y1-y0,0.5)*(1+2*pad),mx=(x0+x1)/2,my=(y0+y1)/2,s=Math.min(w,h)/span;
+  const X=v=>w/2+(v-mx)*s,Y=v=>h/2-(v-my)*s;
+  g.strokeStyle="rgba(170,180,200,.25)";g.lineWidth=1;g.beginPath();g.moveTo(X(0),0);g.lineTo(X(0),h);g.moveTo(0,Y(0));g.lineTo(w,Y(0));g.stroke();
+  for(let k=0;k<F.w.length;k++){const z=F.w[k],ph=Math.atan2(z[1],z[0]);g.strokeStyle=hue(ph);g.lineWidth=2;g.beginPath();g.moveTo(X(F.pts[k][0]),Y(F.pts[k][1]));g.lineTo(X(F.pts[k+1][0]),Y(F.pts[k+1][1]));g.stroke()}
+  arrow(g,X(0),Y(0),X(F.sum[0]),Y(F.sum[1]),"#fff",2.2);
+  g.fillStyle="#22d3ee";g.beginPath();g.arc(X(G[0]),Y(G[1]),4.5,0,7);g.fill();
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.65)";g.fillText("sum of arrows",6,14)}
+const f3=v=>isFinite(v)?v.toFixed(3):"…";
+function update1(){const th=theta*Math.PI/180,F=fanSum(P1.m,P1.hbar,P1.tau,th,P1.Delta,P1.cmax,P1.M),G=gaussFan(P1.m,P1.hbar,P1.tau,th,P1.Delta),K=propK(P1.m,P1.hbar,P1.tau,th,P1.Delta);
+  drawFan(F);drawWheel(F);drawChain(F,G);
+  const wc=F.w[F.w.length-1],lenW=Math.hypot(wc[0],wc[1]),phs=Math.atan2(F.sum[1],F.sum[0])*180/Math.PI,phG=Math.atan2(G[1],G[0])*180/Math.PI;
+  const w0=fanWeight(P1.m,P1.hbar,P1.tau,th,P1.Delta,0);
+  $("thV").textContent=theta.toFixed(0)+"° "+(theta===0?"(real time)":theta===90?"(imaginary time)":"");
+  $("read1").innerHTML=
+   `<div><span>edge path (c = 2.5): arrow length </span><b>${lenW.toFixed(4)}</b> <span>· turning angle </span><b>${(pathQ(P1.m,P1.hbar,P1.tau,P1.Delta,2.45)*Math.cos(th)).toFixed(2)} rad</b></div>
+    <div><span>straight path weight </span><b>${f3(w0[0])} ${w0[1]<0?"−":"+"} ${Math.abs(w0[1]).toFixed(3)}i</b></div>
+    <div><span>fan sum: length </span><b>${Math.hypot(F.sum[0],F.sum[1]).toFixed(4)}</b> <span>· direction </span><b>${phs.toFixed(1)}°</b> <span>· exact Gaussian: length </span><b>${Math.hypot(G[0],G[1]).toFixed(4)}</b> <span>direction </span><b>${phG.toFixed(1)}°</b> <span>(exact)</span></div>
+    <div><span>propagator K = </span><b>${f3(K[0])} ${K[1]<0?"−":"+"} ${Math.abs(K[1]).toFixed(3)}i</b> <span>· |K| = </span><b>${Math.hypot(K[0],K[1]).toFixed(4)}</b> <span>· heat kernel (θ = 90°) = </span><b>${heatKernel(P1.m,P1.hbar,P1.tau,P1.Delta).toFixed(4)}</b></div>`}
+$("theta").addEventListener("input",e=>{morphDir=0;theta=+e.target.value;update1()});
+$("th0").onclick=()=>{morphDir=0;theta=0;$("theta").value=0;update1()};
+$("th90").onclick=()=>{morphDir=0;theta=90;$("theta").value=90;update1()};
+$("morph").onclick=()=>{if(reduce){theta=theta<45?90:0;$("theta").value=theta;update1();return}morphDir=morphDir?0:1};
+
+/* ================= Part 2 ================= */
+const A_=1,HITS_BURN=60;
+let lam=3,beta=10,hbar=1,spf=10,playing=!reduce;
+let path=null,corrSum=null,corrN=0,sweeps=0,kinkSum=0,kinkN=0,exact=null,semi=0,S0c=0,S0n=0;
+let fitRes={r:NaN,A:NaN},lastFitAt=0,sinceMeas=0;
+function Nslices(){return 300}
+function setup(){lam=+$("lam").value;beta=+$("beta").value;hbar=+$("hbar").value;spf=+$("spf").value;
+  const N=Nslices();path=makePath(N,beta,lam,A_,hbar,Math.floor(Math.random()*1e9));
+  corrSum=new Float64Array((N>>1)+1);corrN=0;sweeps=0;kinkSum=0;kinkN=0;fitRes={r:NaN,A:NaN};
+  exact=splittingExact(lam,A_,hbar,400);semi=deltaESemi(lam,A_,hbar);S0c=S0Closed(lam,A_);S0n=S0Numeric(lam,A_,2000);
+  for(let i=0;i<HITS_BURN;i++)sweepPath(path)}
+function measure(){accumCorr(path,corrSum);corrN++;kinkSum+=countKinks(path.x,A_);kinkN++}
+function stepMC(n){const t0=performance.now();for(let s=0;s<n;s++){sweepPath(path);sweeps++;sinceMeas++;if(sinceMeas>=2){sinceMeas=0;measure()}if(performance.now()-t0>6)break}
+  if(corrN>20&&sweeps-lastFitAt>=40){lastFitAt=sweeps;refit()}}
+function corrNorm(){const K=corrSum.length-1,c=new Float64Array(K+1);for(let k=0;k<=K;k++)c[k]=corrN?corrSum[k]/corrN:0;return c}
+function refit(){const c=corrNorm();fitRes=fitDecay(c,path.eps,beta,Math.max(0.5,1.2/omegaWell(lam,A_)))}
+
+function drawPath(){const{g,w,h}=fit($("pth"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const Lm=34,Rm=w-8,Tm=10,Bm=h-22,xm=1.75*A_,X=t=>Lm+(Rm-Lm)*t/beta,Y=x=>(Tm+Bm)/2-(Bm-Tm)/2*x/xm;
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.strokeStyle="rgba(170,180,200,.3)";g.lineWidth=1;g.setLineDash([4,4]);
+  for(const v of[-A_,A_]){g.beginPath();g.moveTo(Lm,Y(v));g.lineTo(Rm,Y(v));g.stroke()}g.setLineDash([]);
+  g.textAlign="right";g.fillText("+a",Lm-4,Y(A_)+4);g.fillText("−a",Lm-4,Y(-A_)+4);g.fillText("0",Lm-4,Y(0)+4);g.textAlign="center";
+  for(let t=0;t<=beta;t+=2)g.fillText(String(t),X(t),Bm+14);g.fillText("imaginary time τ",(Lm+Rm)/2,h-3);g.textAlign="start";
+  const x=path.x,N=path.N;
+  const kc=kinkCenters(x,A_,path.eps);
+  if(kc.length){const k0=kc[0],om=omegaWell(lam,A_),sgn=k0.dir;g.strokeStyle="#22d3ee";g.lineWidth=2;g.setLineDash([6,3]);g.beginPath();let first=true;
+    for(let i=0;i<=120;i++){const dt=(i/120*2-1)*6/om,t=k0.tau+dt;if(t<0||t>beta)continue;const v=sgn*kinkX(t,k0.tau,lam,A_);first?g.moveTo(X(t),Y(v)):g.lineTo(X(t),Y(v));first=false}g.stroke();g.setLineDash([])}
+  g.strokeStyle="#f4f4f6";g.lineWidth=1.5;g.beginPath();for(let i=0;i<N;i++){i?g.lineTo(X(i*path.eps),Y(x[i])):g.moveTo(X(0),Y(x[0]))}g.stroke();
+  g.fillStyle="#22d3ee";g.textAlign="right";g.fillText("exact classical kink",Rm-4,Tm+10);g.fillStyle="#f4f4f6";g.fillText("live path · kinks now: "+kc.length,Rm-4,Tm+24);g.textAlign="start"}
+function drawCorr(){const{g,w,h}=fit($("cor"));g.fillStyle="#07080c";g.fillRect(0,0,w,h);
+  const c=corrNorm(),K=c.length-1,eps=path.eps,c0=c[0]||1;
+  const Lm=40,Rm=w-10,Tm=12,Bm=h-30,tmax=K*eps;
+  let ymin=-0.6;for(let k=1;k<=K;k++){const v=c[k]/c0;if(v>0.02)ymin=Math.min(ymin,Math.log(v)-0.1)}
+  ymin=Math.max(-5,Math.min(ymin,-exactSlopeMin(tmax)));
+  const X=t=>Lm+(Rm-Lm)*t/tmax,Y=v=>Tm+(Bm-Tm)*(0.1-v)/(0.1-ymin);
+  g.font="11px system-ui";g.fillStyle="rgba(255,255,255,.6)";g.strokeStyle="rgba(170,180,200,.22)";g.lineWidth=1;g.textAlign="right";
+  const st=ymin<-3?1:0.5;for(let v=0;v>=ymin;v-=st){g.beginPath();g.moveTo(Lm,Y(v));g.lineTo(Rm,Y(v));g.stroke();g.fillText(v.toFixed(1),Lm-4,Y(v)+4)}
+  g.textAlign="center";for(let t=0;t<=tmax;t+=1){g.fillText(String(t),X(t),Bm+14)}g.fillText("τ",(Lm+Rm)/2,h-3);
+  g.save();g.translate(11,(Tm+Bm)/2);g.rotate(-Math.PI/2);g.fillText("ln ⟨x(0)x(τ)⟩/⟨x²⟩",0,0);g.restore();g.textAlign="start";
+  g.save();g.beginPath();g.rect(Lm,Tm,Rm-Lm,Bm-Tm);g.clip();
+  const rE=exact.dE/hbar;g.setLineDash([5,4]);g.strokeStyle="#5eead4";g.lineWidth=1.8;g.beginPath();
+  for(let i=0;i<=80;i++){const t=tmax*i/80,v=Math.log((Math.exp(-rE*t)+Math.exp(-rE*(beta-t)))/(1+Math.exp(-rE*beta)));i?g.lineTo(X(t),Y(v)):g.moveTo(X(t),Y(v))}g.stroke();g.setLineDash([]);
+  if(isFinite(fitRes.r)){g.strokeStyle="#fbbf24";g.lineWidth=1.8;g.beginPath();for(let i=0;i<=80;i++){const t=tmax*i/80,v=Math.log(Math.max(1e-9,fitRes.A*(Math.exp(-fitRes.r*t)+Math.exp(-fitRes.r*(beta-t)))/c0));i?g.lineTo(X(t),Y(v)):g.moveTo(X(t),Y(v))}g.stroke()}
+  g.fillStyle="#93c5fd";if(corrN>5)for(let k=0;k<=K;k++){const v=c[k]/c0;if(v<=0)continue;g.beginPath();g.arc(X(k*eps),Y(Math.log(v)),k%3===0?3:1.6,0,7);g.fill()}
+  g.restore();g.font="11px system-ui";g.textAlign="right";g.fillStyle="#5eead4";g.fillText("exact ΔE",Rm-4,Tm+12);g.fillStyle="#fbbf24";g.fillText("fit to the samples",Rm-4,Tm+26);g.fillStyle="#93c5fd";g.fillText("measured",Rm-4,Tm+40);g.textAlign="start"}
+function exactSlopeMin(tmax){return Math.max(0.3,Math.min(5,exact.dE/hbar*tmax*1.1))}
+function f4(v){return isFinite(v)?v.toFixed(4):"…"}
+function readouts2(){const dEmc=hbar*fitRes.r,ok=isFinite(dEmc)&&corrN>1500,rel=ok?(dEmc/exact.dE-1)*100:NaN,om=omegaWell(lam,A_);
+  $("big").innerHTML=
+   `<div><span class="l">tunnelling splitting ΔE = E₁ − E₀ <span class="chip c-exact">exact</span></span><span class="n">${exact.dE.toFixed(4)}</span></div>
+    <div><span class="l">from the Monte-Carlo correlator <span class="chip c-sim">simulation</span></span><span class="n ${ok&&Math.abs(rel)<15?"ok":""}">${ok?dEmc.toFixed(4):`<small style="font-size:14px;font-weight:400">collecting ${Math.min(corrN,1500)} / 1500 samples</small>`}</span></div>
+    <div><span class="l">instanton estimate <span class="chip c-int">interpretation</span> (approximate)</span><span class="n">${semi.toFixed(4)}</span></div>
+    <div><span class="l">MC vs exact</span><span class="n">${ok?(rel>0?"+":"")+rel.toFixed(1)+" %":"…"}</span></div>`;
+  const kAvg=kinkN?kinkSum/kinkN:NaN,kDil=beta*exact.dE/(2*hbar),kNow=countKinks(path.x,A_);
+  $("read2").innerHTML=
+   `<div><span>well frequency ω = √(8λa²) = </span><b>${om.toFixed(3)}</b> <span>· barrier V(0) = </span><b>${(lam*A_**4).toFixed(2)}</b> <span>· ħω/2 = </span><b>${(hbar*om/2).toFixed(2)}</b></div>
+    <div><span>instanton action S₀: integral </span><b>${S0n.toFixed(4)}</b> <span>· formula (4√2/3)√λ a³ = </span><b>${S0c.toFixed(4)}</b> <span>(exact)</span></div>
+    <div><span>S₀/ħ = </span><b>${(S0c/hbar).toFixed(3)}</b> <span>· suppression factor e<sup>−S₀/ħ</sup> = </span><b>${Math.exp(-S0c/hbar).toExponential(2)}</b></div>
+    <div><span>levels: E₀ = </span><b>${exact.E0.toFixed(4)}</b> <span>E₁ = </span><b>${exact.E1.toFixed(4)}</b> <span>(exact diagonalisation, 400 points)</span></div>
+    <div><span>kinks on the path now: </span><b>${kNow}</b> <span>· average </span><b>${f4(kAvg)}</b> <span>· dilute-gas guess βΔE/2ħ = </span><b>${kDil.toFixed(2)}</b></div>
+    <div><span>slices N = </span><b>${path.N}</b> <span>· step ε = β/N = </span><b>${path.eps.toFixed(3)}</b> <span>· sweeps </span><b>${sweeps}</b> <span>· accept </span><b>${(100*path.acc/Math.max(1,path.tries)).toFixed(0)}%</b></div>`;
+  $("lamV").textContent=lam.toFixed(1);$("betaV").textContent=beta.toFixed(1);$("hbV").textContent=hbar.toFixed(2);$("sV").textContent=spf}
+function redraw2(){drawPath();drawCorr();readouts2()}
+let ctlTimer=0;
+for(const id of["lam","beta","hbar"])$(id).addEventListener("input",()=>{setup();redraw2()});
+$("spf").addEventListener("input",e=>{spf=+e.target.value;readouts2()});
+$("play").onclick=()=>{if(reduce){stepMC(200);redraw2();return}playing=!playing;$("play").textContent=playing?"Pause":"Play"};
+$("restart").onclick=()=>{setup();redraw2()};
+
+let lastT=0;
+function frame(ts){
+  if(morphDir){theta+=0.6*(ts-lastT)/16.7*morphDir;if(theta>=90){theta=90;morphDir=-1}if(theta<=0){theta=0;morphDir=1}$("theta").value=Math.round(theta);update1()}
+  lastT=ts;if(playing){stepMC(spf);redraw2()}requestAnimationFrame(frame)}
+function redrawAll(){update1();redraw2()}
+addEventListener("resize",redrawAll);
+setup();for(let i=0;i<300;i++){sweepPath(path);sweeps++;if(i%2)measure()}refit();
+if(reduce){$("play").textContent="Run 200 sweeps"}
+redrawAll();requestAnimationFrame(frame);
+</script>
+</body>
+</html>

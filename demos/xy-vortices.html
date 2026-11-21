@@ -190,7 +190,7 @@ function vortices(){const out=[];
     const a=th[idx(x,y)],b=th[idx(x+1,y)],c=th[idx(x+1,y+1)],d=th[idx(x,y+1)];
     const w=Math.round((wrap(b-a)+wrap(c-b)+wrap(d-c)+wrap(a-d))/(2*Math.PI));if(w)out.push([x+0.5,y+0.5,w])}
   return out}
-function addPair(cx,cy){const s=6;for(let y=0;y<L;y++)for(let x=0;x<L;x++){
+function addPair(cx,cy){const s=6;cx=Math.floor(cx)+0.5;cy=Math.floor(cy)+0.5;/* cores at cell centres, never on a site */for(let y=0;y<L;y++)for(let x=0;x<L;x++){
   const dx=x-cx,dy=y-cy;th[y*L+x]+=Math.atan2(dy,dx-s)-Math.atan2(dy,dx+s)}resetStats()}
 function addWave(){for(let y=0;y<L;y++)for(let x=0;x<L;x++)th[y*L+x]+=1.2*Math.sin(2*Math.PI*x/L);resetStats()}
 const off=document.createElement("canvas");off.width=L;off.height=L;const octx=off.getContext("2d"),img=octx.createImageData(L,L);

@@ -16,6 +16,10 @@ Not research. The aim: change parameters, watch what happens, understand it.
 | [`demos/wilson-loops.html`](demos/wilson-loops.html) | Compact U(1) lattice gauge field in 2D: phases on links, Wilson loops, area law, gauge invariance |
 | [`demos/order-matters.html`](demos/order-matters.html) | Observables and commutators: Stern–Gerlach sequence, [x,p] = iħ, Wigner function (Fock, cat, coherent, squeezed) |
 | [`demos/aharonov-bohm.html`](demos/aharonov-bohm.html) | Aharonov–Bohm effect: stripes shift with a hidden flux, Peierls phases, the cut line as a gauge choice |
+| [`demos/restless-vacuum.html`](demos/restless-vacuum.html) | Vacuum fluctuations of a field on a chain (exact ground-state samples), zero-point energy per mode, Casimir energy and force between two walls |
+| [`demos/tunnelling.html`](demos/tunnelling.html) | Wick rotation as a slider (arrows become weights), imaginary-time paths in a double well, instantons, tunnelling splitting |
+| [`demos/flux-vortices.html`](demos/flux-vortices.html) | Abelian Higgs model: a vortex traps one flux quantum, BPS energy 2π, global vs gauged vortex, type I vs type II forces |
+| [`demos/string-breaking.html`](demos/string-breaking.html) | Lattice Schwinger model (1+1D QED) by exact diagonalisation: the flux tube between two charges stretches, then breaks; fractional charges never break |
 
 Start at [`index.html`](index.html). Open any file in a browser. No install, no server.
 
@@ -31,7 +35,11 @@ Broken symmetry: XY energy per site −1.949 vs. −1.95 (low-T formula) at T = 
 Higgs frequency 1.999 vs. 2μ = 2.000. Wilson loops: plaquette 0.6972 vs. exact
 I₁/I₀ = 0.6978. Order matters: ⟨[x,p]⟩ = 0.9999i, W(0,0) of the first excited
 state = −1/π. Aharonov–Bohm: stripe shift 0.500 at Φ/Φ₀ = 0.5, gauge-cut
-invariance 3e-11.
+invariance 3e-11. Restless vacuum: Casimir coefficient
+L·(E − bulk − surface) = −0.1309 vs. −π/24. Tunnelling: splitting ΔE from Monte
+Carlo within a few % of exact diagonalisation (0.5713). Flux vortices: total
+flux Φ/2π = 1.0000, BPS energy 0.998 × 2π. String breaking: string tension at
+w = 0 equals J q² to 1e-14; q = 1 breaks, q = 0.5 does not.
 
 Node tests: `node tests/<name>.test.mjs` runs the physics core of a page
 without a browser.

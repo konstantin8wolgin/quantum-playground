@@ -26,6 +26,16 @@ that give intuition for:
    with the exact (I₁/I₀)^Area, and a gauge-invariance check. Aharonov–Bohm:
    the double-slit solver with Peierls phases across a Dirac-string cut; the
    stripes shift by Φ/Φ₀, and moving the cut changes nothing physical.
+   Abelian Higgs vortices on a 2D lattice (gradient flow): flux quantisation,
+   BPS energy 2π per vortex, global vortex energy growing like ln R, type I
+   attraction vs type II repulsion. String breaking: lattice Schwinger model
+   with staggered fermions, exact diagonalisation (Lanczos), static charges
+   ±q, V(r) linear then flat; fractional q never breaks.
+5. Fluctuations and tunnelling. A free field on a chain: exact Gaussian
+   ground-state samples, zero-point energy per mode, Casimir energy between
+   Dirichlet walls vs −π/(24L). Wick rotation slider t = τe^(−iθ); double-well
+   instantons with Metropolis (local, block and kink-pair moves), ΔE from the
+   correlator vs exact diagonalisation.
 
 Landing page `index.html`: the story "nature adds up phases" and one card per room.
 

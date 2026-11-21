@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vortices That Trap Flux</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;--good:#0f766e;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;--good:#5eead4;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;--good:#5eead4;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 6px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px;touch-action:none}
+#phi,#flux{cursor:crosshair}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.cap{font-size:12.5px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--bg)}
+.big .num{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.big .lab{font-size:13px;color:var(--muted)}
+.big .ok{color:var(--good);font-weight:600}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 22px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button,select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.status{margin-top:10px;font-size:14px;min-height:22px}
+.status .warn{color:var(--warn);font-weight:600}
+.read{display:flex;flex-direction:column;gap:3px;margin-top:10px;font-size:13.5px}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.legend{display:grid;gap:4px;margin-top:12px;font-size:13px;color:var(--muted)}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>Vortices That Trap Flux</h1>
+<p class="sub">A superconductor pushes magnetic field out. But in a tiny whirl of the quantum phase, a thin tube of field gets trapped. The tube holds exactly one packet of flux, never a fraction. Switch off the gauge field and the same whirl costs more and more energy.</p>
+
+<section>
+<div class="big" id="big"></div>
+
+<div class="grid">
+  <div>
+    <h3>The matter field φ <span class="chip c-sim">simulation</span></h3>
+    <canvas id="phi" aria-label="Colour map of the complex field. Brightness is its size, colour is its phase. Click to add a vortex."></canvas>
+    <div class="cap">Brightness: size |φ|. Colour: phase arg φ (same colour wheel as the Broken Symmetry room). The dark spot is the core, where φ must vanish. Click to add a vortex or an anti-vortex (see the menu below). The two-vortex buttons start with the gauge field already matching the phase, so you see their force, not the start-up. The colours depend on the gauge choice; the brightness does not.</div>
+  </div>
+  <div>
+    <h3>The trapped magnetic flux <span class="chip c-sim">simulation</span></h3>
+    <canvas id="flux" aria-label="Map of the magnetic flux through each small square of the grid. Click to add a vortex."></canvas>
+    <div class="cap" id="fluxcap">Flux F through each small square. Orange: positive. Blue: negative. Bright means more. The scale grows with the largest value seen in this run, so you see the flux gather in the core.</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <h3>Energy inside a radius r <span class="chip c-sim">simulation</span> <span class="chip c-exact">exact line</span></h3>
+    <canvas id="eplot"></canvas>
+    <div class="cap">Orange: with the gauge field. It levels off. Blue: gauge field off (global vortex). It keeps climbing, like a logarithm. Dashed line: exact bound 2π|n| (with v = 1). The curve you are not running stays as a ghost.</div>
+  </div>
+  <div>
+    <h3 id="trT">Relaxation <span class="chip c-sim">simulation</span> <span class="chip c-cartoon">cartoon</span></h3>
+    <canvas id="trace"></canvas>
+    <div class="cap" id="trcap">Blue: flux Φ/2π divided by n. Orange: energy divided by 2π|n|. Both go to 1 for BPS coupling. The time axis is the "time" of a gradient flow, not real time. It shows only how the field slides downhill.</div>
+  </div>
+</div>
+
+<div class="controls">
+  <label>winding n (restarts) <b id="nV"></b><input id="n" type="range" min="-3" max="3" step="1" value="1"></label>
+  <label>gauge coupling e <b id="eV"></b><input id="e" type="range" min="0.1" max="0.6" step="0.01" value="0.25"></label>
+  <label>κ = √(λ/2) / e &nbsp; (1 = BPS point) <b id="kV"></b><input id="kap" type="range" min="0.3" max="2.5" step="0.01" value="1" list="bps"><datalist id="bps"><option value="1"></option></datalist></label>
+  <label>speed (steps per frame) <b id="sV"></b><input id="spd" type="range" min="1" max="40" step="1" value="14"></label>
+</div>
+<div class="controls">
+  <div class="btns"><button id="play" class="primary">Pause</button><button id="restart">Restart</button><button id="gtog" class="on">Gauge field: on</button></div>
+  <div class="btns"><button id="two2">Two vortices, type II (κ = 2)</button><button id="two1">Two vortices, type I (κ = 0.5)</button></div>
+  <label>a click adds <select id="clk"><option value="1">a vortex (+1)</option><option value="-1">an anti-vortex (−1)</option></select></label>
+</div>
+<div class="status" id="status"></div>
+<div class="predict"><b>Predict, then test:</b> (1) Watch the flux Φ/2π while the field relaxes. Where will it end? Set n = 2 first. (2) Press "Gauge field: on" to turn it off. Will the energy curve level off, or keep rising? (3) Press the two type II vortices (heavy Higgs), then the two type I vortices (light Higgs). Which pair moves apart? Which pair moves together?</div>
+
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>pictures and curves: a 96×96 grid with open edges, relaxed by gradient flow (steepest descent)</div>
+  <div><span class="chip c-exact">exact</span>the whole numbers n and Φ/2π = n; the bound E ≥ 2π|n|, reached at κ = 1 in the continuum; the log slope 2π n² of a global vortex</div>
+  <div><span class="chip c-int">interpretation</span>"vortices repel or attract": read from the motion of two flux tubes in this simulation</div>
+  <div><span class="chip c-cartoon">cartoon</span>the time axis of the relaxation plot</div>
+</div>
+<div class="read" id="read"></div>
+
+<details><summary>What the numbers mean</summary>
+<p><b>The model.</b> A complex number φ sits on every site of the grid (a superconductor's "condensate"). A phase A sits on every link. The energy is <span class="eq">E = Σ<sub>links</sub> |φ<sub>x+μ</sub> − e<sup>iA</sup> φ<sub>x</sub>|² + Σ<sub>squares</sub> F²/(2e²) + Σ<sub>sites</sub> (λ/4)(|φ|² − v²)²</span>. We set v = 1. F is the sum of the four link phases around one small square: the magnetic flux through it. We use the plain sum, not its cosine ("non-compact"). The first term makes φ smooth. The second costs energy for field. The third is the Mexican hat of the previous room.</p>
+<p><b>Gauge freedom.</b> You may turn φ by any phase α(x) at each site, if you also shift each link by α(x+μ) − α(x). The energy does not change at all. The tests check this to 10⁻¹⁰. So colours of arg φ are a gauge choice. Only |φ| and F are physical.</p>
+<p><b>The start.</b> We set φ = f(r) e<sup>inθ</sup> and A = 0. The phase winds n times around the centre, and f is zero at the centre. With A = 0, the phase gradient costs a lot of energy, out to the far edge. Then the gauge field grows until e<sup>iA</sup> follows the phase. The gradient cost is cancelled, far from the core.</p>
+<p><b>Why the flux is whole.</b> The sum of F over all squares equals the sum of A around the outer edge. This is exact on the grid: inner links cancel in pairs. Far from the core the gradient cost is gone, so A follows the phase of φ. So the sum of A around the edge equals the winding of φ around the edge, which is 2πn. The two numbers differ only by a tiny leftover (of order e<sup>−R/λ<sub>L</sub></sup>, the field's screening, with λ<sub>L</sub> = 1/(√2 e)). The edge winding of φ is a whole number by construction. Hence Φ/2π = n, to about 10⁻³ and better.</p>
+<p><b>Global against gauged.</b> With the gauge field off, only the first and third terms stay. Far from the core, |φ| = 1 and the energy density is n²/r². The energy inside radius R is <span class="eq">2π n² ln(R/ξ) + core</span>. It grows without limit. The slope against ln r is exactly 2πn² (the previous room used ½ in front of the gradient term, which gives π). With the gauge field on, the phase gradient is cancelled outside a distance about λ<sub>L</sub>. The energy stops growing. That is the Higgs mechanism in a picture: the gauge field gets a mass, so forces from it have a short range.</p>
+<p><b>The BPS point.</b> Write the energy as a sum of squares. For λ = 2e² (that is κ = 1) it becomes <span class="eq">E = ∫ |(D<sub>x</sub> ± iD<sub>y</sub>)φ|² + (1/2e²)(F ∓ e²(1 − |φ|²))² ± v²·Φ</span>. The squares are never negative. So <span class="eq">E ≥ v²|Φ| = 2π v² |n|</span>. At κ = 1 the squares can be made zero, so E = 2π|n| exactly in the continuum. Each vortex costs the same, however you arrange them: there is no force between them. For κ ≠ 1 the bound still holds, but it is not reached. On the grid the value is close, not equal, because a core a few sites wide has a grid error. The tests report how close.</p>
+<p><b>Type I and type II.</b> κ = √(λ/2)/e is the ratio of the Higgs mass to the photon mass (m<sub>H</sub>/m<sub>A</sub>). The photon part of the force between two vortices repels, with range 1/m<sub>A</sub>. The Higgs part attracts, with range 1/m<sub>H</sub>. For κ &gt; 1 (type II) the photon wins at all distances: two vortices repel. For κ &lt; 1 (type I) the Higgs part reaches farther: they attract and merge, because one big vortex is cheaper than two. At κ = 1 the two forces cancel exactly (the BPS point). This is the real difference between the two types of superconductor. The pictures here are a relaxation (steepest descent), so the vortices slide with friction, not like real particles. The force is weak at a distance of several screening lengths, so the motion is slow. A vortex can also stick to the grid.</p>
+<p><b>Edges.</b> The grid has open edges. A vortex near an edge is pulled out, as the field can leave there. The centred vortex is safe, because the edge is many λ<sub>L</sub> away. If you make e small, λ<sub>L</sub> grows and the edge matters. The page warns you. A vortex with |n| &gt; 1 at κ &lt; 1 is unstable in principle: it wants to split into n vortices. The round-off breaks the symmetry only slowly, so it holds for a while.</p>
+<p><b>Link to the other rooms.</b> The phase on a link is the same U(1) phase as in the Aharonov–Bohm room and in Phases Around a Loop. There the flux inside a loop was a phase around it. Here the loop is the edge of the grid. The vortex is the Broken Symmetry vortex, now with its energy cured by a gauge field.</p>
+</details>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+function mulberry32(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+const TWO_PI=2*Math.PI;
+function wrapAngle(a){return a-TWO_PI*Math.ceil((a-Math.PI)/TWO_PI)}
+/* Model on an L x L grid with open edges. Site i = y*L+x.
+   pr,pi: real and imaginary part of phi. Ax[i]: link (x,y)->(x+1,y). Ay[i]: link (x,y)->(x,y+1).
+   Units: lattice spacing 1, v = 1. lambda = 2 kappa^2 e^2, so kappa = 1 is the BPS point. */
+function makeModel(L,e,kappa,gauge){const N=L*L;
+  return{L,N,e,kappa,lam:2*kappa*kappa*e*e,gauge,
+    pr:new Float64Array(N),pi:new Float64Array(N),Ax:new Float64Array(N),Ay:new Float64Array(N),
+    cx:new Float64Array(N).fill(1),sx:new Float64Array(N),cy:new Float64Array(N).fill(1),sy:new Float64Array(N),
+    F:new Float64Array(N),gr:new Float64Array(N),gi:new Float64Array(N),dAx:new Float64Array(N),dAy:new Float64Array(N)}}
+function setCoupling(m,e,kappa){m.e=e;m.kappa=kappa;m.lam=2*kappa*kappa*e*e}
+/* list of {x,y,n}: phi = prod tanh(r_i/xi) * exp(i sum n_i theta_i), A = 0 */
+function initVortices(m,list,xi,pureGauge){const L=m.L;m.Ax.fill(0);m.Ay.fill(0);m.cx.fill(1);m.sx.fill(0);m.cy.fill(1);m.sy.fill(0);
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){let amp=1,ph=0;
+    for(const v of list){const dx=x-v.x,dy=y-v.y;amp*=Math.tanh(Math.hypot(dx,dy)/xi);ph+=v.n*Math.atan2(dy,dx)}
+    m.pr[y*L+x]=amp*Math.cos(ph);m.pi[y*L+x]=amp*Math.sin(ph)}
+  /* optional: start with A = the phase gradient (pure gauge). Then the link energy is zero outside the cores
+     and all the flux sits in the one square that holds each vortex. */
+  if(pureGauge){const th=(x,y)=>{let p=0;for(const v of list)p+=v.n*Math.atan2(y-v.y,x-v.x);return p};
+    for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x,t0=th(x,y);
+      if(x<L-1)m.Ax[i]=wrapAngle(th(x+1,y)-t0);if(y<L-1)m.Ay[i]=wrapAngle(th(x,y+1)-t0)}}}
+/* imprint one more vortex (s=+-1) on the present field */
+function addVortex(m,x0,y0,s,xi){const L=m.L;
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){const dx=x-x0,dy=y-y0,a=Math.tanh(Math.hypot(dx,dy)/xi),ph=s*Math.atan2(dy,dx),c=Math.cos(ph),sn=Math.sin(ph),i=y*L+x,r=m.pr[i],q=m.pi[i];
+    m.pr[i]=a*(r*c-q*sn);m.pi[i]=a*(r*sn+q*c)}}
+/* flux through each small square: F = A_x(x,y)+A_y(x+1,y)-A_x(x,y+1)-A_y(x,y). Zero where there is no square. */
+function fluxField(m,out){const L=m.L,Ax=m.Ax,Ay=m.Ay;out=out||new Float64Array(m.N);out.fill(0);
+  for(let y=0;y<L-1;y++)for(let x=0;x<L-1;x++){const i=y*L+x;out[i]=Ax[i]+Ay[i+1]-Ax[i+L]-Ay[i]}return out}
+function totalFlux(m){const f=fluxField(m,m.F);let s=0;for(let i=0;i<f.length;i++)s+=f[i];return s}
+/* sum of the link phases around the outer edge (should equal totalFlux exactly) */
+function edgeA(m){const L=m.L;let s=0;
+  for(let x=0;x<L-1;x++)s+=m.Ax[x];                       // bottom, going right
+  for(let y=0;y<L-1;y++)s+=m.Ay[y*L+L-1];                 // right side, going up
+  for(let x=L-1;x>0;x--)s-=m.Ax[(L-1)*L+x-1];             // top, going left
+  for(let y=L-1;y>0;y--)s-=m.Ay[(y-1)*L];                 // left side, going down
+  return s}
+/* winding of the phase of phi around the outer edge (number of turns) */
+function boundaryWinding(m){const L=m.L,pr=m.pr,pi=m.pi;let s=0;
+  const ang=i=>Math.atan2(pi[i],pr[i]);
+  const path=[];for(let x=0;x<L;x++)path.push(x);for(let y=1;y<L;y++)path.push(y*L+L-1);
+  for(let x=L-2;x>=0;x--)path.push((L-1)*L+x);for(let y=L-2;y>=1;y--)path.push(y*L);path.push(0);
+  for(let k=0;k<path.length-1;k++)s+=wrapAngle(ang(path[k+1])-ang(path[k]));
+  const raw=s/TWO_PI;return{n:Math.round(raw),raw}}
+/* energy: kinetic (links), magnetic (squares), potential (sites) */
+function energyParts(m){const L=m.L,pr=m.pr,pi=m.pi;let kin=0,mag=0,pot=0;
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x,r2=pr[i]*pr[i]+pi[i]*pi[i];
+    pot+=0.25*m.lam*(r2-1)*(r2-1);
+    if(x<L-1){const j=i+1,a=m.Ax[i],c=Math.cos(a),s=Math.sin(a);
+      const wr=pr[j]*pr[i]+pi[j]*pi[i],wi=pr[j]*pi[i]-pi[j]*pr[i];
+      kin+=r2+pr[j]*pr[j]+pi[j]*pi[j]-2*(wr*c-wi*s)}
+    if(y<L-1){const j=i+L,a=m.Ay[i],c=Math.cos(a),s=Math.sin(a);
+      const wr=pr[j]*pr[i]+pi[j]*pi[i],wi=pr[j]*pi[i]-pi[j]*pr[i];
+      kin+=r2+pr[j]*pr[j]+pi[j]*pi[j]-2*(wr*c-wi*s)}}
+  if(m.gauge){const f=fluxField(m,m.F);let s=0;for(let i=0;i<f.length;i++)s+=f[i]*f[i];mag=s/(2*m.e*m.e)}
+  return{kin,mag,pot,total:kin+mag+pot}}
+/* one step of gradient flow: dphi = -dE/dphi* dt,  dA = -e^2 dE/dA dt  (both from the same old state) */
+function step(m,dt){const L=m.L,N=m.N,pr=m.pr,pi=m.pi,Ax=m.Ax,Ay=m.Ay,cx=m.cx,sx=m.sx,cy=m.cy,sy=m.sy,F=m.F,gr=m.gr,gi=m.gi,dAx=m.dAx,dAy=m.dAy;
+  const e2=m.e*m.e,lam2=m.lam/2,g=m.gauge;
+  if(g){for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x;
+      if(x<L-1){cx[i]=Math.cos(Ax[i]);sx[i]=Math.sin(Ax[i])}
+      if(y<L-1){cy[i]=Math.cos(Ay[i]);sy[i]=Math.sin(Ay[i])}}
+    fluxField(m,F)}
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x,r=pr[i],q=pi[i];
+    let Gr=0,Gi=0;
+    if(x<L-1){const j=i+1,c=cx[i],s=sx[i];Gr+=r-(c*pr[j]+s*pi[j]);Gi+=q-(c*pi[j]-s*pr[j])}
+    if(x>0){const j=i-1,c=cx[j],s=sx[j];Gr+=r-(c*pr[j]-s*pi[j]);Gi+=q-(c*pi[j]+s*pr[j])}
+    if(y<L-1){const j=i+L,c=cy[i],s=sy[i];Gr+=r-(c*pr[j]+s*pi[j]);Gi+=q-(c*pi[j]-s*pr[j])}
+    if(y>0){const j=i-L,c=cy[j],s=sy[j];Gr+=r-(c*pr[j]-s*pi[j]);Gi+=q-(c*pi[j]+s*pr[j])}
+    const k=lam2*(r*r+q*q-1);Gr+=k*r;Gi+=k*q;gr[i]=Gr;gi[i]=Gi;
+    if(g){
+      if(x<L-1){const j=i+1,wr=pr[j]*r+pi[j]*q,wi=pr[j]*q-pi[j]*r;
+        dAx[i]=2*e2*(wi*cx[i]+wr*sx[i])+F[i]-(y>0?F[i-L]:0)}
+      if(y<L-1){const j=i+L,wr=pr[j]*r+pi[j]*q,wi=pr[j]*q-pi[j]*r;
+        dAy[i]=2*e2*(wi*cy[i]+wr*sy[i])-F[i]+(x>0?F[i-1]:0)}}}
+  for(let i=0;i<N;i++){pr[i]-=dt*gr[i];pi[i]-=dt*gi[i]}
+  if(g)for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x;if(x<L-1)Ax[i]-=dt*dAx[i];if(y<L-1)Ay[i]-=dt*dAy[i]}}
+function relax(m,n,dt){for(let k=0;k<n;k++)step(m,dt)}
+/* gauge transformation: phi -> e^{i alpha} phi, A_mu(x) -> A_mu(x) + alpha(x+mu) - alpha(x) */
+function gaugeTransform(m,rng){const L=m.L,al=new Float64Array(m.N);for(let i=0;i<m.N;i++)al[i]=(rng()*2-1)*Math.PI;
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x,c=Math.cos(al[i]),s=Math.sin(al[i]),r=m.pr[i],q=m.pi[i];
+    m.pr[i]=r*c-q*s;m.pi[i]=r*s+q*c;
+    if(x<L-1)m.Ax[i]+=al[i+1]-al[i];if(y<L-1)m.Ay[i]+=al[i+L]-al[i]}}
+/* cumulative energy inside radius r about (x0,y0): cum[k] = energy with r < k+1 */
+function radialEnergy(m,x0,y0,nb){const L=m.L,pr=m.pr,pi=m.pi,bins=new Float64Array(nb);
+  const add=(px,py,v)=>{const k=Math.floor(Math.hypot(px-x0,py-y0));if(k<nb)bins[k]+=v};
+  const f=m.gauge?fluxField(m,m.F):null;
+  for(let y=0;y<L;y++)for(let x=0;x<L;x++){const i=y*L+x,r2=pr[i]*pr[i]+pi[i]*pi[i];
+    add(x,y,0.25*m.lam*(r2-1)*(r2-1));
+    if(x<L-1){const j=i+1,a=m.Ax[i],c=Math.cos(a),s=Math.sin(a),wr=pr[j]*pr[i]+pi[j]*pi[i],wi=pr[j]*pi[i]-pi[j]*pr[i];
+      add(x+0.5,y,r2+pr[j]*pr[j]+pi[j]*pi[j]-2*(wr*c-wi*s))}
+    if(y<L-1){const j=i+L,a=m.Ay[i],c=Math.cos(a),s=Math.sin(a),wr=pr[j]*pr[i]+pi[j]*pi[i],wi=pr[j]*pi[i]-pi[j]*pr[i];
+      add(x,y+0.5,r2+pr[j]*pr[j]+pi[j]*pi[j]-2*(wr*c-wi*s))}
+    if(f&&x<L-1&&y<L-1)add(x+0.5,y+0.5,f[i]*f[i]/(2*m.e*m.e))}
+  const cum=new Float64Array(nb);let s=0;for(let k=0;k<nb;k++){s+=bins[k];cum[k]=s}return cum}
+/* distance between the two deepest dips of |phi|, one in each half of the grid (parabola through 3 points).
+   Two vortices that sit on top of each other give 0. */
+function dipX(m,xa,xb){const L=m.L,pr=m.pr,pi=m.pi,a=(x,y)=>pr[y*L+x]*pr[y*L+x]+pi[y*L+x]*pi[y*L+x];let best=9,bx=1,by0=1;
+  for(let y=1;y<L-1;y++)for(let x=Math.max(1,xa);x<Math.min(L-1,xb);x++){const v=a(x,y);if(v<best){best=v;bx=x;by0=y}}
+  const d=a(bx-1,by0)-2*best+a(bx+1,by0);return d>1e-12?bx+(a(bx-1,by0)-a(bx+1,by0))/(2*d):bx}
+function dipSeparation(m){const L=m.L;return dipX(m,L/2,L)-dipX(m,0,L/2)}
+/* PHYSICS-CORE END */
+
+const $=id=>document.getElementById(id);
+const L=96,DT=0.15;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let e0=0.25,kap=1,n0=1,gaugeOn=true,mode="single",playing=!reduce,spd=14;
+let m=null,steps=0,hist=[],ghost={on:null,off:null},fmax=0.02,sep0=NaN,prof=null,Eparts=null,flux=0,wind={n:0,raw:0},sepNow=NaN,lastE=NaN,dE=NaN;
+const C0=(L-1)/2;
+const xi0=()=>Math.max(1.5,Math.min(6,1.2/Math.sqrt(m.lam+1e-9)));
+
+function hueRGB(h){const H=(h%1+1)%1*6,X=1-Math.abs(H%2-1);let r,g,b;
+  if(H<1){r=1;g=X;b=0}else if(H<2){r=X;g=1;b=0}else if(H<3){r=0;g=1;b=X}else if(H<4){r=0;g=X;b=1}else if(H<5){r=X;g=0;b=1}else{r=1;g=0;b=X}
+  return[r*235+20,g*235+20,b*235+20]}
+const LUT=[];for(let i=0;i<256;i++)LUT.push(hueRGB(i/256));
+const off1=document.createElement("canvas");off1.width=L;off1.height=L;const o1=off1.getContext("2d"),img1=o1.createImageData(L,L);
+const off2=document.createElement("canvas");off2.width=L-1;off2.height=L-1;const o2=off2.getContext("2d"),img2=o2.createImageData(L-1,L-1);
+
+function fit(c,ratio){const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=Math.round(w*ratio);
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  c.style.height=h+"px";const g=c.getContext("2d");g.setTransform(d,0,0,d,0,0);return{g,w,h}}
+
+function build(list,pure){
+  m=makeModel(L,e0,kap,gaugeOn);initVortices(m,list,xi0(),pure);
+  steps=0;hist=[];fmax=0.02;lastE=NaN;dE=NaN;measure();
+}
+function restart(){
+  if(mode==="two"){const d=8;build([{x:C0-d/2,y:C0,n:1},{x:C0+d/2,y:C0,n:1}],true);sep0=sepNow}
+  else{build([{x:C0,y:C0,n:n0}]);sep0=NaN}
+  redraw();
+}
+function setGaugeLabel(){$("gtog").textContent=gaugeOn?"Gauge field: on":"Gauge field: off (global vortex)";$("gtog").className=gaugeOn?"on":""}
+
+function measure(){
+  Eparts=energyParts(m);
+  flux=m.gauge?totalFlux(m):0;
+  wind=boundaryWinding(m);
+  const cum=radialEnergy(m,C0,C0,L/2);prof=cum;ghost[m.gauge?"on":"off"]={n:wind.n,e:m.e,k:m.kappa,cum};
+  if(m.gauge){const f=m.F;for(let i=0;i<f.length;i++){const a=Math.abs(f[i]);if(a>fmax)fmax=a}}
+  sepNow=mode==="two"?dipSeparation(m):NaN;
+  dE=isFinite(lastE)?Eparts.total-lastE:NaN;lastE=Eparts.total;
+  const t=steps*DT;
+  hist.push([t,flux/TWO_PI,Eparts.total,sepNow]);
+  if(hist.length>700){hist=hist.filter((_,i)=>i%2===0||i===hist.length-1)}
+}
+
+/* ---------- drawing ---------- */
+function drawPhi(){
+  const D=img1.data,pr=m.pr,pi=m.pi;
+  for(let i=0;i<m.N;i++){const a=Math.hypot(pr[i],pi[i]),b=Math.min(1,a),h=Math.atan2(pi[i],pr[i])/TWO_PI,p=LUT[((((h%1)+1)%1)*256)|0],o=i*4;
+    D[o]=p[0]*b;D[o+1]=p[1]*b;D[o+2]=p[2]*b;D[o+3]=255}
+  o1.putImageData(img1,0,0);
+  const {g,w,h}=fit($("phi"),1);g.fillStyle="#07080c";g.fillRect(0,0,w,h);g.imageSmoothingEnabled=false;g.drawImage(off1,0,0,w,h)}
+function drawFlux(){
+  const D=img2.data,F=m.F,Lm=L-1;
+  if(m.gauge)fluxField(m,F);
+  for(let y=0;y<Lm;y++)for(let x=0;x<Lm;x++){const v=m.gauge?F[y*L+x]/fmax:0,a=Math.min(1,Math.abs(v)),o=(y*Lm+x)*4;
+    const b=Math.sqrt(a);
+    if(v>=0){D[o]=255*b;D[o+1]=(150+80*b)*b;D[o+2]=60*b*b}else{D[o]=60*b*b;D[o+1]=(150+60*b)*b;D[o+2]=255*b}
+    D[o+3]=255}
+  o2.putImageData(img2,0,0);
+  const {g,w,h}=fit($("flux"),1),cs=w/L;g.fillStyle="#07080c";g.fillRect(0,0,w,h);g.imageSmoothingEnabled=false;g.drawImage(off2,cs/2,cs/2,(L-1)*cs,(L-1)*cs);
+  g.font="12px system-ui";g.fillStyle="rgba(255,255,255,.7)";
+  g.fillText(m.gauge?`brightest square: F = ${fmax.toFixed(3)} rad`:"gauge field off: no flux",8,16)}
+
+function plotFrame(g,w,h,xmax,ymax,xl,yl,xt,yt){
+  const Lm=44,Rm=w-10,Tm=12,Bm=h-32,X=v=>Lm+(Rm-Lm)*v/xmax,Y=v=>Bm-(Bm-Tm)*v/ymax;
+  g.fillStyle="#07080c";g.fillRect(0,0,w,h);g.font="11px system-ui";g.lineWidth=1;g.strokeStyle="rgba(170,180,200,.22)";g.fillStyle="rgba(255,255,255,.6)";
+  g.textAlign="right";for(const v of yt){g.beginPath();g.moveTo(Lm,Y(v));g.lineTo(Rm,Y(v));g.stroke();g.fillText(String(+v.toFixed(2)),Lm-4,Y(v)+4)}
+  g.textAlign="center";for(const v of xt){g.beginPath();g.moveTo(X(v),Tm);g.lineTo(X(v),Bm);g.stroke();g.fillText(String(+v.toFixed(1)),X(v),Bm+13)}
+  g.fillText(xl,(Lm+Rm)/2,h-3);g.save();g.translate(11,(Tm+Bm)/2);g.rotate(-Math.PI/2);g.fillText(yl,0,0);g.restore();g.textAlign="start";
+  return{X,Y,Lm,Rm,Tm,Bm}}
+function drawE(){
+  const {g,w,h}=fit($("eplot"),0.72),nb=L/2,bps=TWO_PI*Math.max(1,Math.abs(wind.n));
+  let ymax=bps*1.4;for(const k of["on","off"]){const gh=ghost[k];if(gh)ymax=Math.max(ymax,gh.cum[nb-1]*1.08)}
+  const step_=Math.pow(10,Math.floor(Math.log10(ymax/4))),yt=[];for(let v=0;v<=ymax;v+=step_*(ymax/step_>12?5:ymax/step_>6?2:1))yt.push(v);
+  const P=plotFrame(g,w,h,nb,ymax,"radius r (sites)","energy inside r",[0,8,16,24,32,40,48],yt);
+  const nAbs=Math.abs(wind.n);
+  if(nAbs>0){g.setLineDash([5,4]);g.strokeStyle="#5eead4";g.lineWidth=1.5;g.beginPath();g.moveTo(P.Lm,P.Y(bps));g.lineTo(P.Rm,P.Y(bps));g.stroke();g.setLineDash([])}
+  const cur=m.gauge?"on":"off";
+  for(const k of["off","on"]){const gh=ghost[k];if(!gh)continue;
+    const col=k==="on"?"255,170,60":"127,176,255",act=k===cur;
+    g.strokeStyle=`rgba(${col},${act?1:0.4})`;g.lineWidth=act?2.5:1.8;if(!act)g.setLineDash([2,3]);g.beginPath();
+    for(let r=0;r<nb;r++){const x=P.X(r+1),y=P.Y(gh.cum[r]);r?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.setLineDash([])}
+  g.textAlign="right";g.fillStyle="#5eead4";g.fillText(`exact bound 2π|n| = ${bps.toFixed(2)}`,P.Rm-4,P.Tm+12);
+  g.fillStyle="rgb(255,170,60)";g.fillText("gauge field on",P.Rm-4,P.Tm+26);g.fillStyle="rgb(127,176,255)";g.fillText("gauge field off",P.Rm-4,P.Tm+40);g.textAlign="start"}
+function drawTrace(){
+  const {g,w,h}=fit($("trace"),0.72);
+  let tmax=10;for(const q of hist)tmax=Math.max(tmax,q[0]);
+  const nAbs=Math.max(1,Math.abs(wind.n));
+  if(mode==="two"){
+    let ymax=12;for(const q of hist)if(isFinite(q[3]))ymax=Math.max(ymax,q[3]*1.1);
+    const P=plotFrame(g,w,h,tmax,ymax,"relaxation time (cartoon)","separation (sites)",[0,tmax/2,tmax],[0,ymax/4,ymax/2,3*ymax/4,ymax]);
+    g.strokeStyle="rgba(255,255,255,.5)";g.setLineDash([4,4]);g.beginPath();g.moveTo(P.Lm,P.Y(sep0));g.lineTo(P.Rm,P.Y(sep0));g.stroke();g.setLineDash([]);
+    g.strokeStyle="#ffaa3c";g.lineWidth=2;g.beginPath();let st=false;
+    for(const q of hist){if(!isFinite(q[3])){st=false;continue}const x=P.X(q[0]),y=P.Y(q[3]);st?g.lineTo(x,y):g.moveTo(x,y);st=true}g.stroke();
+    g.fillStyle="rgba(255,255,255,.7)";g.fillText("start separation (dashed)",P.Lm+6,P.Y(sep0)-4);return}
+  const bpsE=TWO_PI*nAbs;let ymax=1.2;for(const q of hist)ymax=Math.max(ymax,q[2]/bpsE*1.05,Math.abs(q[1])/nAbs*1.1);ymax=Math.min(ymax,6);
+  const P=plotFrame(g,w,h,tmax,ymax,"relaxation time (cartoon)","ratio",[0,tmax/2,tmax],[0,1,2,3,4,5,6].filter(v=>v<=ymax));
+  g.setLineDash([5,4]);g.strokeStyle="#5eead4";g.lineWidth=1.5;g.beginPath();g.moveTo(P.Lm,P.Y(1));g.lineTo(P.Rm,P.Y(1));g.stroke();g.setLineDash([]);
+  g.lineWidth=2;
+  g.strokeStyle="#93c5fd";g.beginPath();hist.forEach((q,i)=>{const x=P.X(q[0]),y=P.Y(Math.min(ymax,q[1]*Math.sign(wind.n||1)/1));i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();
+  g.strokeStyle="#ffaa3c";g.beginPath();hist.forEach((q,i)=>{const x=P.X(q[0]),y=P.Y(Math.min(ymax,q[2]/bpsE));i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();
+  g.textAlign="right";g.fillStyle="#93c5fd";g.fillText("Φ/(2π n)",P.Rm-4,P.Tm+12);g.fillStyle="#ffaa3c";g.fillText("E / (2π|n|)",P.Rm-4,P.Tm+26);g.fillStyle="#5eead4";g.fillText("exact: 1",P.Rm-4,P.Tm+40);g.textAlign="start"}
+
+const f4=v=>isFinite(v)?v.toFixed(4):"…";
+function readouts(){
+  const n=wind.n,nA=Math.abs(n),E=Eparts.total,bps=TWO_PI*nA;
+  const settled=isFinite(dE)&&Math.abs(dE)<2e-6*Math.max(1,E)&&steps>50;
+  let big;
+  if(m.gauge){const q=flux/TWO_PI,diff=q-n,ok=settled&&Math.abs(diff)<1e-3;
+    big=`<span class="num">Φ/2π = ${q.toFixed(4)}</span><span class="lab">winding of φ around the edge: n = <b>${n}</b> · difference ${diff>=0?"+":"−"}${Math.abs(diff).toExponential(1)} ${ok?'<span class="ok">✓ equals n, to better than 10⁻³</span>':'(still relaxing: the gauge field is growing)'} <span class="chip c-exact">exact</span></span>`}
+  else big=`<span class="num">Φ/2π = 0</span><span class="lab">gauge field off: no flux can exist. The phase still winds n = <b>${n}</b> times around the edge, so the energy cannot settle. <span class="chip c-exact">exact</span></span>`;
+  $("big").innerHTML=big;
+  const lo=Math.min(1/Math.sqrt(m.lam+1e-12),1/(Math.SQRT2*m.e)),core=lo;
+  const bps_E=nA?E/nA:NaN;
+  const slope=(prof[29]-prof[9])/Math.log(30/10);
+  const regime=Math.abs(m.kappa-1)<0.02?"BPS point":m.kappa>1?"type II":"type I";
+  let h=`<div><span>energy E = </span><b>${E.toFixed(3)}</b> <span>(links ${Eparts.kin.toFixed(2)} + field ${Eparts.mag.toFixed(2)} + hat ${Eparts.pot.toFixed(2)})</span></div>`;
+  if(nA&&m.gauge)h+=`<div><span>energy per vortex E/|n| = </span><b>${bps_E.toFixed(3)}</b> <span>· exact BPS value 2π = </span><b>${TWO_PI.toFixed(3)}</b> <span>· ratio </span><b>${(bps_E/TWO_PI).toFixed(3)}</b> <span>${Math.abs(m.kappa-1)<0.02?"(κ = 1: the grid value is close to 2π, not equal)":"(κ ≠ 1: always above 2π)"}</span></div>`;
+  if(nA)h+=`<div><span>slope of E against ln r, between r = 10 and 30: </span><b>${slope.toFixed(2)}</b> <span>· global vortex, exact 2πn² = </span><b>${(TWO_PI*n*n).toFixed(2)}</b> <span>· gauged: should be near 0</span></div>`;
+  h+=`<div><span>coupling: e = ${m.e.toFixed(2)}, λ = ${m.lam.toFixed(3)}, κ = ${m.kappa.toFixed(2)} (${regime}) · screening length 1/(√2 e) = </span><b>${(1/(Math.SQRT2*m.e)).toFixed(1)}</b> <span>sites · Higgs length 1/√λ = </span><b>${(1/Math.sqrt(m.lam)).toFixed(1)}</b> <span>sites</span></div>`;
+  if(mode==="two")h+=`<div><span>two vortices: start separation </span><b>${sep0.toFixed(1)}</b> <span>· now </span><b>${isFinite(sepNow)?sepNow.toFixed(2):"left the grid or merged"}</b> <span>· ${!isFinite(sepNow)?"":sepNow>sep0+0.4?"pushed apart: repel":sepNow<sep0-0.4?"pulled together: attract":"not moving (yet)"}</span></div>`;
+  $("read").innerHTML=h;
+  $("nV").textContent=n0;$("eV").textContent=e0.toFixed(2);$("kV").textContent=kap.toFixed(2)+(Math.abs(kap-1)<0.02?" (BPS)":kap>1?" (type II)":" (type I)");$("sV").textContent=spd;
+  let st="";
+  if(core<1.9)st+='<span class="warn">The core is only about '+core.toFixed(1)+' sites wide. The grid is too coarse here: energies are off by several percent.</span> ';
+  if(1/(Math.SQRT2*m.e)>6)st+='<span class="warn">The screening length is long. The edge is close to the vortex. Flux may leak out.</span> ';
+  if(!st&&!settled&&playing)st="Relaxing…";else if(!st&&settled)st="Settled.";
+  $("status").innerHTML=st;
+}
+function redraw(){drawPhi();drawFlux();drawE();drawTrace();readouts();
+  $("trT").firstChild.textContent=mode==="two"?"Distance between the two vortices ":"Relaxation "}
+
+function frame(){
+  if(playing){const t0=performance.now();let k=0;while(k<spd&&performance.now()-t0<4){step(m,DT);steps++;k++}measure();redraw()}
+  requestAnimationFrame(frame)}
+
+/* ---------- controls ---------- */
+$("n").addEventListener("input",e=>{n0=+e.target.value;mode="single";ghost={on:null,off:null};restart()});
+$("e").addEventListener("input",e=>{e0=+e.target.value;setCoupling(m,e0,kap);ghost[m.gauge?"off":"on"]=null;if(!playing){measure();redraw()}else readouts()});
+$("kap").addEventListener("input",e=>{kap=+e.target.value;setCoupling(m,e0,kap);ghost[m.gauge?"off":"on"]=null;if(!playing){measure();redraw()}else readouts()});
+$("spd").addEventListener("input",e=>{spd=+e.target.value;$("sV").textContent=spd});
+$("play").onclick=()=>{if(reduce){for(let i=0;i<150;i++){step(m,DT);steps++}measure();redraw();return}
+  playing=!playing;$("play").textContent=playing?"Pause":"Play"};
+$("restart").onclick=()=>{mode="single";restart()};
+$("gtog").onclick=()=>{gaugeOn=!gaugeOn;setGaugeLabel();restart()};
+const two=k=>{kap=k;$("kap").value=k;e0=k>1?0.15:0.25;$("e").value=e0;/* keep the core >= 2 sites wide: core = 1/(sqrt2 kappa e) */gaugeOn=true;setGaugeLabel();mode="two";ghost={on:null,off:null};restart()};
+$("two2").onclick=()=>two(2);
+$("two1").onclick=()=>two(0.5);
+for(const id of["phi","flux"])$(id).addEventListener("pointerdown",ev=>{
+  const c=$(id),r=c.getBoundingClientRect(),cs=r.width/L;
+  const x=(ev.clientX-r.left)/cs-0.5,y=(ev.clientY-r.top)/cs-0.5;
+  if(x<2||x>L-3||y<2||y>L-3)return;
+  addVortex(m,x,y,+$("clk").value,xi0());steps=Math.max(steps,0);fmax=Math.max(fmax,0.02);mode="single";
+  measure();redraw()});
+addEventListener("resize",()=>{if(m)redraw()});
+
+/* start: relax a bit at once, then run */
+setGaugeLabel();
+build([{x:C0,y:C0,n:n0}]);
+if(!reduce){for(let i=0;i<20;i++){step(m,DT);steps++}measure()}
+redraw();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
