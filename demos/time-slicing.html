@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>From Paths to Schrödinger</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1f;--muted:#64666b;--line:#dcdad3;--accent:#2563eb;--warn:#c2410c;--on-accent:#fff;
+  --chip-exact:#0f766e;--chip-sim:#1d4ed8;--chip-int:#9333ea;--chip-cartoon:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;--on-accent:#0b1020;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}}
+:root[data-theme="dark"]{--bg:#0e1014;--panel:#161920;--ink:#e7e8ea;--muted:#9a9fa8;--line:#2a2f39;--accent:#7fb0ff;--warn:#fb923c;--on-accent:#0b1020;
+  --chip-exact:#5eead4;--chip-sim:#93c5fd;--chip-int:#d8b4fe;--chip-cartoon:#fcd34d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px}
+h2.sec{font-size:18px;margin:0 0 6px}
+h3.cap{font-size:14px;margin:10px 0 4px;font-weight:600}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+canvas{width:100%;display:block;background:#07080c;border-radius:8px}
+.grid2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.legend{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-right:4px;vertical-align:middle}
+.c-exact{color:var(--chip-exact)}.c-sim{color:var(--chip-sim)}.c-int{color:var(--chip-int)}.c-cartoon{color:var(--chip-cartoon)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin-top:14px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,button{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;max-width:100%}
+button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.read{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:13.5px;overflow-wrap:anywhere}
+.read span{color:var(--muted)}
+.read b{font-variant-numeric:tabular-nums}
+.big{margin-top:12px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.big b{font-size:19px;color:var(--chip-exact);font-variant-numeric:tabular-nums}
+.big small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.predict{border-left:3px solid var(--accent);padding:6px 12px;margin-top:14px}
+.lesson{border:1px solid var(--chip-exact);border-radius:8px;padding:6px 12px;margin-top:12px;font-size:14px}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent)}
+.eq{font-family:ui-serif,Georgia,serif;font-style:italic}
+a.back{font-size:13px;color:var(--accent);text-decoration:none}
+.tw{overflow-x:auto}
+table.tb{border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums;width:100%}
+table.tb th,table.tb td{padding:2px 6px;text-align:right;border-bottom:1px solid var(--line)}
+table.tb th{color:var(--muted);font-weight:600}
+canvas.drag{touch-action:none;cursor:grab}
+/* ---- guide (shared template, keep identical in every room) ---- */
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+.howto ol{margin:4px 0 2px;padding-left:20px}
+.howto li{margin:2px 0}
+.howto a,.guide a{color:var(--accent)}
+.guide{font-size:15px;line-height:1.6}
+.guide h2{font-size:21px;margin:0 0 4px}
+.guide h3{font-size:16px;margin:20px 0 6px}
+.guide p{max-width:78ch}
+.guide dl{display:grid;grid-template-columns:minmax(130px,max-content) 1fr;gap:6px 16px;margin:8px 0}
+.guide dt{font-weight:600}
+.guide dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.guide dl{grid-template-columns:1fr;gap:0}.guide dd{margin-bottom:8px}}
+.guide ol.try>li{margin:8px 0}
+.guide ol.try details{margin-top:2px}
+.guide .math{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;margin:8px 0}
+.guide .math .eq{display:block;margin:8px 0;font-size:16.5px;white-space:nowrap}
+.guide .limits{border-left:3px solid var(--muted);padding:2px 12px;color:var(--muted)}
+.guide .refs li{margin:3px 0}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)}
+a.term:hover{color:var(--accent)}
+</style></head>
+<body>
+<main>
+<a class="back" href="../index.html">← all rooms</a>
+<h1>From Paths to Schrödinger</h1>
+<p class="sub">The path integral is a product of many short steps. Cut time into N slices. One slice is easy: a free step and a small kick from the potential. Do it N times and you get the wave. Here you build the sum from slices, you watch it converge, and you measure how fast.</p>
+
+<div class="howto"><b>How to use this room</b>
+<ol>
+<li>Part 1: set N = 2 and drag the single middle dot of the path. Watch the arrow e<sup>iS</sup> turn. Then raise N and see the polygon become a smooth path.</li>
+<li>Part 2: choose a potential and move N from 1 up to 256. Time goes down in the picture. Each row is one more step. Compare N = 1 with N = 64.</li>
+<li>Part 3: read the big number. It is the measured speed of convergence of the symmetric step, and 2 is the exact answer. Then look at the free particle line.</li>
+<li>Part 4: switch to imaginary time. The same steps now find the ground-state energy.</li>
+</ol>
+New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
+
+<section id="part1">
+<h2 class="sec">Part 1 · A sliced path</h2>
+<p>A path from the left point to the right point is a list of positions at N+1 times. The two ends are fixed. The N−1 dots in between are free. Each slice adds a small number to the action: the motion term (Δx)²/2ε and the potential term −ε V. The sum is S<sub>N</sub>. The path counts with the arrow e<sup>iS<sub>N</sub></sup>. Here the potential is a harmonic trap, V = x²/2.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">One path (time across, position up). Drag the dots up and down.</h3>
+    <canvas id="pa" class="drag" data-h0="300"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">The arrow of this path</h3>
+    <canvas id="pc" data-h0="170"></canvas>
+    <h3 class="cap">Slice terms (they add up to S<sub>N</sub>)</h3>
+    <canvas id="pb" data-h0="120"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>S<sub>N</sub> = Σ [ (x<sub>k+1</sub>−x<sub>k</sub>)²/(2ε) − ε V(midpoint) ]. The numbers below are this formula, evaluated for the path on the screen. The classical action S<sub>cl</sub> is the exact formula for the oscillator.</div>
+  <div><span class="chip c-cartoon">cartoon</span>This is one path out of infinitely many. The wave is the sum of all the arrows. The page does not add them here. Part 2 does it, slice by slice.</div>
+  <div><span class="chip c-int">interpretation</span>"The particle takes every path." The arrow picture is a way to read the sum. The wave function is the same without it.</div>
+</div>
+<div class="controls">
+  <label>slices N <b id="n1V"></b><input id="n1" type="range" min="1" max="6" step="1" value="3"></label>
+  <label>total time T <b id="t1V"></b><input id="t1" type="range" min="0.5" max="3" step="0.1" value="2"></label>
+  <label>kind of path <select id="k1"><option value="classical">the classical path</option><option value="smooth">smooth wiggles</option><option value="rough">rough (random walk)</option></select></label>
+  <div class="btns"><button id="rnd1" class="primary">New random path</button><button id="cl1">Back to classical</button></div>
+</div>
+<div class="read" id="read1"></div>
+<div class="predict"><b>Predict, then test:</b> start from the classical path and drag one dot away. Does S<sub>N</sub> go up or down? Then choose "rough" and double N several times. Does S<sub>N</sub> settle on a number? Why not?</div>
+</section>
+
+<section id="part2">
+<h2 class="sec">Part 2 · Integrate one slice at a time</h2>
+<p>Now the sum over all the dots is done for you. One slice does this to a wave: first the potential turns the phase of each point, e<sup>−iεV(x)</sup>. Then the free step lets the wave spread. The free step is the exact free kernel, applied with a fast Fourier transform. Repeat N times. Each row of the picture is the wave after one more step. Time goes down. Brightness is |ψ|. Colour is the phase.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">The wave after each step (position across, time down)</h3>
+    <canvas id="st" data-h0="340"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">The last row, compared with the reference</h3>
+    <canvas id="sn" data-h0="200"></canvas>
+    <div class="read" id="read2" style="flex-direction:column"></div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>the rows: N steps of the product formula on a grid of 256 points, with a box of width 32. The free step is exact on this grid. The potential step is exact too. Only the order of the two is approximate.</div>
+  <div><span class="chip c-exact">exact</span>dashed reference line: for the free particle the spreading Gaussian, and for the trap the sum of oscillator states. For the double well and the step it is a very fine run (N = 2048, symmetric), so it is <span class="chip c-sim" style="margin:0">simulation</span> there.</div>
+  <div><span class="chip c-int">interpretation</span>"Each row is a sum over all paths with one more slice." This is true for the integral, and the picture shows its result.</div>
+</div>
+<div class="controls">
+  <label>potential <select id="pot2"><option value="free">free (no potential)</option><option value="harm" selected>harmonic trap</option><option value="dwell">double well</option><option value="step">step</option></select></label>
+  <label>number of slices N <b id="n2V"></b><input id="n2" type="range" min="0" max="8" step="0.125" value="2"></label>
+  <label>total time T <b id="t2V"></b><input id="t2" type="range" min="0.5" max="5" step="0.25" value="3"></label>
+  <label>split <select id="sc2"><option value="plain">plain: V, then free</option><option value="sym" selected>symmetric: ½V, free, ½V</option></select></label>
+</div>
+<div class="lesson"><span class="chip c-exact">exact</span><b>Lesson:</b> choose "free". The result is the same for N = 1 and N = 256. The free kernels compose exactly: a free step of time T is the same as N free steps of time T/N. Slicing costs nothing here. All the error you see in the other potentials comes from the potential, not from the slicing of free motion.</div>
+<div class="predict"><b>Predict, then test:</b> in the harmonic trap with N = 1, what do you expect: a bad wave or a good wave? Move N to 2, 4, 8. At which N can you no longer see a difference from the dashed line?</div>
+</section>
+
+<section id="part3">
+<h2 class="sec">Part 3 · Converge</h2>
+<p>How fast does the error fall when N grows? Take the harmonic trap. The exact answer is the sum over oscillator states, which does not use slicing at all. For each N the page runs the slices and measures the distance to the exact wave. Two splittings are compared. <b>Plain:</b> potential step, then free step. The error falls like 1/N. <b>Symmetric:</b> half a potential step, free step, half a potential step. The error falls like 1/N².</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">Error against N (both axes logarithmic)</h3>
+    <canvas id="cv" data-h0="320"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">The numbers</h3>
+    <div class="tw" id="tbl3"></div>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-exact">exact</span>the reference: oscillator eigenstates (120 states) for the trap, and the exact spreading Gaussian with its periodic images for the free particle.</div>
+  <div><span class="chip c-sim">simulation</span>the error curves: the length ‖ψ<sub>N</sub> − ψ<sub>exact</sub>‖ of the difference, for N = 1, 2, 4, … 256. The slopes are fitted on N = 16 … 256.</div>
+  <div><span class="chip c-int">interpretation</span>"Order 1 and order 2" are names for the slopes. They are measured here, not assumed.</div>
+</div>
+<div class="controls">
+  <label>total time T <b id="t3V"></b><input id="t3" type="range" min="0.5" max="6" step="0.25" value="3"></label>
+  <label>width of the start packet <select id="s3"><option value="0.5">narrow (σ = 0.5)</option><option value="0.7071">ground-state width (σ = 0.707)</option><option value="1">wide (σ = 1)</option></select></label>
+</div>
+<div class="big" id="big3"></div>
+<div class="lesson"><span class="chip c-exact">exact</span><b>Lesson:</b> the free-particle line (teal) is flat at the rounding level, about 10<sup>−15</sup>, for every N. A free particle needs no slicing error at all. Only the product of two non-commuting steps (kinetic and potential) makes an error.</div>
+<div class="predict"><b>Predict, then test:</b> if you double N, by what factor does the plain error fall? And the symmetric error? Check the table. Then raise T from 1 to 6: what happens to both errors at fixed N?</div>
+</section>
+
+<section id="part4">
+<h2 class="sec">Part 4 · Imaginary time: the same product, a different answer</h2>
+<p>Replace the time step ε by −iε. Now the steps do not turn phases. They damp. The free step becomes a smoothing step (diffusion). The potential step becomes e<sup>−εV</sup>. After many steps only the state with the lowest energy survives. Each step shrinks the norm by the factor e<sup>−εE</sup>. So the shrink rate gives the energy. In the harmonic trap the exact ground-state energy is ½. The shape of the surviving wave also has an error, and there the two splittings differ.</p>
+<div class="grid2">
+  <div>
+    <h3 class="cap">|ψ|² after each step (position across, imaginary time down; symmetric split)</h3>
+    <canvas id="ih" data-h0="260"></canvas>
+  </div>
+  <div>
+    <h3 class="cap">Energy from the shrink rate, step by step</h3>
+    <canvas id="ie" data-h0="260"></canvas>
+  </div>
+</div>
+<div class="legend">
+  <div><span class="chip c-sim">simulation</span>the picture and the curves: steps in imaginary time on the same grid. After each step the wave is made norm 1 again, and the shrink factor is kept.</div>
+  <div><span class="chip c-exact">exact</span>dotted line: E<sub>0</sub> = ½ (ħ = m = ω = 1), and the ground-state shape π<sup>−1/4</sup>e<sup>−x²/2</sup>. They are the known answers for the oscillator.</div>
+  <div><span class="chip c-int">interpretation</span>"Diffusion that selects the ground state." It is a rewriting of the same sum, with ε imaginary. It is a trick of the maths, not a real process in time.</div>
+</div>
+<div class="controls">
+  <label>step size ε <b id="e4V"></b><input id="e4" type="range" min="0" max="5" step="1" value="3"></label>
+</div>
+<div class="read" id="read4"></div>
+<div class="predict"><b>Predict, then test:</b> halve ε. By how much does the energy error fall? By how much does the shape error fall for the plain split, and for the symmetric split? Then compare the two energy numbers. Are they different?</div>
+</section>
+
+<section class="guide" id="guide">
+<h2>Guide: what you are looking at</h2>
+
+<h3>In one minute</h3>
+<p>The <a class="term" href="../glossary.html#path-integral">path integral</a> says: add one arrow (an <a class="term" href="../glossary.html#amplitude">amplitude</a>) for every path. But "every path" is a lot. A computer cannot do that directly. The trick is to <a class="term" href="../glossary.html#time-slicing">cut time into N small slices</a>. A path is then a list of N+1 positions. For one slice the answer is simple: a free jump plus a small kick from the potential. The sum over all paths becomes N−1 ordinary integrals, one for each free dot.</p>
+<p>This room shows that this really works. You build one sliced path by hand. You then do the integrals slice by slice, and you watch the wave appear. You measure the error and see it fall as N grows. At the end you get the wave of <a class="term" href="../glossary.html#schrodinger">Schrödinger's equation</a> back. The same steps in <a class="term" href="../glossary.html#imaginary-time">imaginary time</a> find the <a class="term" href="../glossary.html#ground-state">ground state</a>.</p>
+
+<h3>What you see</h3>
+<dl>
+<dt>Path (Part 1)</dt><dd>Time goes across and position goes up. The dots are the positions at the slice times. The grey dashed curve is the classical path. You can drag the dots.</dd>
+<dt>Arrow</dt><dd>The <a class="term" href="../glossary.html#phase">phase</a> of the path: e<sup>iS<sub>N</sub></sup>. The colour ring is the phase wheel (red, yellow, green, blue, red). The ghost arrow is the classical polygon.</dd>
+<dt>Slice terms</dt><dd>One bar for each slice. Up is the motion term, minus the potential term. All bars add up to S<sub>N</sub>.</dd>
+<dt>Step picture (Part 2)</dt><dd>One row after each step. Brightness is |ψ|, colour is the phase. The white line marks the last row. White curve in the snapshot: the potential.</dd>
+<dt>Error plot (Part 3)</dt><dd>Orange: plain split. Blue: symmetric split. Teal: free particle. The dashed grey lines have slope −1 and −2.</dd>
+<dt>Imaginary time (Part 4)</dt><dd>The wave shrinks to the Gaussian ground state. The curve shows the energy estimate from the shrink rate. It goes to ½.</dd>
+</dl>
+
+<h3>Things to try</h3>
+<ol class="try">
+<li>Part 1: set N = 2, kind "classical". Drag the middle dot up and down. <details><summary>What happens and why</summary>S<sub>N</sub> is smallest near the classical position, and it grows when you move the dot away. The classical path is a place where the action is stationary (it hardly changes). For the harmonic trap with T below π, it is even a minimum. Near that place the arrows of neighbouring paths point the same way, so they add up. Far from it the arrows turn fast and cancel.</details></li>
+<li>Part 1: choose "smooth wiggles" and move N from 2 to 64. <details><summary>What happens and why</summary>The polygon becomes the smooth curve. S<sub>N</sub> settles on one number, the action of the smooth path. The classical polygon error in the line below falls by a factor of 4 for each doubling of N. That is order 2.</details></li>
+<li>Part 1: choose "rough" and raise N. <details><summary>What happens and why</summary>S<sub>N</sub> keeps growing. A random walk has steps of size about √ε, so each motion term (Δx)²/2ε does not shrink. The sum grows like N. Typical paths in the path integral are not smooth. The sum still works because the arrows of such paths cancel almost completely. The smooth path is the exception that survives.</details></li>
+<li>Part 2: choose "free". Move N from 1 to 256. <details><summary>What happens and why</summary>The last row does not change at all (the error is about 10<sup>−15</sup>). One free step of time T is exactly N steps of time T/N. The free kernel composes exactly. The integral over each middle dot gives back the same kernel.</details></li>
+<li>Part 2: harmonic trap, plain split, N = 1, 2, 4, 8, 16. <details><summary>What happens and why</summary>With N = 1 the whole motion is one kick and one free spread. The result is wrong. The potential and the free motion do not commute: it matters which comes first. When the steps are short, the order matters less and less. The error falls like 1/N.</details></li>
+<li>Part 2: switch to the symmetric split. <details><summary>What happens and why</summary>For the same N the error is much smaller. Half a kick before and half after treat the two orders in a balanced way. The first error term cancels. The error falls like 1/N².</details></li>
+<li>Part 3: read the big number, then change T and the width. <details><summary>What happens and why</summary>The fitted order stays near 2 for the symmetric split and near 1 for the plain split. The size of the error changes with T and width, but the slope does not. The order is a property of the formula.</details></li>
+<li>Part 4: set ε = 0.5 and then ε = 0.05. <details><summary>What happens and why</summary>The energy estimate goes to ½ when ε goes to 0. Its error falls by 4 each time ε is halved (order 2), and it is the same for both splittings. This is no accident. The two step operators are the same up to a change of variables (V<sup>1/2</sup>), so they have the same decay rate. But the <i>shape</i> of the surviving wave is different. For the plain split the shape error falls only by 2 when ε is halved (order 1). For the symmetric split it falls by 4 (order 2).</details></li>
+</ol>
+
+<h3>The physics</h3>
+<p>The <a class="term" href="../glossary.html#propagator">propagator</a> K(x,T;x₀) takes the wave from time 0 to time T. It has the composition property: K(x,T;x₀) = ∫ K(x,T−t;y) K(y,t;x₀) dy. You can cut time in two, then in N pieces. For short time ε the kernel of a particle in a smooth potential is, to a good approximation, the free kernel times a phase from the potential. Put N of them in a chain and integrate over the N−1 middle points. This is the discrete <a class="term" href="../glossary.html#path-integral">path integral</a>. The phase of a polygon path is its sliced <a class="term" href="../glossary.html#action">action</a> S<sub>N</sub>. In the limit N → ∞ the polygons fill the space of all paths, and S<sub>N</sub> becomes the action ∫ L dt.</p>
+<p>The same chain is a recipe for a computer. The wave after one slice is ψ(x,t+ε) = ∫ K<sub>ε</sub>(x,y) ψ(y,t) dy. The free part of this integral is a convolution. It is simple in Fourier space: each wave number k just gets the phase e<sup>−iεk²/2</sup>. So one slice is: multiply by a phase in x-space, Fourier transform, multiply by a phase in k-space, transform back. This is the "split-step" method. It is the <a class="term" href="../glossary.html#trotter-splitting">product formula of Trotter and Suzuki</a>: e<sup>−iε(K+V)</sup> ≈ e<sup>−iεV</sup> e<sup>−iεK</sup>. The error per slice is of order ε², and N slices give an error of order ε = T/N. The symmetric form e<sup>−iεV/2</sup> e<sup>−iεK</sup> e<sup>−iεV/2</sup> has a smaller error per slice, ε³, so the total is of order ε². The first error term is a <a class="term" href="../glossary.html#commutator">commutator</a>-type term: it exists only because the kinetic and potential parts do not commute. For V = 0 there is no error at all.</p>
+<p>In the limit the result is the solution of the <a class="term" href="../glossary.html#schrodinger">Schrödinger equation</a>. For the <a class="term" href="../glossary.html#harmonic-oscillator">harmonic oscillator</a> the exact answer is known (the Mehler kernel, or the sum over oscillator states). So the oscillator is a clean test: you can measure the error exactly. For ε → −iε (a <a class="term" href="../glossary.html#wick-rotation">Wick rotation</a>) each step is real and damps the wave. High energies decay fastest, and the <a class="term" href="../glossary.html#ground-state">ground state</a> stays.</p>
+
+<h3>The math</h3>
+<details><summary>Show the formulas</summary>
+<div class="math">
+<span class="eq">K(x,T;x₀) = lim<sub>N→∞</sub> ∫ dx₁ … dx<sub>N−1</sub> Π<sub>k=0</sub><sup>N−1</sup> K<sub>ε</sub>(x<sub>k+1</sub>, x<sub>k</sub>), &nbsp; ε = T/N</span>
+<span>The path integral as N−1 ordinary integrals. x₀ and x<sub>N</sub> = x are fixed (ħ = m = 1).</span>
+<span class="eq">K<sub>ε</sub>(x',x) = (2πiε)<sup>−1/2</sup> exp( i [ (x'−x)²/(2ε) − ε V(x̄) ] ), &nbsp; x̄ = (x+x')/2</span>
+<span>The short-time kernel. For V = 0 it is the exact free kernel.</span>
+<span class="eq">S<sub>N</sub> = Σ<sub>k</sub> [ (x<sub>k+1</sub>−x<sub>k</sub>)²/(2ε) − ε V(x̄<sub>k</sub>) ] → ∫ ( ½ẋ² − V ) dt</span>
+<span>The sliced action of a polygon path. For a smooth path the difference is O(ε²). For a rough path it is not small.</span>
+<span class="eq">S<sub>cl</sub> = [ (x₀²+x<sub>T</sub>²) cos T − 2 x₀ x<sub>T</sub> ] / (2 sin T)</span>
+<span>The classical action of the oscillator (ω = 1), for T not a multiple of π. The test compares S<sub>N</sub> of the classical polygon with it.</span>
+<span class="eq">ψ̂(k) → e<sup>−iεk²/2</sup> ψ̂(k)</span>
+<span>The free step in Fourier space. It is exact. It equals the integral with K<sub>ε</sub> for V = 0 (checked against quadrature).</span>
+<span class="eq">U<sub>plain</sub> = e<sup>−iεK</sup> e<sup>−iεV</sup>, &nbsp; U<sub>sym</sub> = e<sup>−iεV/2</sup> e<sup>−iεK</sup> e<sup>−iεV/2</sup></span>
+<span>The two splittings. K = p²/2 is the kinetic operator. The result is ψ(T) ≈ U<sup>N</sup> ψ(0).</span>
+<span class="eq">‖U<sub>plain</sub><sup>N</sup> ψ − e<sup>−iTH</sup> ψ‖ = O(1/N), &nbsp; ‖U<sub>sym</sub><sup>N</sup> ψ − e<sup>−iTH</sup> ψ‖ = O(1/N²)</span>
+<span>The orders. The first error term of U<sub>plain</sub> is (ε²/2)[K,V]-like. It cancels in U<sub>sym</sub>.</span>
+<span class="eq">e<sup>−εH</sup> ≈ e<sup>−εV/2</sup> e<sup>−εK</sup> e<sup>−εV/2</sup>, &nbsp; E ≈ −ln( ‖ψ<sub>k+1</sub>‖ / ‖ψ<sub>k</sub>‖ ) / ε</span>
+<span>Imaginary time (ε → −iε). The shrink rate of the norm gives the energy of the state that survives. For the oscillator E₀ = ½. The plain step e<sup>−εK</sup>e<sup>−εV</sup> equals e<sup>−εV/2</sup>(…)e<sup>εV/2</sup>-conjugated, so it has the same eigenvalues but different eigenvectors.</span>
+<span class="eq">ψ(x,T) = Σ<sub>n</sub> c<sub>n</sub> e<sup>−i(n+½)T</sup> φ<sub>n</sub>(x), &nbsp; c<sub>n</sub> = ⟨φ<sub>n</sub>|ψ(0)⟩</span>
+<span>The exact reference for the trap. It does not use slicing.</span>
+</div>
+</details>
+
+<h3>Honest limits</h3>
+<p class="limits">The wave lives on a grid of 256 points in a periodic box of width 32. The free step is exact on this grid, but the wave must stay away from the edges (it would wrap around). The grid error is tiny for smooth packets, and the page does not measure it separately. The error curves are measured for one start packet in one trap, not for all cases. The orders 1 and 2 are asymptotic: for N = 1 or 2 the curves can look different. The rough-path option is a cartoon of how rough typical paths are, not a correct sample of the path-integral measure. The potentials in Part 2 are smooth, so the orders hold. A potential with a true jump would give slower convergence. In Part 4 the exact energy ½ is the answer for the continuous oscillator. The grid and the finite ε give small deviations, and the page shows them. One dimension, one particle, no spin, no measurement.</p>
+
+<h3>Go further</h3>
+<ul class="refs">
+<li>R. P. Feynman and A. R. Hibbs, <i>Quantum Mechanics and Path Integrals</i> (McGraw-Hill, 1965), chapters 2–4: the short-time kernel and the product of slices.</li>
+<li>R. P. Feynman, "Space-time approach to non-relativistic quantum mechanics", Reviews of Modern Physics 20, 367 (1948).</li>
+<li>L. S. Schulman, <i>Techniques and Applications of Path Integration</i> (Wiley, 1981).</li>
+<li>H. F. Trotter, "On the product of semi-groups of operators", Proceedings of the American Mathematical Society 10, 545 (1959).</li>
+<li>M. Suzuki, "Generalized Trotter's formula and systematic approximants of exponential operators and inner derivations with applications to many-body problems", Communications in Mathematical Physics 51, 183 (1976).</li>
+<li>M. D. Feit, J. A. Fleck and A. Steiger, "Solution of the Schrödinger equation by a spectral method", Journal of Computational Physics 47, 412 (1982): the split-step method with FFT.</li>
+<li>Related rooms: <a href="path-integral.html">Path Integral Playground</a>, <a href="quantum-carpet.html">Paths That Meet Again</a>, <a href="double-slit.html">Double Slit Flow</a>.</li>
+</ul>
+</section>
+</main>
+
+<script>
+"use strict";
+/* PHYSICS-CORE START */
+const TWO_PI=2*Math.PI;
+/* ---------- FFT (radix 2, in place). forward: sum_j f_j e^{-2 pi i jk/n}; inverse divides by n ---------- */
+const _tw=new Map();
+function twiddle(n){let t=_tw.get(n);if(!t){const c=new Float64Array(n/2),s=new Float64Array(n/2);for(let k=0;k<n/2;k++){c[k]=Math.cos(TWO_PI*k/n);s[k]=Math.sin(TWO_PI*k/n)}t={c,s};_tw.set(n,t)}return t}
+function fft(re,im,inv){
+  const n=re.length,tw=twiddle(n),sg=inv?1:-1;
+  for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){let t=re[i];re[i]=re[j];re[j]=t;t=im[i];im[i]=im[j];im[j]=t}}
+  for(let len=2;len<=n;len<<=1){const h=len>>1,st=n/len;
+    for(let i=0;i<n;i+=len)for(let k=0;k<h;k++){const cr=tw.c[k*st],ci=sg*tw.s[k*st],a=i+k,b=a+h;
+      const xr=re[b]*cr-im[b]*ci,xi=re[b]*ci+im[b]*cr;re[b]=re[a]-xr;im[b]=im[a]-xi;re[a]+=xr;im[a]+=xi}}
+  if(inv){for(let i=0;i<n;i++){re[i]/=n;im[i]/=n}}}
+/* ---------- periodic grid, hbar = m = 1 ---------- */
+function makeGrid(n,L){const dx=L/n,x=new Float64Array(n),k=new Float64Array(n);
+  for(let j=0;j<n;j++){x[j]=-L/2+j*dx;k[j]=TWO_PI/L*(j<n/2?j:j-n)}
+  return {n,L,dx,x,k,fc:null}}
+function copyPsi(p){return {re:Float64Array.from(p.re),im:Float64Array.from(p.im)}}
+function normOf(p,g){let s=0;for(let j=0;j<g.n;j++)s+=p.re[j]*p.re[j]+p.im[j]*p.im[j];return Math.sqrt(s*g.dx)}
+function scalePsi(p,f){for(let j=0;j<p.re.length;j++){p.re[j]*=f;p.im[j]*=f}}
+function l2diff(a,b,g){let s=0;for(let j=0;j<g.n;j++){const dr=a.re[j]-b.re[j],di=a.im[j]-b.im[j];s+=dr*dr+di*di}return Math.sqrt(s*g.dx)}
+/* start packet, |psi|^2 has standard deviation s: psi = (2 pi s^2)^(-1/4) exp(-(x-x0)^2/(4 s^2) + i k0 x) */
+function gaussPacket(g,x0,k0,s){const re=new Float64Array(g.n),im=new Float64Array(g.n),A=Math.pow(TWO_PI*s*s,-0.25);
+  for(let j=0;j<g.n;j++){const z=g.x[j]-x0,a=A*Math.exp(-z*z/(4*s*s));re[j]=a*Math.cos(k0*g.x[j]);im[j]=a*Math.sin(k0*g.x[j])}
+  return {re,im}}
+/* potentials */
+const POTS={free:x=>0,harm:x=>0.5*x*x,dwell:x=>0.1*Math.pow(x*x-2.25,2),step:x=>0.75*(1+Math.tanh(x/0.2))};
+function potVec(g,name){const f=POTS[name],V=new Float64Array(g.n);for(let j=0;j<g.n;j++)V[j]=f(g.x[j]);return V}
+const POT_START={free:{x0:-4,k0:2,s:0.7},harm:{x0:1.2,k0:0,s:0.5},dwell:{x0:-1.5,k0:0,s:0.5},step:{x0:-4,k0:2,s:0.7}};
+/* the two kinds of step. imag = false: e^{-i eps ...}; imag = true: e^{-eps ...} (imaginary time) */
+function freeStep(p,g,eps,imag){
+  const n=g.n,key=(imag?"i":"r")+eps;let f=g.fc;
+  if(!f||f.key!==key){const a=new Float64Array(n),b=new Float64Array(n);
+    for(let j=0;j<n;j++){const q=0.5*g.k[j]*g.k[j]*eps;if(imag){a[j]=Math.exp(-q);b[j]=0}else{a[j]=Math.cos(q);b[j]=-Math.sin(q)}}
+    f=g.fc={key,a,b}}
+  fft(p.re,p.im,false);
+  for(let j=0;j<n;j++){const r=p.re[j],i=p.im[j];p.re[j]=r*f.a[j]-i*f.b[j];p.im[j]=r*f.b[j]+i*f.a[j]}
+  fft(p.re,p.im,true)}
+function potStep(p,V,eps,imag){
+  for(let j=0;j<V.length;j++){const q=eps*V[j];
+    if(imag){const f=Math.exp(-q);p.re[j]*=f;p.im[j]*=f}
+    else{const c=Math.cos(q),s=-Math.sin(q),r=p.re[j],i=p.im[j];p.re[j]=r*c-i*s;p.im[j]=r*s+i*c}}}
+/* N slices of length eps = T/N. "plain": V then free. "sym": half V, free, half V. rec(k,psi) is called after each step. */
+function oneStep(p,g,V,eps,scheme,imag){
+  if(scheme==="sym"){potStep(p,V,eps/2,imag);freeStep(p,g,eps,imag);potStep(p,V,eps/2,imag)}
+  else{potStep(p,V,eps,imag);freeStep(p,g,eps,imag)}}
+function evolve(psi0,g,V,T,N,scheme,rec){
+  const eps=T/N,p=copyPsi(psi0);if(rec)rec(0,p);
+  for(let k=1;k<=N;k++){oneStep(p,g,V,eps,scheme,false);if(rec)rec(k,p)}
+  return p}
+/* exact free packet (infinite line) and its periodic images (the exact answer for the periodic box) */
+function freeGaussAt(x,t,x0,k0,s){
+  const a=1/(4*s*s),tau=2*a*t,z=x-x0-k0*t,q=1+tau*tau;
+  const mag=Math.pow(TWO_PI*s*s,-0.25)*Math.pow(q,-0.25)*Math.exp(-a*z*z/q);
+  const ph=a*z*z*tau/q-0.5*Math.atan(tau)+k0*x-0.5*k0*k0*t;
+  return [mag*Math.cos(ph),mag*Math.sin(ph)]}
+function freeExact(g,x0,k0,s,t,J){const re=new Float64Array(g.n),im=new Float64Array(g.n);
+  for(let j=0;j<g.n;j++){let a=0,b=0;for(let m=-J;m<=J;m++){const v=freeGaussAt(g.x[j]+m*g.L,t,x0,k0,s);a+=v[0];b+=v[1]}re[j]=a;im[j]=b}
+  return {re,im}}
+/* oscillator (omega = 1) eigenfunctions h_n(x), n = 0..Nm-1, row n starts at n*M */
+function hermiteRows(Nm,xs){
+  const M=xs.length,T=new Float64Array(Nm*M);
+  for(let j=0;j<M;j++){const u=xs[j];let prev=0,cur=Math.pow(Math.PI,-0.25)*Math.exp(-u*u/2);T[j]=cur;
+    for(let n=0;n<Nm-1;n++){const nx=Math.sqrt(2/(n+1))*u*cur-Math.sqrt(n/(n+1))*prev;prev=cur;cur=nx;T[(n+1)*M+j]=cur}}
+  return T}
+/* exact wave of the trap V = x^2/2 at time T: sum_n c_n e^{-i (n+1/2) T} phi_n. captured = weight held by the Nm states. */
+function harmonicExact(g,p0,T,Nm){
+  const M=g.n,tab=hermiteRows(Nm,g.x),re=new Float64Array(M),im=new Float64Array(M);let tot=0;
+  for(let n=0;n<Nm;n++){let a=0,b=0;const o=n*M;for(let j=0;j<M;j++){a+=tab[o+j]*p0.re[j];b+=tab[o+j]*p0.im[j]}a*=g.dx;b*=g.dx;tot+=a*a+b*b;
+    const th=(n+0.5)*T,co=Math.cos(th),si=Math.sin(th),ar=a*co+b*si,ai=b*co-a*si;
+    for(let j=0;j<M;j++){const f=tab[o+j];re[j]+=ar*f;im[j]+=ai*f}}
+  const n0=normOf(p0,g);return {re,im,captured:tot/(n0*n0)}}
+/* reference wave for the page: exact where we have an exact answer, a very fine symmetric run elsewhere */
+function referenceState(g,pot,p0,T,st){
+  if(pot==="free")return {psi:freeExact(g,st.x0,st.k0,st.s,T,3),kind:"exact"};
+  if(pot==="harm"){const e=harmonicExact(g,p0,T,120);return {psi:{re:e.re,im:e.im},kind:"exact"}}
+  return {psi:evolve(p0,g,potVec(g,pot),T,2048,"sym"),kind:"fine"}}
+/* least-squares order: err ~ N^(-order), fitted on the points with N >= nmin */
+function fitOrder(Ns,errs,nmin){let sx=0,sy=0,sxx=0,sxy=0,m=0;
+  for(let i=0;i<Ns.length;i++){if(Ns[i]<nmin)continue;const x=Math.log(Ns[i]),y=Math.log(errs[i]);sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;m++}
+  return -(m*sxy-sx*sy)/(m*sxx-sx*sx)}
+/* error against N for the trap (plain and symmetric) and for the free particle; the page and the test both use this */
+function convergence(g,s,T,Ns){
+  const p0=gaussPacket(g,1.2,0,s),ex=harmonicExact(g,p0,T,120),V=potVec(g,"harm");
+  const f0=gaussPacket(g,-1,1.5,s),fe=freeExact(g,-1,1.5,s,T,3),Vz=potVec(g,"free");
+  const errP=[],errS=[],errF=[];
+  for(const N of Ns){errP.push(l2diff(evolve(p0,g,V,T,N,"plain"),ex,g));errS.push(l2diff(evolve(p0,g,V,T,N,"sym"),ex,g));errF.push(l2diff(evolve(f0,g,Vz,T,N,"sym"),fe,g))}
+  return {Ns,errP,errS,errF,orderP:fitOrder(Ns,errP,16),orderS:fitOrder(Ns,errS,16),captured:ex.captured}}
+/* imaginary time: eps -> -i eps. After each step the wave is made norm 1; the shrink factor gives E = -ln(factor)/eps. */
+function imagRun(g,pot,p0,eps,steps,scheme,rec){
+  const V=potVec(g,pot),p=copyPsi(p0);scalePsi(p,1/normOf(p,g));const E=new Float64Array(steps);
+  if(rec)rec(0,p);
+  for(let k=0;k<steps;k++){oneStep(p,g,V,eps,scheme,true);const nr=normOf(p,g);E[k]=-Math.log(nr)/eps;scalePsi(p,1/nr);if(rec)rec(k+1,p)}
+  return {E,psi:p}}
+function energyExpect(p,g,V){
+  const q=copyPsi(p);fft(q.re,q.im,false);let kt=0,nt=0,vt=0,nx=0;
+  for(let j=0;j<g.n;j++){const w=q.re[j]*q.re[j]+q.im[j]*q.im[j];kt+=0.5*g.k[j]*g.k[j]*w;nt+=w;const r=p.re[j]*p.re[j]+p.im[j]*p.im[j];vt+=V[j]*r;nx+=r}
+  return kt/nt+vt/nx}
+/* distance of a (norm 1) imaginary-time state from the exact oscillator ground state pi^(-1/4) exp(-x^2/2) */
+function groundStateError(p,g){let s=0;const A=Math.pow(Math.PI,-0.25);
+  for(let j=0;j<g.n;j++){const r=A*Math.exp(-g.x[j]*g.x[j]/2),dr=p.re[j]-r;s+=dr*dr+p.im[j]*p.im[j]}return Math.sqrt(s*g.dx)}
+/* ---------- Part 1: sliced action of a polygon path, harmonic trap V = x^2/2 ---------- */
+const Vharm=x=>0.5*x*x;
+function sliceTerms(xs,T,Vf){const N=xs.length-1,e=T/N,o=new Float64Array(N);
+  for(let k=0;k<N;k++){const d=xs[k+1]-xs[k];o[k]=d*d/(2*e)-e*Vf(0.5*(xs[k]+xs[k+1]))}return o}
+function pathAction(xs,T,Vf){const o=sliceTerms(xs,T,Vf);let s=0;for(let k=0;k<o.length;k++)s+=o[k];return s}
+function classicalHarm(xa,xb,T,t){return (xa*Math.sin(T-t)+xb*Math.sin(t))/Math.sin(T)}
+function classicalActionHarm(xa,xb,T){return ((xa*xa+xb*xb)*Math.cos(T)-2*xa*xb)/(2*Math.sin(T))}
+/* straight line from xa to xb: exact action  (xb-xa)^2/(2T) - T (xa^2 + xa xb + xb^2)/6 */
+function straightActionHarm(xa,xb,T){return 0.5*(xb-xa)*(xb-xa)/T-T*(xa*xa+xa*xb+xb*xb)/6}
+function samplePath(f,N,T){const xs=new Float64Array(N+1);for(let k=0;k<=N;k++)xs[k]=f(k*T/N);return xs}
+/* a Brownian bridge on F fine steps from standard normal numbers z (length F) */
+function bridgeFrom(z){const F=z.length,W=new Float64Array(F+1);for(let k=0;k<F;k++)W[k+1]=W[k]+z[k];
+  const b=new Float64Array(F+1);for(let k=0;k<=F;k++)b[k]=W[k]-W[F]*k/F;return b}
+/* polygon with N slices. kinds: classical, smooth (classical + sine modes), rough (classical + random-walk bridge, F = 64 fine steps) */
+function makePath(kind,N,T,xa,xb,coef,bridge){
+  const xs=new Float64Array(N+1),F=bridge?bridge.length-1:1;
+  for(let k=0;k<=N;k++){const t=k*T/N;let x=classicalHarm(xa,xb,T,t);
+    if(kind==="smooth"){for(let m=0;m<coef.length;m++)x+=coef[m]*Math.sin((m+1)*Math.PI*t/T)}
+    else if(kind==="rough"){x+=0.5*Math.sqrt(T/F)*bridge[k*(F/N)]}
+    xs[k]=x}
+  xs[0]=xa;xs[N]=xb;return xs}
+function classicalPolyError(N,T,xa,xb){return pathAction(samplePath(t=>classicalHarm(xa,xb,T,t),N,T),T,Vharm)-classicalActionHarm(xa,xb,T)}
+/* PHYSICS-CORE END */
+/* ---------------- user interface (not tested from node) ---------------- */
+const $=id=>document.getElementById(id);
+const BG="#07080c",TXT="rgba(255,255,255,.78)";
+function fit(c){const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,H=Math.round(+c.dataset.h0*(w<420?0.85:1));
+  const pw=Math.round(w*d),ph=Math.round(H*d);
+  if(c.dataset.pw!==String(pw)||c.dataset.ph!==String(ph)){c.width=pw;c.height=ph;c.dataset.pw=pw;c.dataset.ph=ph}
+  c.style.height=H+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w,h:H}}
+const pal=new Uint8Array(256*3);
+for(let h=0;h<256;h++){const H=h/256*6,Xc=1-Math.abs(H%2-1);let r=0,g=0,b=0;
+  if(H<1){r=1;g=Xc}else if(H<2){r=Xc;g=1}else if(H<3){g=1;b=Xc}else if(H<4){g=Xc;b=1}else if(H<5){r=Xc;b=1}else{r=1;b=Xc}
+  pal[h*3]=r*255;pal[h*3+1]=g*255;pal[h*3+2]=b*255}
+const hueIdx=ph=>{let h=ph/TWO_PI;h-=Math.floor(h);return Math.min(255,(h*256)|0)};
+const rgb=(i,b)=>`rgb(${pal[i*3]*b|0},${pal[i*3+1]*b|0},${pal[i*3+2]*b|0})`;
+const fmt=(x,d)=>x.toFixed(d), sci=x=>x.toExponential(1);
+const pm=(v,d)=>(v<0?"−":"")+Math.abs(v).toFixed(d);
+const G=makeGrid(256,32);
+const XV=12,J0=32,J1=224;          /* columns shown: |x| < 12 */
+let pending=false;
+function later(f){f.q=true;if(!pending){pending=true;requestAnimationFrame(()=>{pending=false;for(const g of [draw1,draw2,draw3,draw4])if(g.q){g.q=false;g()}})}}
+
+/* ===================== Part 1 ===================== */
+const A1={N:8,T:2,kind:"classical",xa:-1,xb:1.2,coef:[0,0,0,0],bridge:null,pts:null,custom:false,drag:-1,XR:3};
+function randn(){let u=0,v=0;while(!u)u=Math.random();v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(TWO_PI*v)}
+function newRandom1(){A1.coef=[0,1,2,3].map(m=>randn()*0.7/(m+1));const z=new Float64Array(64);for(let i=0;i<64;i++)z[i]=randn();A1.bridge=bridgeFrom(z)}
+newRandom1();
+function regen1(){
+  if(A1.custom&&A1.pts&&A1.pts.length-1!==A1.N){const o=A1.pts,No=o.length-1,xs=new Float64Array(A1.N+1);
+    for(let k=0;k<=A1.N;k++){const u=k/A1.N*No,i=Math.min(No-1,Math.floor(u)),f=u-i;xs[k]=o[i]*(1-f)+o[i+1]*f}A1.pts=xs}
+  else if(!A1.custom)A1.pts=makePath(A1.kind,A1.N,A1.T,A1.xa,A1.xb,A1.coef,A1.bridge)}
+function geo1(W,H){const ML=38,MB=22,MT=8,MR=10,pw=W-ML-MR,ph=H-MB-MT;return {ML,MB,MT,pw,ph,X:t=>ML+t/A1.T*pw,Y:x=>MT+(1-(x+A1.XR)/(2*A1.XR))*ph,Yi:y=>(1-(y-MT)/ph)*2*A1.XR-A1.XR}}
+function draw1(){
+  regen1();const {N,T,pts}=A1,Sx=pathAction(pts,T,Vharm);
+  const cl=makePath("classical",N,T,A1.xa,A1.xb,null,null),Sc=pathAction(cl,T,Vharm),Scl=classicalActionHarm(A1.xa,A1.xb,T);
+  {const {x:g,w:W,h:H}=fit($("pa"));g.fillStyle=BG;g.fillRect(0,0,W,H);const o=geo1(W,H);
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";
+   for(const v of [-2,0,2]){g.fillText(String(v),o.ML-6,o.Y(v)+4);g.strokeStyle="rgba(255,255,255,.12)";g.beginPath();g.moveTo(o.ML,o.Y(v));g.lineTo(o.ML+o.pw,o.Y(v));g.stroke()}
+   g.textAlign="center";g.fillText("0",o.X(0),H-6);g.fillText("T",o.X(T),H-6);g.fillText("time",o.X(T/2),H-6);
+   g.save();g.beginPath();g.rect(o.ML,o.MT,o.pw,o.ph);g.clip();
+   g.setLineDash([5,4]);g.strokeStyle="rgba(255,255,255,.5)";g.beginPath();for(let i=0;i<=120;i++){const t=T*i/120,x=classicalHarm(A1.xa,A1.xb,T,t);i?g.lineTo(o.X(t),o.Y(x)):g.moveTo(o.X(t),o.Y(x))}g.stroke();g.setLineDash([]);
+   g.strokeStyle="#7fb0ff";g.lineWidth=1.8;g.beginPath();for(let k=0;k<=N;k++){const px=o.X(k*T/N),py=o.Y(pts[k]);k?g.lineTo(px,py):g.moveTo(px,py)}g.stroke();g.lineWidth=1;g.restore();
+   for(let k=0;k<=N;k++){const end=k===0||k===N;g.fillStyle=end?"#fff":"#fb923c";g.beginPath();g.arc(o.X(k*T/N),o.Y(pts[k]),end?4.5:(N>16?3:5),0,7);g.fill()}
+   g.textAlign="left";g.fillStyle=TXT;g.fillText("dashed: the smooth classical path   dots: slice times",o.ML+4,o.MT+11)}
+  {const {x:g,w:W,h:H}=fit($("pc"));g.fillStyle=BG;g.fillRect(0,0,W,H);const cx=W/2,cy=H/2,R=Math.min(W,H)*0.36;
+   for(let i=0;i<72;i++){g.strokeStyle=rgb(hueIdx(i/72*TWO_PI),1);g.lineWidth=5;g.beginPath();g.arc(cx,cy,R+7,-(i/72)*TWO_PI,-((i+1.3)/72)*TWO_PI,true);g.stroke()}g.lineWidth=1;
+   const arr=(S,col,dash)=>{g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2.2;g.setLineDash(dash?[4,3]:[]);const ex=cx+R*Math.cos(S),ey=cy-R*Math.sin(S);
+     g.beginPath();g.moveTo(cx,cy);g.lineTo(ex,ey);g.stroke();g.setLineDash([]);const a=Math.atan2(cy-ey,ex-cx);
+     g.beginPath();g.moveTo(ex,ey);g.lineTo(ex-9*Math.cos(a-0.4),ey+9*Math.sin(a-0.4));g.lineTo(ex-9*Math.cos(a+0.4),ey+9*Math.sin(a+0.4));g.fill()};
+   arr(Sc,"rgba(255,255,255,.45)",true);arr(Sx,"#fff",false);
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="left";g.fillText("arrow of e^(i S_N)",6,13);g.textAlign="right";g.fillText("dashed: classical polygon",W-6,H-6)}
+  {const {x:g,w:W,h:H}=fit($("pb"));g.fillStyle=BG;g.fillRect(0,0,W,H);const t=sliceTerms(pts,T,Vharm);let mx=1e-9;for(const v of t)mx=Math.max(mx,Math.abs(v));
+   const ML=8,pw=W-2*ML,mid=H/2,bw=pw/N;g.strokeStyle="rgba(255,255,255,.2)";g.beginPath();g.moveTo(ML,mid);g.lineTo(ML+pw,mid);g.stroke();
+   for(let k=0;k<N;k++){const h=t[k]/mx*(H/2-8);g.fillStyle=t[k]>=0?"#fb923c":"#5eead4";g.fillRect(ML+k*bw+0.5,h>=0?mid-h:mid,Math.max(1,bw-1),Math.abs(h))}
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="left";g.fillText("orange: positive, teal: negative (largest bar = "+fmt(mx,3)+")",ML,11)}
+  let tab="";for(const n of [2,4,8,16,32,64]){tab+=`N=${n}: ${sci(Math.abs(classicalPolyError(n,T,A1.xa,A1.xb)))} · `}
+  $("read1").innerHTML=`<div><span>S<sub>N</sub> of this path </span><b>${pm(Sx,5)}</b> <span>· arrow angle S<sub>N</sub> mod 2π = </span><b>${fmt(((Sx%TWO_PI)+TWO_PI)%TWO_PI,3)}</b> <span>rad</span></div>
+   <div><span>S<sub>N</sub> of the classical polygon </span><b>${pm(Sc,5)}</b> <span>· classical action S<sub>cl</sub> (exact) </span><b>${pm(Scl,5)}</b></div>
+   <div><span>S<sub>N</sub>(this path) − S<sub>N</sub>(classical polygon) </span><b>${pm(Sx-Sc,5)}</b> <span>${A1.custom?"(you edited the path)":""}</span></div>
+   <div><span>error |S<sub>N</sub>(classical polygon) − S<sub>cl</sub>| for N = 2…64: </span><b>${tab}</b><span>(falls ×4 per doubling: order 2)</span></div>
+   <div><span>slices N </span><b>${N}</b> <span>· ε = T/N = </span><b>${fmt(T/N,4)}</b> <span>· free dots </span><b>${N-1}</b></div>`;
+  $("n1V").textContent=N;$("t1V").textContent=fmt(T,1)}
+(function(){const c=$("pa");
+  const pos=e=>{const r=c.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
+  c.addEventListener("pointerdown",e=>{if(!A1.pts)return;const {w:W,h:H}={w:c.clientWidth,h:+c.style.height.replace("px","")},o=geo1(W,H),[px,py]=pos(e);let best=-1,bd=1e9;
+    for(let k=1;k<A1.N;k++){const d=Math.hypot(o.X(k*A1.T/A1.N)-px,o.Y(A1.pts[k])-py);if(d<bd){bd=d;best=k}}
+    if(best>0&&bd<30){A1.drag=best;try{c.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()}});
+  c.addEventListener("pointermove",e=>{if(A1.drag<0)return;const o=geo1(c.clientWidth,+c.style.height.replace("px","")),[,py]=pos(e);
+    A1.pts[A1.drag]=Math.max(-A1.XR+0.05,Math.min(A1.XR-0.05,o.Yi(py)));A1.custom=true;later(draw1)});
+  const up=()=>{A1.drag=-1};c.addEventListener("pointerup",up);c.addEventListener("pointercancel",up)})();
+$("n1").addEventListener("input",()=>{A1.N=Math.pow(2,+$("n1").value);later(draw1)});
+$("t1").addEventListener("input",()=>{A1.T=+$("t1").value;later(draw1)});
+$("k1").addEventListener("input",()=>{A1.kind=$("k1").value;A1.custom=false;later(draw1)});
+$("rnd1").onclick=()=>{newRandom1();if(A1.kind==="classical"){A1.kind="smooth";$("k1").value="smooth"}A1.custom=false;later(draw1)};
+$("cl1").onclick=()=>{A1.kind="classical";$("k1").value="classical";A1.custom=false;later(draw1)};
+A1.N=8;
+
+/* ===================== Part 2 ===================== */
+const A2={pot:"harm",N:4,T:3,scheme:"sym",rows:null,key:"",ref:null,refKey:""};
+A2.off=document.createElement("canvas");
+function run2(){
+  const st=POT_START[A2.pot],p0=gaussPacket(G,st.x0,st.k0,st.s),V=potVec(G,A2.pot),N=A2.N,cols=J1-J0;
+  const rho=new Float32Array((N+1)*cols),ph=new Float32Array((N+1)*cols);let mx=0;
+  const fin=evolve(p0,G,V,A2.T,N,A2.scheme,(k,p)=>{for(let j=J0;j<J1;j++){const q=Math.hypot(p.re[j],p.im[j]);rho[k*cols+j-J0]=q;ph[k*cols+j-J0]=Math.atan2(p.im[j],p.re[j]);if(q>mx)mx=q}});
+  const rk=A2.pot+"|"+A2.T;if(A2.refKey!==rk){A2.ref=referenceState(G,A2.pot,p0,A2.T,st);A2.refKey=rk}
+  A2.fin=fin;A2.err=l2diff(fin,A2.ref.psi,G);A2.nrm=normOf(fin,G);A2.n0=normOf(p0,G);A2.mx=mx;A2.V=V;
+  const img=A2.off;img.width=cols;img.height=N+1;const c=img.getContext("2d"),d=c.createImageData(cols,N+1);
+  for(let i=0;i<(N+1)*cols;i++){const b=Math.min(1,Math.sqrt(rho[i]/(0.8*mx))),h=hueIdx(ph[i]);d.data[i*4]=pal[h*3]*b;d.data[i*4+1]=pal[h*3+1]*b;d.data[i*4+2]=pal[h*3+2]*b;d.data[i*4+3]=255}
+  c.putImageData(d,0,0)}
+function draw2(){
+  run2();const N=A2.N,T=A2.T;
+  {const {x:g,w:W,h:H}=fit($("st"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=40,MB=20,MT=2,pw=W-ML-6,ph=H-MB-MT,X=x=>ML+(x+XV)/(2*XV)*pw,Y=t=>MT+t/T*ph;
+   g.imageSmoothingEnabled=false;g.drawImage(A2.off,ML,MT,pw,ph);
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";for(const [t,l] of [[0,"0"],[0.5,"T/2"],[1,"T"]])g.fillText(l,ML-5,MT+t*ph+(t===0?10:t===1?0:4));
+   g.textAlign="center";for(const x of [-8,-4,0,4,8])g.fillText(String(x),X(x),H-6);
+   g.strokeStyle="#fff";g.lineWidth=1.3;g.beginPath();g.moveTo(ML,MT+ph);g.lineTo(ML+pw,MT+ph);g.stroke();g.lineWidth=1;
+   g.textAlign="left";g.fillStyle="#fff";g.fillText(`N = ${N} steps, ε = ${fmt(T/N,4)}`,ML+6,MT+ph-6)}
+  {const {x:g,w:W,h:H}=fit($("sn"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=8,pw=W-2*ML,base=H-18,top=14,cols=J1-J0,bw=pw/cols,f=A2.fin,r=A2.ref.psi;
+   let mx=0;for(let j=J0;j<J1;j++)mx=Math.max(mx,f.re[j]*f.re[j]+f.im[j]*f.im[j],r.re[j]*r.re[j]+r.im[j]*r.im[j]);mx*=1.05;
+   for(let j=J0;j<J1;j++){const q=f.re[j]*f.re[j]+f.im[j]*f.im[j],h=Math.min(1.2,q/mx)*(base-top);g.fillStyle=rgb(hueIdx(Math.atan2(f.im[j],f.re[j])),1);g.fillRect(ML+(j-J0)*bw,base-h,bw+0.6,h)}
+   g.strokeStyle="rgba(255,255,255,.9)";g.setLineDash([4,3]);g.beginPath();for(let j=J0;j<J1;j++){const q=r.re[j]*r.re[j]+r.im[j]*r.im[j],y=base-Math.min(1.2,q/mx)*(base-top),x=ML+(j-J0+0.5)*bw;j>J0?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.setLineDash([]);
+   g.strokeStyle="rgba(251,191,36,.8)";g.beginPath();for(let j=J0;j<J1;j++){const y=base-Math.min(1,A2.V[j]/3)*(base-top)*0.9,x=ML+(j-J0+0.5)*bw;j>J0?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+   g.fillStyle=TXT;g.font="11px system-ui";g.textAlign="center";for(const x of [-8,-4,0,4,8])g.fillText(String(x),ML+(x+XV)/(2*XV)*pw,H-4);
+   g.textAlign="left";g.fillText("bars: |ψ|² after N steps   dashed: reference   yellow: V(x)",ML,11)}
+  const refTxt=A2.ref.kind==="exact"?(A2.pot==="free"?"exact spreading Gaussian":"exact (oscillator states)"):"fine run, N = 2048 symmetric (simulation)";
+  $("read2").innerHTML=`<div><span>distance to the reference ‖ψ<sub>N</sub> − ψ<sub>ref</sub>‖ </span><b>${sci(A2.err)}</b></div>
+   <div><span>reference: </span>${refTxt}</div>
+   <div><span>norm of ψ after the steps </span><b>${fmt(A2.nrm,12)}</b> <span>(start ${fmt(A2.n0,12)}; steps are unitary)</span></div>`;
+  $("n2V").textContent=N;$("t2V").textContent=fmt(T,2)}
+function read2(){A2.pot=$("pot2").value;A2.N=Math.max(1,Math.min(256,Math.round(Math.pow(2,+$("n2").value))));A2.T=+$("t2").value;A2.scheme=$("sc2").value;later(draw2)}
+["pot2","n2","t2","sc2"].forEach(id=>$(id).addEventListener("input",read2));
+
+/* ===================== Part 3 ===================== */
+const NS=[1,2,4,8,16,32,64,128,256],A3={T:3,s:0.7071,res:null};
+function draw3(){
+  const key=A3.T+"|"+A3.s;if(A3.key!==key){A3.res=convergence(G,A3.s,A3.T,NS);A3.key=key}
+  const R=A3.res;
+  {const {x:g,w:W,h:H}=fit($("cv"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=44,MB=26,MT=10,MR=8,pw=W-ML-MR,ph=H-MB-MT,LO=-16,HI=1;
+   const X=n=>ML+Math.log2(n)/8*pw,Y=e=>MT+(1-(Math.log10(Math.max(e,1e-16))-LO)/(HI-LO))*ph;
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";
+   for(let e=LO;e<=HI;e+=3){g.fillText("1e"+e,ML-5,Y(Math.pow(10,e))+4);g.strokeStyle="rgba(255,255,255,.1)";g.beginPath();g.moveTo(ML,Y(Math.pow(10,e)));g.lineTo(ML+pw,Y(Math.pow(10,e)));g.stroke()}
+   g.textAlign="center";for(const n of NS){g.fillText(String(n),X(n),H-12);g.strokeStyle="rgba(255,255,255,.08)";g.beginPath();g.moveTo(X(n),MT);g.lineTo(X(n),MT+ph);g.stroke()}g.fillText("number of slices N",ML+pw/2,H-1);
+   const aP=R.errP[4],aS=R.errS[4];g.setLineDash([4,4]);g.strokeStyle="rgba(255,255,255,.45)";
+   for(const [a,o] of [[aP*0.5,1],[aS*0.5,2]]){g.beginPath();NS.forEach((n,i)=>{const e=a*Math.pow(16/n,o);i?g.lineTo(X(n),Y(e)):g.moveTo(X(n),Y(e))});g.stroke()}g.setLineDash([]);
+   const line=(arr,col)=>{g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2;g.beginPath();NS.forEach((n,i)=>{const x=X(n),y=Y(arr[i]);i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();g.lineWidth=1;NS.forEach((n,i)=>{g.beginPath();g.arc(X(n),Y(arr[i]),3.2,0,7);g.fill()})};
+   line(R.errF,"#5eead4");line(R.errP,"#fb923c");line(R.errS,"#7fb0ff");
+   const ly=MT+ph*0.5;g.textAlign="left";g.fillStyle="#fb923c";g.fillText(`plain: slope −${fmt(R.orderP,2)}`,ML+10,ly);g.fillStyle="#7fb0ff";g.fillText(`symmetric: slope −${fmt(R.orderS,2)}`,ML+10,ly+14);
+   g.fillStyle="#5eead4";g.fillText("free particle: flat at rounding level",ML+10,ly+28);g.fillStyle="rgba(255,255,255,.6)";g.fillText("dashed: slopes −1 and −2",ML+10,ly+42)}
+  let h=`<table class="tb"><tr><th>N</th><th>plain</th><th>symmetric</th><th>free</th></tr>`;
+  NS.forEach((n,i)=>{h+=`<tr><td>${n}</td><td>${sci(R.errP[i])}</td><td>${sci(R.errS[i])}</td><td>${sci(R.errF[i])}</td></tr>`});$("tbl3").innerHTML=h+"</table>";
+  const fw=Math.max(...R.errF);
+  $("big3").innerHTML=`<span>fitted order of the symmetric split (N = 16…256):</span> <b>${fmt(R.orderS,3)}</b> <span>(exact answer: 2)</span>
+   <small>plain split: order ${fmt(R.orderP,3)} (exact answer: 1) · error at N = 256 against the exact oscillator wave: symmetric ${sci(R.errS[8])}, plain ${sci(R.errP[8])} · free particle: worst error over N = 1…256 is ${sci(fw)} · reference holds ${fmt(R.captured,10)} of the norm</small>`;
+  $("t3V").textContent=fmt(A3.T,2)}
+$("t3").addEventListener("input",()=>{A3.T=+$("t3").value;later(draw3)});
+$("s3").addEventListener("input",()=>{A3.s=+$("s3").value;later(draw3)});
+
+/* ===================== Part 4 ===================== */
+const EPS4=[0.5,0.25,0.1,0.05,0.02,0.01],TAU4=12,A4={};
+function draw4(){
+  const eps=EPS4[+$("e4").value],steps=Math.round(TAU4/eps),p0=gaussPacket(G,2,0,0.5),V=potVec(G,"harm"),stride=Math.max(1,Math.floor(steps/180)),cols=128,j0=64;
+  const rows=[];let mx=0;
+  const rs=imagRun(G,"harm",p0,eps,steps,"sym",(k,p)=>{if(k%stride===0||k===steps){const r=new Float32Array(cols);for(let j=0;j<cols;j++){r[j]=p.re[j+j0]*p.re[j+j0]+p.im[j+j0]*p.im[j+j0];if(r[j]>mx)mx=r[j]}rows.push(r)}});
+  const rp=imagRun(G,"harm",p0,eps,steps,"plain");
+  const Es=rs.E[steps-1],Ep=rp.E[steps-1],E0=energyExpect(p0,G,V);
+  {const c=A4.off||(A4.off=document.createElement("canvas"));c.width=cols;c.height=rows.length;const x=c.getContext("2d"),d=x.createImageData(cols,rows.length);
+   rows.forEach((r,i)=>{for(let j=0;j<cols;j++){const b=Math.min(1,Math.pow(r[j]/mx,0.5));const o=(i*cols+j)*4;d.data[o]=40+120*b;d.data[o+1]=90+140*b;d.data[o+2]=140+115*b;d.data[o+3]=255*Math.min(1,0.08+b*1.3)}});x.putImageData(d,0,0)}
+  {const {x:g,w:W,h:H}=fit($("ih"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=40,MB=20,MT=2,pw=W-ML-6,ph=H-MB-MT;g.imageSmoothingEnabled=true;g.drawImage(A4.off,ML,MT,pw,ph);
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";g.fillText("0",ML-5,MT+10);g.fillText("τ = "+TAU4,ML-5,MT+ph);g.textAlign="center";for(const x of [-6,-3,0,3,6])g.fillText(String(x),ML+(x+8)/16*pw,H-6)}
+  {const {x:g,w:W,h:H}=fit($("ie"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=34,MB=32,MT=8,pw=W-ML-8,ph=H-MB-MT,EM=3,X=k=>ML+k/steps*pw,Y=e=>MT+(1-Math.min(e,EM)/EM)*ph;
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";for(const e of [0,0.5,1,2,3])g.fillText(String(e),ML-5,Y(e)+4);g.textAlign="center";for(const t of [0,4,8,12])g.fillText(String(t),ML+t/TAU4*pw,H-18);g.fillText("imaginary time τ",ML+pw/2,H-4);
+   g.setLineDash([2,3]);g.strokeStyle="rgba(255,255,255,.8)";g.beginPath();g.moveTo(ML,Y(0.5));g.lineTo(ML+pw,Y(0.5));g.stroke();g.setLineDash([]);
+   for(const [arr,col,dash] of [[rp.E,"#fb923c",true],[rs.E,"#7fb0ff",false]]){g.strokeStyle=col;g.lineWidth=2;g.setLineDash(dash?[6,5]:[]);g.beginPath();for(let k=0;k<steps;k+=Math.max(1,Math.floor(steps/300))){const x=X(k+1),y=Y(arr[k]);k?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.lineWidth=1;g.setLineDash([])}
+   g.textAlign="left";g.fillStyle="#fb923c";g.fillText("plain (dashed)",ML+pw-120,MT+12);g.fillStyle="#7fb0ff";g.fillText("symmetric: same curve",ML+pw-120,MT+26);g.fillStyle=TXT;g.fillText("dotted: exact ½",ML+pw-120,MT+40)}
+  const eP=Ep-0.5,eS=Es-0.5,wP=groundStateError(rp.psi,G),wS=groundStateError(rs.psi,G);
+  $("read4").innerHTML=`<div><span>step ε </span><b>${eps}</b> <span>· steps </span><b>${steps}</b> <span>· start energy ⟨H⟩ </span><b>${fmt(E0,4)}</b></div>
+   <div><span>ground-state energy from the shrink rate, symmetric: </span><b>${fmt(Es,6)}</b> <span>· plain: </span><b>${fmt(Ep,6)}</b> <span>(exact: 0.5)</span></div>
+   <div><span>energy error, symmetric </span><b>${sci(eS)}</b> <span>(error/ε² = ${fmt(eS/(eps*eps),3)}) · plain </span><b>${sci(eP)}</b> <span>(error/ε² = ${fmt(eP/(eps*eps),3)})</span></div>
+   <div><span>shape error ‖ψ − ψ<sub>0</sub>‖ (exact ground state), symmetric </span><b>${sci(wS)}</b> <span>(÷ε² = ${fmt(wS/(eps*eps),3)}) · plain </span><b>${sci(wP)}</b> <span>(÷ε = ${fmt(wP/eps,3)})</span></div>`;
+  $("e4V").textContent=eps}
+$("e4").addEventListener("input",()=>later(draw4));
+
+window.addEventListener("resize",()=>{later(draw1);later(draw2);later(draw3);later(draw4)});
+read2();$("n1").dispatchEvent(new Event("input"));later(draw1);later(draw3);later(draw4);
+</script>
+</body>
+</html>
