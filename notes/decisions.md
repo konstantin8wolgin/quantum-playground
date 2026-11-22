@@ -72,3 +72,7 @@ scope, because visuals can teach them better than the usual formalism.
 - Round 4 (MVP readiness): two independent reviewers read the seven overnight rooms. They confirmed the core formulas and references and found 25 issues (9 errors, mostly wrong text). All were reproduced before the fix; one was only partly right (which-path checkbox). Main fixes: Zitterbewegung is full size for a WIDE packet (text had it backwards); checkerboard cone edge drawn two cells wide (code bug); Born series fails whenever ρ ≥ 1, not only near a bound state; winding ⟨n²⟩ ≈ 0.145 not 0.17; Berry howto pointed at a number that does not move; time-slicing default N = 16 and τ = 20 so the stated error orders are visible. New tests guard each behaviour fix.
 - Naming: the path-integral room is "Every path is an arrow" everywhere (title, h1, links).
 - Index: a "First visit?" box with three rooms for everybody (mirror, double slit, spinor flag).
+
+## MVP launch (2026-11-22)
+- The user said yes to going public. Before that: a secret scan of all tracked files (clean), and the private author email in all 35 commits replaced with the GitHub no-reply address (force push approved by the user; local backup branch `backup-before-email-rewrite`).
+- Repo is public; GitHub Pages serves `main` at https://konstantin8wolgin.github.io/quantum-playground/ . All 23 pages return 200 and load at 375 px with no console errors.

@@ -4,6 +4,8 @@ A hobby playground to build intuition for path integrals, quantum fluctuations,
 quantum states, and the Lie groups of the Standard Model (U(1), SU(2), SU(3)).
 Not research. The aim: change parameters, watch what happens, understand it.
 
+**Open it in your browser:** https://konstantin8wolgin.github.io/quantum-playground/
+
 ## Demos
 
 | Demo | What it shows |
