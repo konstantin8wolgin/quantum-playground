@@ -6,7 +6,7 @@ const here=path.dirname(fileURLToPath(import.meta.url));
 const html=fs.readFileSync(path.join(here,"../demos/berry-phase.html"),"utf8");
 const m=html.match(/\/\* PHYSICS-CORE START \*\/([\s\S]*?)\/\* PHYSICS-CORE END \*\//);
 if(!m){console.log("FAIL  core block not found");process.exit(1)}
-const names="wrapPi dot3 cross3 unitVec anglesOf spinorAt overlap blochVec stepU applyU makePath profile simulate coneExactState totalPhase dynPhase geometricPhase omegaCone solidAngle loopPoints monopoleFlux berryExpected discreteBerry berryCurvature adiabaticCorrection phaseDeviationExact analyze slowRun";
+const names="wrapPi dot3 cross3 unitVec anglesOf spinorAt overlap blochVec stepU applyU makePath profile simulate coneExactState totalPhase dynPhase geometricPhase omegaCone solidAngle loopPoints monopoleFlux berryExpected discreteBerry berryCurvature adiabaticCorrection phaseDeviationExact analyze slowRun nearBranch";
 const C=vm.runInNewContext(m[1]+`;({${names.split(" ").join(",")}})`,{Math});
 let fails=0;
 const check=(name,ok,detail)=>{console.log(`${ok?"PASS":"FAIL"}  ${name}  ${detail}`);if(!ok)fails++};
@@ -110,6 +110,18 @@ check("monopole g = 1/2: flux through the whole sphere = 2 pi, phase invisible",
 {const fast=C.analyze({shape:"cone",alpha:PI/3,turns:0.2,prof:"uniform",up:true}),slow=C.analyze({shape:"cone",alpha:PI/3,turns:30,prof:"uniform",up:true});
  check("fast loop: spin lags (lowest fidelity < 0.9), slow loop follows (> 0.99)",fast.fidMin<0.9&&slow.fidMin>0.99,`fast ${fast.fidMin.toFixed(4)}, slow ${slow.fidMin.toFixed(4)}`);
  check("fast loop: geometric phase is far from -Omega/2 (> 0.3 rad), slow loop close (< 0.05)",Math.abs(fast.diff)>0.3&&Math.abs(slow.diff)<0.05,`fast diff ${fast.diff.toFixed(4)}, slow diff ${slow.diff.toFixed(4)}`)}
+
+// expected value on the branch of the run value (-pi and +pi are one phase)
+{const o={shape:"cone",alpha:PI/2,prof:"uniform",up:true};let ok=true,worst=0,mod=0;
+ for(const x of [o,{...o,prof:"reverse"},{...o,prof:"stopgo"},{...o,up:false},{...o,alpha:PI/3},{...o,alpha:175*PI/180,up:false}]){const s=C.slowRun(x,2000,0.1);
+  worst=Math.max(worst,Math.abs(s.gam-s.exp));mod=Math.max(mod,Math.abs(Math.sin((s.exp-C.berryExpected(s.Om,x.up))/2)));if(Math.abs(s.gam-s.exp)>0.1)ok=false}
+ check("expected value is printed next to the run value (no -3.137 beside +3.142): |run - expected| <= 0.1 at T*B = 2000, and expected is the same phase mod 2 pi",ok&&mod<1e-12,`worst |run - expected| ${worst.toFixed(5)}, branch mismatch ${mod.toExponential(1)}`);
+ const r=C.slowRun({...o,prof:"reverse"},2000,0.1);
+ check("great circle run backwards: run and expected are both near -pi (not -pi and +pi)",r.gam<-3&&r.exp<-3,`run ${r.gam.toFixed(5)}, expected ${r.exp.toFixed(5)}`);
+ const big=C.slowRun({...o,prof:"uniform"},10000,0.1);
+ check("page big number: leading slow-loop error pi^2 sin^2(alpha)/(BT) at T = 10^4 is below 1e-3 for every alpha (at most 9.9e-4)",Math.max(...Array.from({length:171},(_,i)=>C.adiabaticCorrection((5+i)*PI/180,1,1e4)))<1e-3&&Math.abs(big.diff)<1e-3,`max ${C.adiabaticCorrection(PI/2,1,1e4).toExponential(3)}, run diff at 90 deg ${big.diff.toExponential(2)}`);
+ const d=C.analyze({shape:"cone",alpha:PI/3,turns:10,prof:"uniform",up:true});
+ check("default 10 turns: difference is the predicted 1/T error (0.112 against 0.118, within 10 %)",Math.abs(d.diff-C.adiabaticCorrection(PI/3,1,d.T))<0.1*C.adiabaticCorrection(PI/3,1,d.T),`diff ${d.diff.toFixed(4)}, predicted ${C.adiabaticCorrection(PI/3,1,d.T).toFixed(4)}`)}
 
 console.log(fails?`\n${fails} CHECK(S) FAILED`:"\nall checks passed");
 process.exit(fails?1:0);

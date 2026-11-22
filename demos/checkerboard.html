@@ -78,7 +78,7 @@ a.term:hover{color:var(--accent)}
 <div class="howto"><b>How to use this room</b>
 <ol>
 <li>Part 1: press <i>new path</i>. Count the turns R of the path. Look at its arrow and at the chain of arrows below. The chain adds all paths to one end point. The sum is checked against a count of all paths.</li>
-<li>Part 2: set the mass m to 0. Only the two edges of the light cone are lit. Then raise m and watch the inside of the cone fill with waves.</li>
+<li>Part 2: set the mass m to 0. In the probability view, only the two edges of the light cone are lit. Then raise m and watch the inside of the cone fill with waves.</li>
 <li>Part 3: make the grid finer (more steps N). The checkerboard sum comes closer to the exact wave. Read the order of convergence. Part 4: a packet on the checkerboard moves slower than light.</li>
 </ol>
 New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unknown words are explained in the <a href="../glossary.html">glossary</a>.</div>
@@ -129,22 +129,22 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <div class="legend">
   <div><span class="chip c-sim">simulation</span>the picture is the exact sum over all zig-zag paths for a finite grid (N steps, step ε = 1/N). The grid is a model. The Dirac wave appears when ε goes to 0.</div>
   <div><span class="chip c-exact">exact</span>the norm line below: the plain rule gives exactly (1+ε²m²)<sup>N−1</sup>, the unitary rule gives exactly 1.</div>
-  <div><span class="chip c-int">interpretation</span>the bright edges are the paths with no turn. The waves inside come from paths with turns. "Brightness" of the edge is only shown at full strength. Inside, brightness is scaled to the strongest inner cell. The parts K<sub>RR</sub> and K<sub>LL</sub> are real, and K<sub>LR</sub> and K<sub>RL</sub> are purely imaginary (for the plain rule), so you see only two colours with a gradual change between them.</div>
+  <div><span class="chip c-int">interpretation</span>the bright edges are the paths with no turn. The waves inside come from paths with turns. "Brightness" of the edge is only shown at full strength. Inside, brightness is scaled to the strongest inner cell. The parts K<sub>RR</sub> and K<sub>LL</sub> are real, and K<sub>LR</sub> and K<sub>RL</sub> are purely imaginary (for both rules), so you see only two colours with a gradual change between them.</div>
 </div>
 <div class="controls">
   <label>mass m (for total time t = 1) <b id="m2V"></b><input id="m2" type="range" min="0" max="24" step="0.5" value="12"></label>
   <label>steps N (ε = 1/N) <b id="n2V"></b><input id="n2" type="range" min="20" max="300" step="10" value="160"></label>
   <label>show <select id="c2">
     <option value="RR">end right, start right</option>
-    <option value="LR" selected>end left, start right</option>
+    <option value="LR">end left, start right</option>
     <option value="RL">end right, start left</option>
     <option value="LL">end left, start left</option>
-    <option value="prob">probability, start (R+L)/√2</option></select></label>
+    <option value="prob" selected>probability, start (R+L)/√2</option></select></label>
   <label>rule <select id="r2"><option value="p">plain: weight −iεm per turn</option><option value="u">unitary: cos(mε) and −i sin(mε)</option></select></label>
 </div>
 <div class="big" id="big2"></div>
 <div class="read" id="read2"></div>
-<div class="predict"><b>Predict, then test:</b> at m = 0, which cell is lit at the left edge for "end left, start right"? (Hint: it needs a turn.) Then raise m a little. Where does the first light appear inside the cone?</div>
+<div class="predict"><b>Predict, then test:</b> at m = 0, which cell is lit at the left edge for "end left, start right"? (Pick that component to check.) (Hint: it needs a turn.) Then raise m a little. Where does the first light appear inside the cone?</div>
 </section>
 
 <section id="part3">
@@ -176,7 +176,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <div class="tbw" id="tb3"></div>
 <div class="predict"><b>Predict, then test:</b> double N. By what factor does the largest error fall? Now switch the rule to unitary. Does the order change? Does the error get bigger or smaller?</div>
 <details><summary>What the numbers mean</summary>
-<p>The order p is the slope of log(error) against log(ε) for the four grids N, 2N, 4N, 8N. It is a least-squares fit. Error ∝ ε<sup>p</sup>. For this scheme p is 1. The first step is placed at the cell next to the start, and this makes a shift of order ε. A shift of order ε in the position gives an error of order ε in a smooth wave.</p>
+<p>The order p is the slope of log(error) against log(ε) for the four grids N, 2N, 4N, 8N. It is a least-squares fit. Error ∝ ε<sup>p</sup>. For this scheme p is close to 1 once εm is small (fine grids). On coarse grids the fitted p can be larger. The first step is placed at the cell next to the start, and this makes a shift of order ε. A shift of order ε in the position gives an error of order ε in a smooth wave.</p>
 <p>The unitary rule has a smaller error constant here, but it has the same order. Its error comes from the same shift. The factor cos(mε) = 1 − (mε)²/2 changes the wave only at second order.</p>
 </details>
 </section>
@@ -223,7 +223,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <dl>
 <dt>Checkerboard (Part 1)</dt><dd>Time goes down, space goes across. Dots are the cells that can be reached. The bright line is one random path. Orange dots mark its turns. Faint lines are all other paths to the same end point.</dd>
 <dt>Arrow of a path</dt><dd>A path with R turns has the arrow (−iεm)<sup>R</sup>. It gets shorter by the factor εm and turns a quarter turn clockwise per turn. The colours follow the <a class="term" href="../glossary.html#phase">phase</a> colour code of the other rooms.</dd>
-<dt>Chain of arrows</dt><dd>For each R, the N(R) paths have the same arrow. The chain draws these N(R) arrows as one long arrow. Arrows with an even R lie on the real axis (R = 0, 4, 8 point one way, R = 2, 6 the other way). Arrows with an odd R lie on the imaginary axis. The groups are drawn side by side so that you can see them; they are really on one line. The dashed arrow from the start to the end of the chain is the sum, the wave at this end point.</dd>
+<dt>Chain of arrows</dt><dd>For each R, the N(R) paths have the same arrow. The chain draws these N(R) arrows as one long arrow. Arrows with an even R lie on the real axis (with the default end point, R = 4, 8 point one way and R = 2, 6 the other way). Arrows with an odd R lie on the imaginary axis. The groups are drawn side by side so that you can see them; they are really on one line. The dashed arrow from the start to the end of the chain is the sum, the wave at this end point.</dd>
 <dt>Light cone (Part 2)</dt><dd>Colour is the phase of the sum, brightness is its size. The two edges are the paths with no turn. The inside is the part that mass adds.</dd>
 <dt>Slice (Part 3)</dt><dd>Dots are the grid sum divided by 2ε. The line is the exact Bessel wave. The log–log plot shows the largest error for four grids. A straight line with slope 1 means: halve ε, halve the error.</dd>
 <dt>Packet (Part 4)</dt><dd>The packet density in space and time. The white line is the mean position. The dashed yellow line is the speed from the formula k/√(k²+m²). The right plot zooms in on the wiggle of the mean position.</dd>
@@ -231,13 +231,13 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 
 <h3>Things to try</h3>
 <ol class="try">
-<li>Part 1: set the turn strength to 0.1 and press <i>new path</i> a few times. <details><summary>What happens and why</summary>The chain is almost one long arrow (R = 0 or R = 1). Every extra turn shrinks the arrow by the factor 0.1. So a path with many turns hardly matters. This is a small-mass expansion: the sum is a power series in m.</details></li>
-<li>Part 1: set the turn strength to 1.0 and the end point near the middle. <details><summary>What happens and why</summary>Now long arrows come from paths with many turns, because there are very many of them (the binomials grow). Arrows with R = 0, 4, 8 point one way and arrows with R = 2, 6 point the other way, so they cancel each other in part. The sum is much smaller than the sum of the lengths. This is interference between paths.</details></li>
-<li>Part 2: set the mass to 0. <details><summary>What happens and why</summary>Only the edge of the <a class="term" href="../glossary.html#light-cone">light cone</a> is lit, and only for "end right, start right" (or "end left, start left"). The particle never turns, so only one path exists. The two other components are exactly 0.</details></li>
+<li>Part 1: set the turn strength to 0.1 and press <i>new path</i> a few times. <details><summary>What happens and why</summary>The chain is almost one long arrow: the smallest allowed R (here R = 2, because the default path starts and ends to the right and goes right 5 times of 9). Every extra turn shrinks the arrow by the factor 0.1. So a path with many turns hardly matters. This is a small-mass expansion: the sum is a power series in m.</details></li>
+<li>Part 1: set the turn strength to 1.0 and the end point near the middle. <details><summary>What happens and why</summary>Now long arrows come from paths with many turns, because there are very many of them (the binomials grow). Arrows with R = 4, 8 point one way and arrows with R = 2, 6 point the other way, so they cancel each other in part. The sum is much smaller than the sum of the lengths. This is interference between paths.</details></li>
+<li>Part 2: set the mass to 0. <details><summary>What happens and why</summary>In the probability view (the default), both edges of the <a class="term" href="../glossary.html#light-cone">light cone</a> are lit and the inside is black. Pick one component to see one edge: "end right, start right" shows the right edge, "end left, start left" shows the left edge. The particle never turns, so only one path exists. The two other components (end left, start right and end right, start left) are exactly 0 and go fully black.</details></li>
 <li>Part 2: raise m, then raise N. <details><summary>What happens and why</summary>Waves appear inside the cone. They have the shape J₀(m√(t²−x²)), so rings of equal phase follow the curves of constant proper time. Higher m makes finer rings. A finer grid (larger N) resolves them better; with a coarse grid the picture is only a rough copy.</details></li>
 <li>Part 2: switch between the plain and the unitary rule and read the norm. <details><summary>What happens and why</summary>The plain rule has a norm that grows by (1+ε²m²) at every tick, so the total probability is not conserved on the grid. The unitary rule uses cos(mε) and −i sin(mε) and keeps the norm at 1 exactly. When ε goes to 0, both rules give the same wave.</details></li>
 <li>Part 3: double N and read the error table. <details><summary>What happens and why</summary>The largest error falls by a factor of about 2. The fitted order is close to 1. The error is of first order in ε. In a log–log plot, the points lie on a straight line of slope 1.</details></li>
-<li>Part 4: set k = 0, start with the right component only, σ = 0.3, m = 3. <details><summary>What happens and why</summary>The zoomed plot shows a fast wiggle. Its period is π/ω, where ω is the energy of a rest particle (ω = m). The wiggle fades as the packet spreads. With a wide packet (σ ≫ 1/m) it is tiny.</details></li>
+<li>Part 4: set k = 0, start with the right component only, σ = 0.3, m = 3. <details><summary>What happens and why</summary>The zoomed plot shows a fast wiggle. Its period is π/ω, where ω is the energy of a rest particle (ω = m). The wiggle keeps its full size 1/(2m) for a wide packet (σ ≫ 1/m, narrow in k). A narrow packet (σ ≲ 1/m) has a smaller wiggle, and it fades with time, because its many wave numbers get out of step. For m = 3, σ = 0.3, the largest wiggle is 0.119; for σ = 3 it is 0.171 (1/(2m) = 0.167).</details></li>
 <li>Part 4: use one speed, and compare the white line with the dashed line. <details><summary>What happens and why</summary>The two lines nearly match. The measured speed is an average over the packet, so it differs slightly from the formula for one k. A packet with large mass moves slowly. A packet with m small and k large moves close to the speed of light 1, and never faster.</details></li>
 </ol>
 
@@ -246,7 +246,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <p><b>The limit.</b> One tick of the recursion says ψ<sub>R</sub>(x,t+ε) − ψ<sub>R</sub>(x−ε,t) = −iεm ψ<sub>L</sub>(x−ε,t). Divide by ε and let ε go to 0: (∂<sub>t</sub> + ∂<sub>x</sub>) ψ<sub>R</sub> = −i m ψ<sub>L</sub>, and (∂<sub>t</sub> − ∂<sub>x</sub>) ψ<sub>L</sub> = −i m ψ<sub>R</sub>. This is the Dirac equation for a <a class="term" href="../glossary.html#spinor">spinor</a> with two components (right-moving and left-moving). The solution for a point source is the retarded <a class="term" href="../glossary.html#propagator">propagator</a>. Its components are Bessel functions inside the light cone and a sharp spike on the edge. The mass sets how fast the waves inside oscillate.</p>
 <p><b>The sign and the cell.</b> With the sign −iεm the sum obeys (∂<sub>t</sub> + ∂<sub>x</sub>)ψ<sub>R</sub> = −imψ<sub>L</sub>. With +iεm you get the same physics with m → −m (a different sign convention of the Dirac matrices). Only every second cell is reached at a given time, so the cell width in x is 2ε. This is why the grid sum is divided by 2ε. Then the sum is a density in x, as the propagator is.</p>
 <p><b>Plain and unitary.</b> The plain rule is not unitary on the grid. Every tick multiplies the norm by 1+ε²m². After N−1 ticks it is (1+ε²m²)<sup>N−1</sup>. This tends to 1 when ε goes to 0 with t = Nε fixed, but only like 1 + εm²t. The unitary variant puts cos(mε) on each step without a turn and −i sin(mε) on each turn. The norm is 1 at every tick. It is a <a class="term" href="../glossary.html#quantum-walk"><i>quantum walk</i></a>: a particle with a "coin" in the direction (right or left), and the coin is turned by an angle mε at every tick. The wave on the grid has the dispersion cos(ωε) = cos(mε) cos(kε), which tends to ω² = k² + m².</p>
-<p><b>Packets.</b> A packet made of waves e<sup>ikx</sup> with k near k₀ moves with the group speed dω/dk = k/√(k²+m²). This is always less than 1 for m &gt; 0. A packet that starts in one component only is a mix of positive-energy and negative-energy waves. The two parts beat with frequency 2ω. The mean position then wiggles. This is the <a class="term" href="../glossary.html#zitterbewegung">Zitterbewegung</a>. It has the size of one Compton wavelength 1/m. See <a href="feynman-diagrams.html">Feynman Diagrams</a> for the other, perturbative way of adding up paths.</p>
+<p><b>Packets.</b> A packet made of waves e<sup>ikx</sup> with k near k₀ moves with the group speed dω/dk = k/√(k²+m²). This is always less than 1 for m &gt; 0. A packet that starts in one component only is a mix of positive-energy and negative-energy waves. The two parts beat with frequency 2ω. The mean position then wiggles. This is the <a class="term" href="../glossary.html#zitterbewegung">Zitterbewegung</a>. For a wide packet it has the size 1/(2m), half a Compton wavelength. A narrow packet (σ ≲ 1/m) has a smaller wiggle that fades with time. See <a href="feynman-diagrams.html">Feynman Diagrams</a> for the other, perturbative way of adding up paths.</p>
 
 <h3>The math</h3>
 <details><summary>Show the formulas</summary>
@@ -270,7 +270,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <span class="eq">cos(ωε) = cos(mε) cos(kε),  v<sub>g</sub> = cos(mε) sin(kε) / sin(ωε) → k/√(k²+m²)</span>
 <span>The dispersion and the group speed of the unitary rule on the grid. The limit is for ε → 0.</span>
 <span class="eq">⟨x⟩(t) ≈ v t + A cos(2ωt + φ),  A ∼ 1/(2m)</span>
-<span>Zitterbewegung, in order of size only. ω = √(k²+m²).</span>
+<span>Zitterbewegung, in order of size only. ω = √(k²+m²). A is the size for a wide packet (σ ≫ 1/m); a narrow packet has a smaller A that falls with time.</span>
 </div>
 </details>
 
@@ -445,6 +445,26 @@ function peakFreq(y,eps,f0,f1){const n=y.length,lf=lineFit(y,eps,0,n-1);let best
   for(let f=f0;f<=f1;f+=0.005){let a=0,b=0;for(let i=0;i<n;i++){const d=y[i]-(lf.icpt+lf.slope*i*eps);a+=d*Math.cos(f*i*eps);b+=d*Math.sin(f*i*eps)}
     const p=Math.hypot(a,b);if(p>best){best=p;bf=f}}
   return bf}
+/* Light-cone picture. comp = RR LR RL LL or prob (start (R+L)/sqrt2). Row n-1, column j (cell x = (j-N) eps).
+   Only cells with the right parity are reached. A cell of the wrong parity gets the value of its neighbour toward the middle,
+   and only if that neighbour is strictly inside the cone (else 0). The reference for the brightness is the strongest
+   reached cell strictly inside the cone (|j-N| < n). The edge cells (|j-N| = n) are never part of it. */
+function coneBuild(N,g,unitary,comp){
+  const W=2*N+1,starts=comp==="prob"?[1,-1]:[comp[1]==="R"?1:-1],buf={},walks={};
+  for(const s of starts){const b={Rr:new Float32Array(N*W),Ri:new Float32Array(N*W),Lr:new Float32Array(N*W),Li:new Float32Array(N*W)};buf[s]=b;
+    walks[s]=walk(N,g,unitary,s,(n,Rr,Ri,Lr,Li)=>{const o=(n-1)*W;b.Rr.set(Rr,o);b.Ri.set(Ri,o);b.Lr.set(Lr,o);b.Li.set(Li,o)})}
+  const val=o=>{
+    if(comp==="prob"){const a=buf[1],b=buf[-1],s2=Math.SQRT1_2,rr=(a.Rr[o]+b.Rr[o])*s2,ri=(a.Ri[o]+b.Ri[o])*s2,lr=(a.Lr[o]+b.Lr[o])*s2,li=(a.Li[o]+b.Li[o])*s2;
+      const pr=rr*rr+ri*ri,pl=lr*lr+li*li;return [Math.sqrt(pr+pl),0,pr/(pr+pl+1e-300)]}
+    const b=buf[comp[1]==="R"?1:-1];return comp[0]==="R"?[b.Rr[o],b.Ri[o],0]:[b.Lr[o],b.Li[o],0]};
+  const mag=new Float32Array(N*W),ang=new Float32Array(N*W),mix=new Float32Array(N*W);let ref=0;
+  for(let n=1;n<=N;n++)for(let j=0;j<W;j++){
+    const i=(n-1)*W+j,d=j-N,reached=((d+n)&1)===0;let jj=j;
+    if(!reached){jj=d>0?j-1:j+1;if(Math.abs(jj-N)>=n){mag[i]=0;continue}}
+    const v=val((n-1)*W+jj);
+    mag[i]=comp==="prob"?v[0]:Math.hypot(v[0],v[1]);ang[i]=comp==="prob"?0:Math.atan2(v[1],v[0]);mix[i]=v[2];
+    if(reached&&Math.abs(d)<n&&mag[i]>ref)ref=mag[i]}
+  return {mag,ang,mix,ref,walks,starts}}
 /* PHYSICS-CORE END */
 /* ---------------- user interface (not tested from node) ---------------- */
 const $=id=>document.getElementById(id);
@@ -566,20 +586,9 @@ $("np1").addEventListener("click",()=>{newPath1();draw1()});
 const P2={};
 function build2(){
   const N=+$("n2").value,m=+$("m2").value,uni=$("r2").value==="u",comp=$("c2").value,g=m/N,W=2*N+1;
-  const starts=comp==="prob"?[1,-1]:[comp[1]==="R"?1:-1],buf={};
-  for(const s of starts){const b={Rr:new Float32Array(N*W),Ri:new Float32Array(N*W),Lr:new Float32Array(N*W),Li:new Float32Array(N*W)};buf[s]=b;
-    P2["w"+s]=walk(N,g,uni,s,(n,Rr,Ri,Lr,Li)=>{const o=(n-1)*W;b.Rr.set(Rr,o);b.Ri.set(Ri,o);b.Lr.set(Lr,o);b.Li.set(Li,o)})}
-  const mag=new Float32Array(N*W),hue=new Uint8Array(N*W),mix=new Float32Array(N*W);let ref=0;
-  const val=(n,j)=>{ // value at row n-1, column j; returns [re,im,rShare]
-    const o=(n-1)*W+j;
-    if(comp==="prob"){const a=buf[1],b=buf[-1],s2=Math.SQRT1_2,rr=(a.Rr[o]+b.Rr[o])*s2,ri=(a.Ri[o]+b.Ri[o])*s2,lr=(a.Lr[o]+b.Lr[o])*s2,li=(a.Li[o]+b.Li[o])*s2;
-      const pr=rr*rr+ri*ri,pl=lr*lr+li*li;return [Math.sqrt(pr+pl),0,pr/(pr+pl+1e-300)]}
-    const b=buf[comp[1]==="R"?1:-1];return comp[0]==="R"?[b.Rr[o],b.Ri[o],0]:[b.Lr[o],b.Li[o],0]};
-  for(let n=1;n<=N;n++)for(let j=0;j<W;j++){
-    let jj=j;if(((j-N+n)&1)!==0)jj=j>0?j-1:j+1;
-    const v=val(n,jj),i=(n-1)*W+j;
-    mag[i]=comp==="prob"?v[0]:Math.hypot(v[0],v[1]);hue[i]=comp==="prob"?0:hueIdx(Math.atan2(v[1],v[0]));mix[i]=v[2];
-    if(Math.abs(j-N)<n&&mag[i]>ref)ref=mag[i]}
+  const cb=coneBuild(N,g,uni,comp),starts=cb.starts,mag=cb.mag,mix=cb.mix;let ref=cb.ref;
+  for(const s of starts)P2["w"+s]=cb.walks[s];
+  const hue=new Uint8Array(N*W);for(let i=0;i<hue.length;i++)hue[i]=comp==="prob"?0:hueIdx(cb.ang[i]);
   if(ref<1e-12)ref=1e-12;
   const cv=document.createElement("canvas");cv.width=W;cv.height=N;const cx=cv.getContext("2d"),img=cx.createImageData(W,N),D=img.data;
   for(let n=1;n<=N;n++)for(let j=0;j<W;j++){const i=(n-1)*W+j,p=i*4,out=Math.abs(j-N)>n;
@@ -603,7 +612,7 @@ function draw2(){
   c.textAlign="right";c.fillText("t = 0",ML-4,MT+10);c.fillText("t = 1",ML-4,MT+ph);
   c.fillText("↓ time",ML-4,MT+ph/2);
   $("big2").innerHTML=`<span>norm of the wave after ${N} steps, grid sum:</span> <b>${P2.ns.toFixed(12)}</b> <span>(exact answer ${P2.uni?"1":`(1+ε²m²)<sup>N−1</sup> = ${P2.ne.toFixed(12)}`})</span>
-   <small>difference ${sci(Math.abs(P2.ns-P2.ne),1)} · ε = 1/${N}, εm = ${P2.g.toFixed(4)} · the plain rule overshoots by ${((P2.ne-1)*100).toFixed(2)} % in norm at t = 1; the limit ε → 0 gives 0 %</small>`;
+   <small>difference ${sci(Math.abs(P2.ns-P2.ne),1)} · ε = 1/${N}, εm = ${P2.g.toFixed(4)} · the plain rule overshoots by ${((P2.ne-1)*100).toFixed(2)} % in norm at t = 1; the limit ε → 0 gives 0 %</small>${P2.uni?"":`<small>This is not a bug. The simple rule −iεm is not exactly unitary. The excess goes to 0 as ε → 0 (try a larger N). The unitary rule keeps the norm at 1.</small>`}`;
   const w=P2["w"+(P2.comp==="prob"?1:(P2.comp[1]==="R"?1:-1))],edge=Math.hypot(P2.comp[0]==="R"?w.Rr[2*N]:w.Lr[0],P2.comp[0]==="R"?w.Ri[2*N]:w.Li[0]);
   $("read2").innerHTML=`<div><span>strongest cell inside the cone:</span> <b>${P2.ref>1e-11?sci(P2.ref,2):"0 (no mass: nothing inside)"}</b></div>`+
    (P2.comp==="RR"||P2.comp==="LL"?`<div><span>edge cell (the path with no turn):</span> <b>${edge.toFixed(6)}</b> <span>(exact: ${P2.uni?`cos(εm)<sup>N−1</sup>`:"1"} = ${(P2.uni?Math.pow(Math.cos(P2.g),N-1):1).toFixed(6)})</span></div>`:"")}
@@ -650,7 +659,7 @@ function draw3(){
    c.fillStyle="#fb923c";c.strokeStyle="#fb923c";c.lineWidth=1.8;c.beginPath();le.forEach((v,i)=>i?c.lineTo(X(v),Y(ee[i])):c.moveTo(X(v),Y(ee[i])));c.stroke();
    le.forEach((v,i)=>{c.beginPath();c.arc(X(v),Y(ee[i]),4,0,7);c.fill()});
    c.fillStyle=TXT;c.textAlign="left";c.fillText("dashed: slope 1",ML+6,MT+12)}
-  $("big3").innerHTML=`<span>order of convergence p (error ∝ ε<sup>p</sup>), fitted over N = ${P3.Ns.join(", ")}:</span> <b>${P3.order.toFixed(3)}</b> <span>(this scheme is first order: p = 1)</span>
+  $("big3").innerHTML=`<span>order of convergence p (error ∝ ε<sup>p</sup>), fitted over N = ${P3.Ns.join(", ")}:</span> <b>${P3.order.toFixed(3)}</b> <span>(first order: p is close to 1 for fine grids; on coarse grids p can be larger)</span>
    <small>largest error at N = ${P3.Ns[3]}: ${sci(res[3].err,2)} (${(100*res[3].err/res[3].ref).toFixed(2)} % of the largest wave value ${res[3].ref.toFixed(3)}) · when ε is halved, the error falls by the factor ${(res[2].err/res[3].err).toFixed(3)}</small>`;
   $("read3").innerHTML=`<div><span>ε at the coarsest grid:</span> <b>1/${P3.N0}</b></div><div><span>εm:</span> <b>${(m/N0).toFixed(4)}</b></div><div><span>rule:</span> <b>${P3.uni?"unitary":"plain"}</b></div>`;
   let t=`<table class="tb"><tr><th>N</th><th>ε</th><th>cells</th><th>error RR</th><th>error LR</th><th>largest</th><th>relative</th></tr>`;

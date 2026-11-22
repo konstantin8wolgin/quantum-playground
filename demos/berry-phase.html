@@ -84,7 +84,7 @@ a.term:hover{color:var(--accent)}
 <div class="howto"><b>How to use this room</b>
 <ol>
 <li>Part 1: press <i>Play</i>. The orange dot is the direction of the field. The blue arrow is the spin. Watch the blue arrow follow the orange dot around the loop. Drag the sphere to look from another side.</li>
-<li>Part 2: keep the loop slow (10 turns or more) and read the big number. It compares the simulated phase with the exact answer −Ω/2. Then move <i>loop time</i> to the left and watch the match break.</li>
+<li>Part 2: read the big number. It is a fixed, very slow run (1 600 turns) and it does not react to the sliders. It compares the simulated phase with the exact answer −Ω/2. Then move <i>loop time</i> and watch the live line (geometric from the run, expected, difference) and the blue dot in the log plot. The match is good for slow loops (the difference is about 0.1 at 10 turns, 0.001 at 1 000 turns) and breaks for fast loops.</li>
 <li>Part 3: move the cone angle <i>α</i>. The geometric phase moves along a straight line. Then look at the table: speed, direction and spin state change the phase only in the way the area says.</li>
 <li>Part 4: look at the same phase as the flux of a tiny magnet (a monopole) through the loop. Compare it with the <a href="aharonov-bohm.html">Aharonov–Bohm</a> room.</li>
 </ol>
@@ -135,13 +135,13 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
     <canvas id="pc" data-h0="310"></canvas>
   </div>
   <div>
-    <h3 class="cap">Distance from −Ω/2 against loop time (log scale)</h3>
+    <h3 class="cap">Distance from the exact phase ∓Ω/2 against loop time (log scale)</h3>
     <canvas id="dv" data-h0="310"></canvas>
   </div>
 </div>
 <div class="legend">
   <div><span class="chip c-sim">simulation</span>yellow arrow Φ (total phase from the run), grey arrow (dynamical phase), blue arrow (their difference: the geometric phase from the run), and the blue dot in the right picture.</div>
-  <div><span class="chip c-exact">exact</span>green arrow: −Ω/2. Orange curve in the right picture: the exact solution of the cone problem for every loop time (in a frame that turns with the field the field is constant, and the problem has a closed formula). Dashed line: the leading slow-loop error π²sin²α/(BT).</div>
+  <div><span class="chip c-exact">exact</span>green arrow: −Ω/2 for the aligned spin, +Ω/2 for the anti-aligned spin. Orange curve in the right picture: the exact solution of the cone problem for every loop time (in a frame that turns with the field the field is constant, and the problem has a closed formula). Dashed line: the leading slow-loop error π²sin²α/(BT).</div>
   <div><span class="chip c-int">interpretation</span>"The phase is geometric." The total phase is real. The split into two parts is a choice: we call the part that grows with time dynamical, and the rest geometric. For fast loops the split is not clean.</div>
 </div>
 <div class="controls">
@@ -153,8 +153,8 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <div class="read" id="read2"></div>
 <div class="predict"><b>Predict, then test:</b> double the loop time. By what factor does the distance from −Ω/2 shrink? Look at the dot in the right picture. Then set α = 90° and ask the same question again.</div>
 <details><summary>What the numbers mean</summary>
-<p>The big number uses its own run: T = 10 000/B, which is 1 600 spin turns. The loop is so slow that the leading error π²sin²α/(BT) is below 10⁻³ (for α = 60°). The line below it removes this error, and the rest is the error of the numerical method and the next order. The check "against the exact rotating frame" compares the amplitude of the run at the end with the closed formula. It uses the same T, so it is not tied to slow loops.</p>
-<p>The phases are angles. Only Φ mod 2π means anything. So all differences are shown in the range −π to π.</p>
+<p>The big number uses its own run: T = 10 000/B, which is 1 600 spin turns. The loop is so slow that the leading error π²sin²α/(BT) is below 10⁻³ for every α (at most 9.9·10⁻⁴ near α = 90°). The line below it removes this error, and the rest is the error of the numerical method and the next order. The check "against the exact rotating frame" compares the amplitude of the run at the end with the closed formula. It uses the same T, so it is not tied to slow loops.</p>
+<p>The phases are angles. Only Φ mod 2π means anything. So all differences are shown in the range −π to π. The angles −π and +π are the same phase. The "expected" values are printed on the same branch as the run value, so a run at −3.1367 is compared with −3.1416, not with +3.1416.</p>
 </details>
 </section>
 
@@ -229,7 +229,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <dl>
 <dt>Bloch sphere</dt><dd>The sphere of directions. Orange: the path of the field direction (the loop) and the dot on it now. Blue arrow: the spin direction. Blue trail: where the arrow tip went.</dd>
 <dt>Fidelity curve</dt><dd>The chance to find the spin along the field now, from 0 to 1. For a slow loop it stays close to 1. For a fast loop it falls: the spin cannot follow.</dd>
-<dt>Phase circle</dt><dd>Each arrow is an angle on a circle. Yellow: the total phase of one loop. Grey: the dynamical phase. Blue: the difference (the geometric phase from the run). Green: −Ω/2, the exact answer for a slow loop.</dd>
+<dt>Phase circle</dt><dd>Each arrow is an angle on a circle. Yellow: the total phase of one loop. Grey: the dynamical phase. Blue: the difference (the geometric phase from the run). Green: −Ω/2 (+Ω/2 for the anti-aligned spin), the exact answer for a slow loop.</dd>
 <dt>Distance plot</dt><dd>Both axes are logarithmic. The orange curve is the distance between the geometric phase and −Ω/2 for each loop time. It falls like 1/T for a slow loop (the dashed line). For a fast loop it is large and it oscillates.</dd>
 <dt>Area plot</dt><dd>Solid angle across, phase up. Both lines are straight. Dots from the simulation sit on the line.</dd>
 <dt>Table</dt><dd>Four runs with the same loop: normal speed, a speed that changes along the loop, the loop backwards, and the other spin state. All results are given as a difference from the expected value.</dd>
@@ -242,10 +242,10 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <li>Part 1: set a fast loop (0.3 turns). <details><summary>What happens and why</summary>The field direction moves more than the spin can follow in one turn. The spin lags behind and spins around the field. The fidelity falls. The state at the end is not the same direction as at the start, so the geometric phase is not clean any more.</details></li>
 <li>Part 2: read the big number at α = 60°. Then set α = 90°. <details><summary>What happens and why</summary>At 60° the loop encloses Ω = π. The phase is −π/2 (−1.5708). At 90° the loop is a great circle. Ω = 2π and the phase is −π (3.1416 in size). The state is multiplied by −1. The simulation agrees with these numbers to 1 part in 1000 or better. The small rest is the slow-loop error.</details></li>
 <li>Part 2: double the loop time and look at the dot in the right picture. <details><summary>What happens and why</summary>The distance from −Ω/2 becomes half as large. This is the 1/T law: the error is π²sin²α/(BT). It is the price of a finite speed. The geometric phase itself does not change.</details></li>
-<li>Part 2: make the loop very fast (0.1 turns). <details><summary>What happens and why</summary>The distance is not small. The spin does not follow the field, and the total phase has no simple split. A different split, found by Aharonov and Anandan, still gives a geometric phase for a fast loop. It is the area of the path of the <i>spin</i> (not of the field) on the sphere.</details></li>
+<li>Part 2: make the loop very fast (0.2 turns, the smallest on the slider). <details><summary>What happens and why</summary>The distance is not small. The spin does not follow the field, and the total phase has no simple split. A different split, found by Aharonov and Anandan, still gives a geometric phase for a fast loop. It is the area of the path of the <i>spin</i> (not of the field) on the sphere.</details></li>
 <li>Part 3: choose a loop shape other than the circle. Is the phase still on the line? <details><summary>What happens and why</summary>Yes. The tilted circle has the same area as the cone, so it has the same phase. The wobbly loop has another area, and the dot moves along the line to its new area. The phase follows the area, not the shape.</details></li>
 <li>Part 3: look at the table. <details><summary>What happens and why</summary>A different speed along the loop gives the same phase (as the area), apart from a small difference from the finite loop time. The backwards loop gives the opposite sign: the area is now on the other side. The anti-aligned spin also has the opposite sign: its phase is +Ω/2.</details></li>
-<li>Part 4: switch the spin state and push α to 175°. <details><summary>What happens and why</summary>For the anti-aligned spin the monopole has the strength −½, and the radial arrows point inward. The phase changes sign. For α near 180° the loop shrinks to a point at the south pole, and the flux is nearly 2π (the whole sphere). The phase is nearly −2π. This is the same as no phase, because 2π cannot be seen.</details></li>
+<li>Part 4: switch the spin state and push α to 175°. <details><summary>What happens and why</summary>For the anti-aligned spin the monopole has the strength −½, and the radial arrows point inward. The phase changes sign. For α near 180° the loop shrinks to a point at the south pole, and it covers almost the whole sphere. For the aligned spin the flux is nearly +2π and the phase is nearly −2π. For the anti-aligned spin both signs flip (at 175°: flux −6.27, phase +6.27). In both cases the phase is nearly 0 mod 2π. A loop that covers almost the whole sphere is almost no loop, and 2π cannot be seen.</details></li>
 </ol>
 
 <h3>The physics</h3>
@@ -277,7 +277,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 </details>
 
 <h3>Honest limits</h3>
-<p class="limits">The spin sees a field of fixed size that is perfectly controlled. There is no noise, no relaxation, and the field has no quantum part. The "time" is in units where B = 1, so a loop of 10 turns is not a real time. The big number is a numerical result with a leading 1/T error (the error is below 10⁻³ for the default angle α = 60°, and up to 5·10⁻³ near α = 90°), not an infinite-time limit. The Aharonov–Anandan split for fast loops is named but not drawn. The tilted circle and the wobbly loop have no closed formula in this room: only the cone is compared with an exact solution. Their solid angle is a sum of small triangles (accurate to about 1e-6). The monopole is a picture in the space of field directions, not a real magnet. In a real lab (neutron beam, light in a fibre) the phase is measured with an interferometer, and the beam passes only once, so the loop is not repeated.</p>
+<p class="limits">The spin sees a field of fixed size that is perfectly controlled. There is no noise, no relaxation, and the field has no quantum part. The "time" is in units where B = 1, so a loop of 10 turns is not a real time. The big number is a numerical result with a leading 1/T error (for the big number, T = 10⁴/B, the error is below 10⁻³ for every α, at most 9.9·10⁻⁴ near α = 90°; the table in Part 3 uses T·B = 2000 and has up to 5·10⁻³ near 90°), not an infinite-time limit. The Aharonov–Anandan split for fast loops is named but not drawn. The tilted circle and the wobbly loop have no closed formula in this room: only the cone is compared with an exact solution. Their solid angle is a sum of small triangles (accurate to about 1e-6). The monopole is a picture in the space of field directions, not a real magnet. In a real lab (neutron beam, light in a fibre) the phase is measured with an interferometer, and the beam passes only once, so the loop is not repeated.</p>
 
 <h3>Go further</h3>
 <ul class="refs">
@@ -370,6 +370,8 @@ function loopPoints(path,prof,n){const a=[];for(let k=0;k<n;k++)a.push(path.n(pr
 /* a state with direction sign: the Berry phase of the aligned state is -Omega/2, of the anti-aligned state +Omega/2 */
 function monopoleFlux(Om,up){return(up?1:-1)*Om/2}
 function berryExpected(Om,up){return wrapPi(-monopoleFlux(Om,up))}
+/* the same phase as e (mod 2 pi), on the branch closest to ref. -pi and +pi are one phase; this picks the one that sits next to the run value. */
+function nearBranch(e,ref){return ref-wrapPi(ref-e)}
 /* discrete Berry phase of the eigenstates along the polygon: -arg prod <psi_k|psi_k+1>; gauge(k) is an optional phase per point */
 function discreteBerry(pts,up,gauge){
   let re=1,im=0;const sp=pts.map((n,k)=>{const a=anglesOf(n),s=spinorAt(a[0],a[1],up),g=gauge?gauge(k):0,c=Math.cos(g),si=Math.sin(g);
@@ -391,7 +393,7 @@ function phaseDeviationExact(alpha,B,T,up){
 function analyze(o,hB){
   const B=1,T=TWO_PI*o.turns,M=360,N=M*Math.max(1,Math.ceil(T*B/((hB||0.04)*M))),path=makePath(o.shape,o.alpha);
   const sim=simulate(path,o.prof,B,T,N,M,o.up),Phi=totalPhase(sim.psi0,sim.psi),dyn=wrapPi(dynPhase(B,T,o.up)),gam=wrapPi(Phi-dynPhase(B,T,o.up));
-  const Om=solidAngle(loopPoints(path,o.prof,20000)),exp=berryExpected(Om,o.up),ov=overlap(sim.psi0,sim.psi);
+  const Om=solidAngle(loopPoints(path,o.prof,20000)),exp=nearBranch(berryExpected(Om,o.up),gam),ov=overlap(sim.psi0,sim.psi);
   const r={B,T,N,M,path,sim,Phi,dyn,gam,Om,exp,diff:wrapPi(gam-exp),retFid:ov[0]*ov[0]+ov[1]*ov[1],fidMin:sim.fidMin,flux:monopoleFlux(Om,o.up)};
   if(o.shape==="cone"&&o.prof==="uniform"){const ex=coneExactState(o.alpha,B,T,T,o.up);
     r.exact={Phi:totalPhase(sim.psi0,ex),gam:geometricPhase(sim.psi0,ex,B,T,o.up),err:Math.hypot(ex[0]-sim.psi[0],ex[1]-sim.psi[1],ex[2]-sim.psi[2],ex[3]-sim.psi[3])}}
@@ -399,7 +401,7 @@ function analyze(o,hB){
 /* a slow loop (fixed T, only the end point is kept): geometric phase minus its expected value */
 function slowRun(o,T,hB){
   const B=1,M=1,N=Math.ceil(T*B/hB),path=makePath(o.shape,o.alpha),sim=simulate(path,o.prof,B,T,N,M,o.up);
-  const gam=geometricPhase(sim.psi0,sim.psi,B,T,o.up),Om=solidAngle(loopPoints(path,o.prof,20000)),exp=berryExpected(Om,o.up);
+  const gam=geometricPhase(sim.psi0,sim.psi,B,T,o.up),Om=solidAngle(loopPoints(path,o.prof,20000)),exp=nearBranch(berryExpected(Om,o.up),gam);
   const r={T,N,gam,Om,exp,diff:wrapPi(gam-exp)};
   if(o.shape==="cone"&&o.prof==="uniform"){const ex=coneExactState(o.alpha,B,T,T,o.up);
     r.exactErr=Math.hypot(ex[0]-sim.psi[0],ex[1]-sim.psi[1],ex[2]-sim.psi[2],ex[3]-sim.psi[3]);r.corr=adiabaticCorrection(o.alpha,B,T)}
@@ -497,7 +499,7 @@ function drawPhase(){
   A(R.dyn,GRY,2,0.95);A(R.Phi,YEL,2.4,1.0);A(R.exp,GRN,2,0.8);
   const pb=pt(R.dyn+R.gam,Rr*0.55);g.fillStyle=BLU;g.beginPath();g.arc(pb[0],pb[1],4.5,0,7);g.fill();
   g.font="11px system-ui";g.textAlign="left";let y=14;
-  for(const [c,t] of [[YEL,"total Φ"],[GRY,"dynamical +BT/2 (mod 2π)"],[BLU,"geometric = Φ − dynamical (run)"],[GRN,"exact −Ω/2"]]){g.fillStyle=c;g.fillText("■ "+t,8,y);y+=14}
+  for(const [c,t] of [[YEL,"total Φ"],[GRY,"dynamical +BT/2 (mod 2π)"],[BLU,"geometric = Φ − dynamical (run)"],[GRN,S.up?"exact −Ω/2":"exact +Ω/2"]]){g.fillStyle=c;g.fillText("■ "+t,8,y);y+=14}
   /* distance plot */
   {const {x:g2,w:W2,h:H2}=fit($("dv"));g2.fillStyle="#07080c";g2.fillRect(0,0,W2,H2);
    const ML=40,MB=32,pw=W2-ML-8,top=8,base=H2-MB,x0=Math.log10(0.1),x1=Math.log10(300),y0=-6,y1=0.6;
@@ -515,7 +517,7 @@ function drawPhase(){
    g2.fillStyle=BLU;g2.beginPath();g2.arc(X(S.turns),Y(Math.abs(R.diff)),5,0,7);g2.fill();
    g2.textAlign="left";g2.fillStyle=ORG;g2.fillText("— exact (cone)",ML+6,base-40);g2.fillStyle="rgba(255,255,255,.7)";g2.fillText("- - π²sin²α/(BT)",ML+6,base-26);g2.fillStyle=BLU;g2.fillText("● this run",ML+6,base-12)}
   const slow=R.fidMin>0.97;
-  $("st2").innerHTML=slow?`<span class="ok">Slow loop.</span> The spin follows the field (lowest fidelity ${R.fidMin.toFixed(3)}). The run gives −Ω/2 up to a small 1/T error.`
+  $("st2").innerHTML=slow?`<span class="ok">Slow loop.</span> The spin follows the field (lowest fidelity ${R.fidMin.toFixed(3)}). The run gives ${S.up?"−Ω/2":"+Ω/2"} up to a 1/T error.${S.shape==="cone"&&S.prof==="uniform"?` Expected slow-loop error π²sin²α/(BT) = ${adiabaticCorrection(S.alpha,1,R.T).toFixed(3)} at this T. About 1000 turns or more give 3 digits.`:""}`
     :`<span class="warn">Fast loop.</span> The spin lags behind the field (lowest fidelity ${R.fidMin.toFixed(3)}). The geometric phase is not −Ω/2 now.`;
   const ex=R.exact;
   $("read2").innerHTML=`<div><span>loop time </span><b>${S.turns.toFixed(2)}</b> <span>spin turns (T = ${R.T.toFixed(1)}/B) · steps </span><b>${R.N}</b></div>
@@ -525,7 +527,7 @@ function drawPhase(){
    <div><span>chance to be back in the start state </span><b>${R.retFid.toFixed(5)}</b></div>
    <div><span>exact rotating frame: </span>${ex?`<b>geometric ${pm(ex.gam,5)}</b> <span>· run minus exact: amplitude difference </span><b>${sci(ex.err)}</b>`:"<span>exact formula only for the steady cone (choose it in Part 1)</span>"}</div>`;
   if(BIG){const c=BIG.corr!==undefined;
-    $("big2").innerHTML=`<span>Berry phase from the run (loop time T = 10 000/B, ${BIG.N.toLocaleString("en")} steps):</span> <b>γ = ${pm(BIG.gam,5)}</b> <span>· exact −Ω/2 = </span><b>${pm(BIG.exp,5)}</b> <span>· difference </span><b>${pm(BIG.diff,5)}</b>
+    $("big2").innerHTML=`<span>Berry phase from the run (loop time T = 10 000/B, ${BIG.N.toLocaleString("en")} steps):</span> <b>γ = ${pm(BIG.gam,5)}</b> <span>· exact ${S.up?"−Ω/2":"+Ω/2"} = </span><b>${pm(BIG.exp,5)}</b> <span>· difference </span><b>${pm(BIG.diff,5)}</b>
      <small>${c?`The leading slow-loop error π²sin²α/(BT) is ${pm(BIG.corr,5)}. After removing it the rest is ${pm(BIG.diff-BIG.corr,7)}. Run against the exact rotating-frame solution at the same T: amplitude difference ${sci(BIG.exactErr)}.`:"For this loop shape there is no closed formula; the exact value is −Ω/2 with Ω from the sum of triangles."} The difference falls like 1/T. The spin used is ${S.up?"aligned (−Ω/2)":"anti-aligned (+Ω/2)"}.</small>`}
   else $("big2").innerHTML=`<span>Computing the slow run …</span>`}
 
@@ -547,7 +549,7 @@ function drawArea(){
   g.textAlign="left";g.fillStyle=GRN;g.fillText("— aligned: γ = −Ω/2",ML+8,top+12);g.fillStyle=PUR;g.fillText("- - anti-aligned: γ = +Ω/2",ML+8,top+26);g.fillStyle="#fff";g.fillText("● this loop (run)",ML+8,top+40);
   if(TAB){let h=`<table class="tb"><tr><th>run</th><th>γ from the run</th><th>expected</th><th>difference</th></tr>`;
     for(const {name,r} of TAB)h+=`<tr><td>${name}</td><td>${pm(r.gam,5)}</td><td>${pm(r.exp,5)}</td><td>${pm(r.diff,5)}</td></tr>`;
-    $("tab").innerHTML=h+`</table><div class="cap" style="font-size:12.5px;color:var(--muted);margin-top:4px">Ω = ${TAB[0].r.Om.toFixed(5)} for the loop as it is run first; the backwards loop has Ω = ${TAB[2].r.Om.toFixed(5)} (4π − Ω).</div>`;
+    $("tab").innerHTML=h+`</table><div class="cap" style="font-size:12.5px;color:var(--muted);margin-top:4px">Ω = ${TAB[0].r.Om.toFixed(5)} for the loop as it is run first; the backwards loop has Ω = ${TAB[2].r.Om.toFixed(5)} (4π − Ω). The angles −π and +π are the same phase; "expected" is printed on the same branch as the run value.</div>`;
     const spread=Math.max(...TAB.map(t=>Math.abs(t.r.diff)));
     $("st3").innerHTML=`<span class="ok">Area, not time:</span> all four runs are within ${sci(spread)} rad of their expected value. The loop is the same. Only the speed, the direction or the spin state changed.`}
   else{$("tab").innerHTML="<p>Computing the runs …</p>";$("st3").textContent=""}}

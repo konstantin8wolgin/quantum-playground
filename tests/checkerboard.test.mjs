@@ -6,7 +6,7 @@ const here=path.dirname(fileURLToPath(import.meta.url));
 const html=fs.readFileSync(path.join(here,"../demos/checkerboard.html"),"utf8");
 const m=html.match(/\/\* PHYSICS-CORE START \*\/([\s\S]*?)\/\* PHYSICS-CORE END \*\//);
 if(!m){console.log("FAIL  core block not found");process.exit(1)}
-const names="besselJ01 binom countPaths countsByR stepWeights sumByR walk bruteForce normSq normExpected exactK diracResidual convergeError fitOrder latticeOmega vgLattice vgContinuum packetRun lineFit peakFreq fft";
+const names="besselJ01 binom countPaths countsByR stepWeights sumByR walk bruteForce normSq normExpected exactK diracResidual convergeError fitOrder latticeOmega vgLattice vgContinuum packetRun lineFit peakFreq fft coneBuild";
 const C=vm.runInNewContext(m[1]+`;({${names.split(" ").join(",")}})`,{Math});
 let fails=0;
 const check=(name,ok,detail)=>{console.log(`${ok?"PASS":"FAIL"}  ${name}  ${detail}`);if(!ok)fails++};
@@ -119,5 +119,22 @@ for(const uni of [false,true]){
   check(`positive-energy start (k-space projection), m = ${m}, k = ${k}, sigma = ${sg}: <x> minus a straight line stays below 1e-8 (no Zitterbewegung)`,w<1e-8,`largest deviation ${w.toExponential(2)}`)}
  const r=C.packetRun({m:3,k:0,sigma:0.3,eps,T,mode:"R"}),lf=C.lineFit(r.mean,eps,0,T);let w=0;for(let i=0;i<=T;i++)w=Math.max(w,Math.abs(r.mean[i]-(lf.icpt+lf.slope*i*eps)));
  check("right-component start, m = 3, k = 0, sigma = 0.3: wiggle size 0.119 within 5 % (as before the fix)",Math.abs(w-0.1193)<0.006,`largest deviation ${w.toFixed(4)}`)}
+
+// 10. light-cone picture: the brightness reference is the strongest reached cell strictly inside the cone
+{let worst=0,N=160;
+ for(const uni of [false,true])for(const m of [3,12]){const g=m/N,a=C.coneBuild(N,g,uni,"RR").ref,b=C.coneBuild(N,g,uni,"LL").ref;worst=Math.max(worst,Math.abs(a-b)/a)}
+ check("cone reference: LL (start left) mirrors RR (start right), both rules, m = 3 and 12 (relative <= 1e-6)",worst<=1e-6,`worst relative diff ${worst.toExponential(2)}`);
+ const r=C.coneBuild(160,12/160,false,"RR").ref;
+ check("cone reference at m = 12, N = 160, plain, RR is below the edge value 1 (about 0.889)",r>0.88&&r<0.90,`ref ${r.toFixed(4)}`);
+ let z=0;for(const uni of [false,true])for(const comp of ["RR","LR","RL","LL","prob"])z=Math.max(z,C.coneBuild(80,0,uni,comp).ref);
+ check("cone reference at m = 0 is 0 in every view and both rules (nothing inside the cone)",z===0,`largest ${z}`);
+ // cells of the wrong parity never show the edge value: no lit cell next to the edge when m = 0
+ const cb=C.coneBuild(40,0,false,"LL");let leak=0;const W=81;for(let n=2;n<=40;n++){const d=-n+1;leak=Math.max(leak,cb.mag[(n-1)*W+(40+d)])}
+ check("m = 0, LL: the cell next to the left edge is empty (the edge is one cell wide)",leak===0,`value ${leak}`)}
+
+// 11. Zitterbewegung size: wide packet keeps about 1/(2m); narrow packet is smaller and fades
+{const eps=0.05,T=240,res={};for(const sg of [0.3,3]){const r=C.packetRun({m:3,k:0,sigma:sg,eps,T,mode:"R"}),lf=C.lineFit(r.mean,eps,0,T);let mx=0,late=0;
+  for(let i=0;i<=T;i++){const d=Math.abs(r.mean[i]-(lf.icpt+lf.slope*i*eps));mx=Math.max(mx,d);if(i>T*0.75)late=Math.max(late,d)}res[sg]={mx,late}}
+ check("wide packet (sigma = 3) keeps nearly 1/(2m) = 0.167 at late time; narrow packet (sigma = 0.3) fades to below a third of that",res[3].late>0.15&&res[0.3].late<0.056&&res[0.3].late<res[0.3].mx/2,`late ${res[3].late.toFixed(3)} (wide), ${res[0.3].late.toFixed(3)} (narrow, peak ${res[0.3].mx.toFixed(3)})`)}
 console.log(fails?`\n${fails} check(s) FAILED`:"\nall checks passed");
 process.exit(fails?1:0);
