@@ -138,7 +138,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 </div>
 <div class="controls">
   <label>potential <select id="pot2"><option value="free">free (no potential)</option><option value="harm" selected>harmonic trap</option><option value="dwell">double well</option><option value="step">step</option></select></label>
-  <label>number of slices N <b id="n2V"></b><input id="n2" type="range" min="0" max="8" step="0.125" value="2"></label>
+  <label>number of slices N <b id="n2V"></b><input id="n2" type="range" min="0" max="8" step="0.125" value="4"></label>
   <label>total time T <b id="t2V"></b><input id="t2" type="range" min="0.5" max="5" step="0.25" value="3"></label>
   <label>split <select id="sc2"><option value="plain">plain: V, then free</option><option value="sym" selected>symmetric: ½V, free, ½V</option></select></label>
 </div>
@@ -195,7 +195,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
   <label>step size ε <b id="e4V"></b><input id="e4" type="range" min="0" max="5" step="1" value="3"></label>
 </div>
 <div class="read" id="read4"></div>
-<div class="predict"><b>Predict, then test:</b> halve ε. By how much does the energy error fall? By how much does the shape error fall for the plain split, and for the symmetric split? Then compare the two energy numbers. Are they different?</div>
+<div class="predict"><b>Predict, then test:</b> halve ε. By how much does the energy error fall? By how much does the shape error fall for the plain split, and for the symmetric split? Then compare the two energy numbers. Are they different? Use the halvings 0.5 → 0.25, 0.1 → 0.05 and 0.02 → 0.01. The other neighbours differ by a factor 2.5, not 2.</div>
 </section>
 
 <section class="guide" id="guide">
@@ -217,19 +217,19 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 
 <h3>Things to try</h3>
 <ol class="try">
-<li>Part 1: set N = 2, kind "classical". Drag the middle dot up and down. <details><summary>What happens and why</summary>S<sub>N</sub> is smallest near the classical position, and it grows when you move the dot away. The classical path is a place where the action is stationary (it hardly changes). For the harmonic trap with T below π, it is even a minimum. Near that place the arrows of neighbouring paths point the same way, so they add up. Far from it the arrows turn fast and cancel.</details></li>
+<li>Part 1: set N = 2, kind "classical". Drag the middle dot up and down. <details><summary>What happens and why</summary>S<sub>N</sub> is smallest at one dot position, and it grows when you move the dot away. This is the stationary point of the <i>sliced</i> action. It is close to the classical dot when ε = T/N is small (for example N ≥ 4, or T ≤ 2 at N = 2). For large ε it is not: at N = 2 and T = 3 the minimum is at x₁ ≈ 0.36, while the classical dot is at 1.41. The classical path is a place where the true action is stationary (it hardly changes). Near that place the arrows of neighbouring paths point the same way, so they add up. Far from it the arrows turn fast and cancel.</details></li>
 <li>Part 1: choose "smooth wiggles" and move N from 2 to 64. <details><summary>What happens and why</summary>The polygon becomes the smooth curve. S<sub>N</sub> settles on one number, the action of the smooth path. The classical polygon error in the line below falls by a factor of 4 for each doubling of N. That is order 2.</details></li>
 <li>Part 1: choose "rough" and raise N. <details><summary>What happens and why</summary>S<sub>N</sub> keeps growing. A random walk has steps of size about √ε, so each motion term (Δx)²/2ε does not shrink. The sum grows like N. Typical paths in the path integral are not smooth. The sum still works because the arrows of such paths cancel almost completely. The smooth path is the exception that survives.</details></li>
 <li>Part 2: choose "free". Move N from 1 to 256. <details><summary>What happens and why</summary>The last row does not change at all (the error is about 10<sup>−15</sup>). One free step of time T is exactly N steps of time T/N. The free kernel composes exactly. The integral over each middle dot gives back the same kernel.</details></li>
 <li>Part 2: harmonic trap, plain split, N = 1, 2, 4, 8, 16. <details><summary>What happens and why</summary>With N = 1 the whole motion is one kick and one free spread. The result is wrong. The potential and the free motion do not commute: it matters which comes first. When the steps are short, the order matters less and less. The error falls like 1/N.</details></li>
-<li>Part 2: switch to the symmetric split. <details><summary>What happens and why</summary>For the same N the error is much smaller. Half a kick before and half after treat the two orders in a balanced way. The first error term cancels. The error falls like 1/N².</details></li>
+<li>Part 2: switch to the symmetric split. <details><summary>What happens and why</summary>Half a kick before and half after treat the two orders in a balanced way. The first error term cancels. The error falls like 1/N². For N about 16 or more the symmetric error is much smaller than the plain one (at N = 16 about 2 times, at N = 32 about 4 times, at N = 64 about 8 times, for T = 3). At very small N both are poor, and at N = 4 they are about equal.</details></li>
 <li>Part 3: read the big number, then change T and the width. <details><summary>What happens and why</summary>The fitted order stays near 2 for the symmetric split and near 1 for the plain split. The size of the error changes with T and width, but the slope does not. The order is a property of the formula.</details></li>
-<li>Part 4: set ε = 0.5 and then ε = 0.05. <details><summary>What happens and why</summary>The energy estimate goes to ½ when ε goes to 0. Its error falls by 4 each time ε is halved (order 2), and it is the same for both splittings. This is no accident. The two step operators are the same up to a change of variables (V<sup>1/2</sup>), so they have the same decay rate. But the <i>shape</i> of the surviving wave is different. For the plain split the shape error falls only by 2 when ε is halved (order 1). For the symmetric split it falls by 4 (order 2).</details></li>
+<li>Part 4: set ε = 0.5 and then ε = 0.05 (a halving step is 0.5 → 0.25, 0.1 → 0.05, or 0.02 → 0.01). <details><summary>What happens and why</summary>The energy estimate goes to ½ when ε goes to 0. Its error falls by 4 each time ε is halved (order 2), and it is the same for both splittings. This is no accident. The two step operators are the same up to a change of variables by e<sup>εV/2</sup> (a similarity transform), U<sub>plain</sub> = e<sup>εV/2</sup> U<sub>sym</sub> e<sup>−εV/2</sup>, so they have the same decay rate. But the <i>shape</i> of the surviving wave is different. For the plain split the shape error falls only by 2 when ε is halved (order 1). For the symmetric split it falls by 4 (order 2). The run lasts a finite imaginary time (τ = 20). At τ = 12 the symmetric shape error flattens near 10<sup>−5</sup> (a factor 1.7 at 0.02 → 0.01), because some of the first excited state is still left. At τ = 20 the factor is 4 for all three halvings.</details></li>
 </ol>
 
 <h3>The physics</h3>
 <p>The <a class="term" href="../glossary.html#propagator">propagator</a> K(x,T;x₀) takes the wave from time 0 to time T. It has the composition property: K(x,T;x₀) = ∫ K(x,T−t;y) K(y,t;x₀) dy. You can cut time in two, then in N pieces. For short time ε the kernel of a particle in a smooth potential is, to a good approximation, the free kernel times a phase from the potential. Put N of them in a chain and integrate over the N−1 middle points. This is the discrete <a class="term" href="../glossary.html#path-integral">path integral</a>. The phase of a polygon path is its sliced <a class="term" href="../glossary.html#action">action</a> S<sub>N</sub>. In the limit N → ∞ the polygons fill the space of all paths, and S<sub>N</sub> becomes the action ∫ L dt.</p>
-<p>The same chain is a recipe for a computer. The wave after one slice is ψ(x,t+ε) = ∫ K<sub>ε</sub>(x,y) ψ(y,t) dy. The free part of this integral is a convolution. It is simple in Fourier space: each wave number k just gets the phase e<sup>−iεk²/2</sup>. So one slice is: multiply by a phase in x-space, Fourier transform, multiply by a phase in k-space, transform back. This is the "split-step" method. It is the <a class="term" href="../glossary.html#trotter-splitting">product formula of Trotter and Suzuki</a>: e<sup>−iε(K+V)</sup> ≈ e<sup>−iεV</sup> e<sup>−iεK</sup>. The error per slice is of order ε², and N slices give an error of order ε = T/N. The symmetric form e<sup>−iεV/2</sup> e<sup>−iεK</sup> e<sup>−iεV/2</sup> has a smaller error per slice, ε³, so the total is of order ε². The first error term is a <a class="term" href="../glossary.html#commutator">commutator</a>-type term: it exists only because the kinetic and potential parts do not commute. For V = 0 there is no error at all.</p>
+<p>The same chain is a recipe for a computer. The wave after one slice is ψ(x,t+ε) = ∫ K<sub>ε</sub>(x,y) ψ(y,t) dy. The free part of this integral is a convolution. It is simple in Fourier space: each wave number k just gets the phase e<sup>−iεk²/2</sup>. So one slice is: multiply by a phase in x-space, Fourier transform, multiply by a phase in k-space, transform back. This is the "split-step" method. It is the <a class="term" href="../glossary.html#trotter-splitting">product formula of Trotter and Suzuki</a>: e<sup>−iε(K+V)</sup> ≈ e<sup>−iεK</sup> e<sup>−iεV</sup> (V acts first). The error per slice is of order ε², and N slices give an error of order ε = T/N. The symmetric form e<sup>−iεV/2</sup> e<sup>−iεK</sup> e<sup>−iεV/2</sup> has a smaller error per slice, ε³, so the total is of order ε². The first error term is a <a class="term" href="../glossary.html#commutator">commutator</a>-type term: it exists only because the kinetic and potential parts do not commute. For V = 0 there is no error at all.</p>
 <p>In the limit the result is the solution of the <a class="term" href="../glossary.html#schrodinger">Schrödinger equation</a>. For the <a class="term" href="../glossary.html#harmonic-oscillator">harmonic oscillator</a> the exact answer is known (the Mehler kernel, or the sum over oscillator states). So the oscillator is a clean test: you can measure the error exactly. For ε → −iε (a <a class="term" href="../glossary.html#wick-rotation">Wick rotation</a>) each step is real and damps the wave. High energies decay fastest, and the <a class="term" href="../glossary.html#ground-state">ground state</a> stays.</p>
 
 <h3>The math</h3>
@@ -250,7 +250,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <span class="eq">‖U<sub>plain</sub><sup>N</sup> ψ − e<sup>−iTH</sup> ψ‖ = O(1/N), &nbsp; ‖U<sub>sym</sub><sup>N</sup> ψ − e<sup>−iTH</sup> ψ‖ = O(1/N²)</span>
 <span>The orders. The first error term of U<sub>plain</sub> is (ε²/2)[K,V]-like. It cancels in U<sub>sym</sub>.</span>
 <span class="eq">e<sup>−εH</sup> ≈ e<sup>−εV/2</sup> e<sup>−εK</sup> e<sup>−εV/2</sup>, &nbsp; E ≈ −ln( ‖ψ<sub>k+1</sub>‖ / ‖ψ<sub>k</sub>‖ ) / ε</span>
-<span>Imaginary time (ε → −iε). The shrink rate of the norm gives the energy of the state that survives. For the oscillator E₀ = ½. The plain step e<sup>−εK</sup>e<sup>−εV</sup> equals e<sup>−εV/2</sup>(…)e<sup>εV/2</sup>-conjugated, so it has the same eigenvalues but different eigenvectors.</span>
+<span>Imaginary time (ε → −iε). The shrink rate of the norm gives the energy of the state that survives. For the oscillator E₀ = ½. The plain step e<sup>−εK</sup>e<sup>−εV</sup> equals e<sup>εV/2</sup> (e<sup>−εV/2</sup>e<sup>−εK</sup>e<sup>−εV/2</sup>) e<sup>−εV/2</sup>, a similarity transform of the symmetric step, so it has the same eigenvalues but different eigenvectors.</span>
 <span class="eq">ψ(x,T) = Σ<sub>n</sub> c<sub>n</sub> e<sup>−i(n+½)T</sup> φ<sub>n</sub>(x), &nbsp; c<sub>n</sub> = ⟨φ<sub>n</sub>|ψ(0)⟩</span>
 <span>The exact reference for the trap. It does not use slicing.</span>
 </div>
@@ -315,7 +315,7 @@ function potStep(p,V,eps,imag){
   for(let j=0;j<V.length;j++){const q=eps*V[j];
     if(imag){const f=Math.exp(-q);p.re[j]*=f;p.im[j]*=f}
     else{const c=Math.cos(q),s=-Math.sin(q),r=p.re[j],i=p.im[j];p.re[j]=r*c-i*s;p.im[j]=r*s+i*c}}}
-/* N slices of length eps = T/N. "plain": V then free. "sym": half V, free, half V. rec(k,psi) is called after each step. */
+/* N slices of length eps = T/N. "plain": V then free, U = e^{-i eps K} e^{-i eps V} (V acts first). "sym": half V, free, half V. rec(k,psi) is called after each step. */
 function oneStep(p,g,V,eps,scheme,imag){
   if(scheme==="sym"){potStep(p,V,eps/2,imag);freeStep(p,g,eps,imag);potStep(p,V,eps/2,imag)}
   else{potStep(p,V,eps,imag);freeStep(p,g,eps,imag)}}
@@ -473,7 +473,7 @@ $("cl1").onclick=()=>{A1.kind="classical";$("k1").value="classical";A1.custom=fa
 A1.N=8;
 
 /* ===================== Part 2 ===================== */
-const A2={pot:"harm",N:4,T:3,scheme:"sym",rows:null,key:"",ref:null,refKey:""};
+const A2={pot:"harm",N:16,T:3,scheme:"sym",rows:null,key:"",ref:null,refKey:""};
 A2.off=document.createElement("canvas");
 function run2(){
   const st=POT_START[A2.pot],p0=gaussPacket(G,st.x0,st.k0,st.s),V=potVec(G,A2.pot),N=A2.N,cols=J1-J0;
@@ -533,7 +533,7 @@ $("t3").addEventListener("input",()=>{A3.T=+$("t3").value;later(draw3)});
 $("s3").addEventListener("input",()=>{A3.s=+$("s3").value;later(draw3)});
 
 /* ===================== Part 4 ===================== */
-const EPS4=[0.5,0.25,0.1,0.05,0.02,0.01],TAU4=12,A4={};
+const EPS4=[0.5,0.25,0.1,0.05,0.02,0.01],TAU4=20,A4={};
 function draw4(){
   const eps=EPS4[+$("e4").value],steps=Math.round(TAU4/eps),p0=gaussPacket(G,2,0,0.5),V=potVec(G,"harm"),stride=Math.max(1,Math.floor(steps/180)),cols=128,j0=64;
   const rows=[];let mx=0;
@@ -545,7 +545,7 @@ function draw4(){
   {const {x:g,w:W,h:H}=fit($("ih"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=40,MB=20,MT=2,pw=W-ML-6,ph=H-MB-MT;g.imageSmoothingEnabled=true;g.drawImage(A4.off,ML,MT,pw,ph);
    g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";g.fillText("0",ML-5,MT+10);g.fillText("τ = "+TAU4,ML-5,MT+ph);g.textAlign="center";for(const x of [-6,-3,0,3,6])g.fillText(String(x),ML+(x+8)/16*pw,H-6)}
   {const {x:g,w:W,h:H}=fit($("ie"));g.fillStyle=BG;g.fillRect(0,0,W,H);const ML=34,MB=32,MT=8,pw=W-ML-8,ph=H-MB-MT,EM=3,X=k=>ML+k/steps*pw,Y=e=>MT+(1-Math.min(e,EM)/EM)*ph;
-   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";for(const e of [0,0.5,1,2,3])g.fillText(String(e),ML-5,Y(e)+4);g.textAlign="center";for(const t of [0,4,8,12])g.fillText(String(t),ML+t/TAU4*pw,H-18);g.fillText("imaginary time τ",ML+pw/2,H-4);
+   g.font="11px system-ui";g.fillStyle=TXT;g.textAlign="right";for(const e of [0,0.5,1,2,3])g.fillText(String(e),ML-5,Y(e)+4);g.textAlign="center";for(const t of [0,5,10,15,20])g.fillText(String(t),ML+t/TAU4*pw,H-18);g.fillText("imaginary time τ",ML+pw/2,H-4);
    g.setLineDash([2,3]);g.strokeStyle="rgba(255,255,255,.8)";g.beginPath();g.moveTo(ML,Y(0.5));g.lineTo(ML+pw,Y(0.5));g.stroke();g.setLineDash([]);
    for(const [arr,col,dash] of [[rp.E,"#fb923c",true],[rs.E,"#7fb0ff",false]]){g.strokeStyle=col;g.lineWidth=2;g.setLineDash(dash?[6,5]:[]);g.beginPath();for(let k=0;k<steps;k+=Math.max(1,Math.floor(steps/300))){const x=X(k+1),y=Y(arr[k]);k?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.lineWidth=1;g.setLineDash([])}
    g.textAlign="left";g.fillStyle="#fb923c";g.fillText("plain (dashed)",ML+pw-120,MT+12);g.fillStyle="#7fb0ff";g.fillText("symmetric: same curve",ML+pw-120,MT+26);g.fillStyle=TXT;g.fillText("dotted: exact ½",ML+pw-120,MT+40)}

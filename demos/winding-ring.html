@@ -225,11 +225,11 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <ol class="try">
 <li>Part 1: set θ = 0, then θ = π. <details><summary>What happens and why</summary>At θ = 0 every arrow points right: all sectors add. At θ = π the arrow of sector n points at angle πn, so the odd sectors point left and their signed lines are negative. Sector n = ±1 now takes away from Z. Z is smaller at θ = π than at θ = 0.</details></li>
 <li>Part 1: make β small, then large. <details><summary>What happens and why</summary>The weight of sector n is e<sup>−2π²In²/β</sup>. At small β a winding path must go far in a short time, so it costs a lot, and only n = 0 is left. At large β there is a long time to go round, so many sectors have a weight close to 1. The paths of a large n look like straight lines.</details></li>
-<li>Part 2: β ≈ 0.5, then β ≈ 25. Look at the error plot. <details><summary>What happens and why</summary>At small β the orange curve (sectors) drops below 10<sup>−10</sup> after one term, and the blue curve (levels) is slow. At large β it is the other way. This is the Poisson duality: the same Z, written as a sum that converges fast in the low-temperature region, or in the high-temperature region.</details></li>
+<li>Part 2: β ≈ 0.5, then β ≈ 25. Look at the error plot. <details><summary>What happens and why</summary>At small β the orange curve (sectors) drops below 10<sup>−10</sup> with the first term alone (n = 0), and the blue curve (levels) is slow. At large β it is the other way. This is the Poisson duality: the same Z, written as a sum that converges fast in the low-temperature region, or in the high-temperature region.</details></li>
 <li>Part 2: look at the "terms needed" numbers while you move β. <details><summary>What happens and why</summary>The number of sectors needed grows like √β. The number of levels needed grows like 1/√β. The two counts are equal near β = 2πI. The sum with fewer terms is always the best choice.</details></li>
 <li>Part 3: move θ to π. <details><summary>What happens and why</summary>The two lowest parabolas, k = 0 and k = 1, cross. The lowest level E<sub>0</sub> has a corner. The curve −(1/β) ln Z is smooth at small β. At large β it follows the corner, but it stays lower by ln 2/β, because two levels count at the crossing. The current jumps by 1/(2πI).</details></li>
 <li>Part 3: look at the current at small and at large β. <details><summary>What happens and why</summary>At large β the current is the zero-temperature sawtooth. At small β the current is small and smooth, because many levels share the weight and the thermal average washes out the jump.</details></li>
-<li>Part 4: set β = 8, I = 1, press <i>Run</i>, and wait. <details><summary>What happens and why</summary>The orange bars grow into the blue frames, and ⟨n²⟩ moves to the exact value (about 0.17). The "σ" number gets smaller, like 1/√(run length). Change θ: the bars do not change, because the run does not know θ. Only the cos θn number changes. It is the ratio Z(θ)/Z(0).</details></li>
+<li>Part 4: set β = 8, I = 1, press <i>Run</i>, and wait. <details><summary>What happens and why</summary>The orange bars grow into the blue frames, and ⟨n²⟩ moves to the exact value (about 0.145). The one-term estimate 2e<sup>−2π²I/β</sup> = 0.17 is 17 % too high here, because it leaves out the normalisation. The "σ" number gets smaller, like 1/√(run length). Change θ: the bars do not change, because the run does not know θ. Only the cos θn number changes. It is the ratio Z(θ)/Z(0).</details></li>
 </ol>
 
 <h3>The physics</h3>
@@ -255,7 +255,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <span>The persistent current at zero temperature. It is a sawtooth: at θ = π it jumps from −1/(4πI) to +1/(4πI).</span>
 <span class="eq">J<sub>β</sub> = (1/β) ∂<sub>θ</sub> ln Z = −(1/β) Σ n sin(θn) z<sub>n</sub> / Z</span>
 <span>The thermal current, from the sector sum.</span>
-<span class="eq">⟨n²⟩ = −∂²<sub>θ</sub> ln Z |<sub>θ=0</sub> = Σ n² z<sub>n</sub> / Σ z<sub>n</sub> &nbsp; (≈ 2 e<sup>−2π²I/β</sup> for small β/I)</span>
+<span class="eq">⟨n²⟩ = −∂²<sub>θ</sub> ln Z |<sub>θ=0</sub> = Σ n² z<sub>n</sub> / Σ z<sub>n</sub> &nbsp; (≈ 2 e<sup>−2π²I/β</sup> for small β/I, when this number is much smaller than 1)</span>
 <span>The topological susceptibility of the ring, the quantity Part 4 measures.</span>
 </div>
 </details>

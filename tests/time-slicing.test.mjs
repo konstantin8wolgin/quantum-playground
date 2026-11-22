@@ -117,5 +117,22 @@ const Ns=[1,2,4,8,16,32,64,128,256];
  const r=C.imagRun(g,"harm",p0,0.02,600,"sym"),Eh=C.energyExpect(r.psi,g,C.potVec(g,"harm"));
  check("relaxed state: <H> = 0.5 +- 1e-3 (independent check from the wave itself)",Math.abs(Eh-0.5)<=1e-3,`<H> = ${Eh.toFixed(6)}`)}
 
+// 10. the page's own imaginary-time run (TAU4 and EPS4 read from the page): every halving offered falls by 4 (sym shape), 2 (plain shape), 4 (energy)
+{const TAU=+html.match(/TAU4=(\d+)/)[1],EPS=JSON.parse(html.match(/EPS4=(\[[^\]]*\])/)[1]);
+ const g=C.makeGrid(256,32),p0=C.gaussPacket(g,2,0,0.5),res={};
+ for(const sc of ["sym","plain"])for(const e of EPS){const st=Math.round(TAU/e),r=C.imagRun(g,"harm",p0,e,st,sc);res[sc+e]={E:r.E[st-1]-0.5,w:C.groundStateError(r.psi,g)}}
+ let bad="",n=0;for(const e of EPS){const h=EPS.find(x=>Math.abs(x-e/2)<1e-12);if(h===undefined)continue;n++;
+   const fs=res["sym"+e].w/res["sym"+h].w,fp=res["plain"+e].w/res["plain"+h].w,fe=res["sym"+e].E/res["sym"+h].E;
+   if(Math.abs(fs-4)>0.35||Math.abs(fp-2)>0.3||Math.abs(fe-4)>0.35)bad+=` eps ${e}->${h}: sym x${fs.toFixed(2)}, plain x${fp.toFixed(2)}, E x${fe.toFixed(2)};`}
+ check(`page run (tau = ${TAU}): every halving of eps offered (${n}) gives shape x4 (sym), x2 (plain), energy x4`,n===3&&bad==="",bad||"all halvings ok")}
+
+// 11. claims in the text: Part 2 default N, symmetric vs plain at N = 4 and N >= 16; Part 1 sliced stationary point
+{const N0=+html.match(/const A2=\{pot:"harm",N:(\d+)/)[1],r=C.convergence(G,0.7071,3,[4,16,32,64]);
+ check("Part 2 default N = 16; symmetric error is smaller than plain from N = 16 (x2, x4, x8) and about equal at N = 4",N0===16&&r.errP[1]/r.errS[1]>1.8&&r.errP[2]/r.errS[2]>3.5&&r.errP[3]/r.errS[3]>7&&Math.abs(r.errP[0]/r.errS[0]-1)<0.2,`N=4 ${r.errP[0].toFixed(3)} vs ${r.errS[0].toFixed(3)}; N=16 ${r.errP[1].toFixed(4)} vs ${r.errS[1].toFixed(4)}; N=32 ${r.errP[2].toFixed(4)} vs ${r.errS[2].toFixed(4)}`)}
+{const xa=-1,xb=1.2,stat=(N,T)=>{const cl=Array.from({length:N+1},(_,k)=>C.classicalHarm(xa,xb,T,k*T/N));let best=1e9,bx=0;
+   for(let x=-4;x<=4;x+=0.001){const p=cl.slice();p[1]=x;const v=C.pathAction(Float64Array.from(p),T,C.Vharm);if(v<best){best=v;bx=x}}return [bx,cl[1]]};
+ const a=stat(2,3),b=stat(4,3),c=stat(2,2);
+ check("Part 1 text: N = 2, T = 3 sliced minimum (0.36) is far from the classical dot (1.41); N = 4 and N = 2, T = 2 are close (< 0.05)",Math.abs(a[0]-0.357)<0.01&&Math.abs(a[0]-a[1])>1&&Math.abs(b[0]-b[1])<0.05&&Math.abs(c[0]-c[1])<0.05,`N2T3 ${a[0].toFixed(3)} vs ${a[1].toFixed(3)}; N4T3 ${b[0].toFixed(3)} vs ${b[1].toFixed(3)}; N2T2 ${c[0].toFixed(3)} vs ${c[1].toFixed(3)}`)}
+
 console.log(fails?`\n${fails} check(s) FAILED`:"\nall checks passed");
 process.exit(fails?1:0);

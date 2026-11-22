@@ -74,5 +74,7 @@ const ks=[0.3,0.9,1.7,3.2,5.5];
 {const S=C.potentialSites("barrier",0.4,1000),k=[1,2,4,8].map(kk=>C.growthRate(S,kk));
  check("rho falls with k (fast particle needs fewer kicks)",k[0]>k[1]&&k[1]>k[2]&&k[2]>k[3],`rho(k=1,2,4,8) = ${k.map(x=>x.toFixed(4)).join(", ")}`)}
 
+{const rg=C.growthRate(C.potentialSites("delta",3,1),2),rb=C.growthRate(C.potentialSites("barrier",5,400),2),re=C.growthRate(C.potentialSites("delta",-2,1),2);
+ check("rho >= 1 without a bound state: repulsive delta g=3,k=2 (1.5), barrier V0=5,k=2 (~2.2); edge g=-2,k=2 is rho=1",Math.abs(rg-1.5)<1e-9&&rb>2&&Math.abs(re-1)<1e-9,`delta ${rg.toFixed(4)}, barrier ${rb.toFixed(4)}, edge ${re.toFixed(6)}`)}
 console.log(fails?`\n${fails} check(s) FAILED`:"\nall checks passed");
 process.exit(fails?1:0);

@@ -107,8 +107,8 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
   <label>how well we watch, turn angle θ <b id="thV"></b><input id="th" type="range" min="0" max="180" step="1" value="0"></label>
   <label>slit distance d <b id="dV"></b><input id="d" type="range" min="16" max="30" step="1" value="20"></label>
   <label>dots per second <b id="rtV"></b><input id="rt" type="range" min="20" max="600" step="10" value="150"></label>
-  <label><input type="checkbox" id="er"> quantum eraser: read the marker sideways (needs θ = 180°)</label>
-  <label><input type="checkbox" id="sort" checked> colour dots by eraser result</label>
+  <label><input type="checkbox" id="er"> quantum eraser: read the marker sideways (sets θ = 180°)</label>
+  <label id="sortL" style="opacity:.5"><input type="checkbox" id="sort" checked disabled> colour dots by eraser result (needs the eraser on)</label>
 </div>
 <div class="big" id="big"></div>
 <div class="read" id="read"></div>
@@ -464,7 +464,7 @@ function frame(ts){
   drawSetup();drawScreen();drawDial();drawComp();readouts();
   requestAnimationFrame(frame);
 }
-function syncEraser(){const e=$("er").checked;$("th").disabled=e;if(e)$("th").value=180;labels();resetDots()}
+function syncEraser(){const e=$("er").checked;$("th").disabled=e;$("sort").disabled=!e;$("sortL").style.opacity=e?1:.5;if(e)$("th").value=180;labels();resetDots()}
 $("th").addEventListener("input",()=>{labels();resetDots()});
 $("d").addEventListener("input",()=>{labels();buildGeometry()});
 $("rt").addEventListener("input",labels);

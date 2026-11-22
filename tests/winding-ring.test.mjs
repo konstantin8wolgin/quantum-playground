@@ -94,5 +94,7 @@ const PI=Math.PI;
  let ok=true;for(let i=0;i<st.N;i++)if(!(st.phi[i]===st.phi[i]))ok=false;
  check("Monte Carlo state stays finite; local acceptance between 20% and 95%",ok&&st.acc/st.tries>0.2&&st.acc/st.tries<0.95,`acceptance ${(st.acc/st.tries).toFixed(3)}`)}
 
+{const v=C.nSquared(8,1),one=2*Math.exp(-2*Math.PI*Math.PI/8);
+ check("<n^2> at beta = 8, I = 1 is 0.145 (the page text); the one-term estimate 0.17 is about 17 % high; 0 extra sector terms at beta = 0.5",Math.abs(v-0.1454)<5e-4&&Math.abs(one/v-1.17)<0.01&&C.neededWind(0.5,0,1,1e-10)===0,`exact ${v.toFixed(4)}, one term ${one.toFixed(4)}, sectors needed at beta 0.5: ${C.neededWind(0.5,0,1,1e-10)}`)}
 console.log(fails?`\n${fails} check(s) FAILED`:"\nall checks passed");
 process.exit(fails?1:0);

@@ -80,7 +80,11 @@ const grid=(a,b,dx)=>{const n=Math.round((b-a)/dx)+1,xs=new Float64Array(n);for(
 {const N=240,xs=grid(-14,14,0.01),dx=0.01,M=xs.length,w=1,basis=C.hoBasis(N,w,xs),pr=new Float64Array(M),pi_=new Float64Array(M);
  for(let j=0;j<M;j++){const a=C.hoProfile("two",xs[j],0.8,0);pr[j]=a[0];pi_[j]=a[1]}
  const c=C.hoCoeffs(N,basis,xs,dx,pr,pi_),o=C.hoOverlap(c,0.25,1),oo=C.hoOverlap(c,0.25,-1);
- check("at T/4 neither start nor mirror image returns (both overlaps < 0.9)",Math.hypot(o[0],o[1])<0.9&&Math.hypot(oo[0],oo[1])<0.9,`|<psi0|psi>| = ${Math.hypot(o[0],o[1]).toFixed(4)}, |<mirror|psi>| = ${Math.hypot(oo[0],oo[1]).toFixed(4)}`)}
+ check("at T/4 neither start nor mirror image returns (both overlaps < 0.9)",Math.hypot(o[0],o[1])<0.9&&Math.hypot(oo[0],oo[1])<0.9,`|<psi0|psi>| = ${Math.hypot(o[0],o[1]).toFixed(4)}, |<mirror|psi>| = ${Math.hypot(oo[0],oo[1]).toFixed(4)}`)
+ {const x0=+html.match(/id="x01"[^>]*value="([\d.\-]+)"/)[1],wd=+html.match(/id="w1"[^>]*value="([\d.\-]+)"/)[1],b2=C.hoBasis(N,wd,xs),qr=new Float64Array(M),qi=new Float64Array(M);
+  for(let j=0;j<M;j++){const a=C.hoProfile("two",xs[j],x0,0);qr[j]=a[0];qi[j]=a[1]}
+  const c2=C.hoCoeffs(N,b2,xs,dx,qr,qi),a1=C.hoOverlap(c2,0.25,1),a2=C.hoOverlap(c2,0.25,-1),v1=Math.hypot(a1[0],a1[1]),v2=Math.hypot(a2[0],a2[1]);
+  check("default packet (page values x0, w) at T/4: both overlaps are 0.58 (text says 0.58)",Math.abs(v1-0.58)<0.005&&Math.abs(v2-0.58)<0.005,`x0=${x0}, w=${wd}: ${v1.toFixed(4)}, ${v2.toFixed(4)}`)}}
 
 /* ---------- Part 2: box ---------- */
 const Nmax=300,xq=grid(0,1,1/4096),dq=1/4096,Mq=xq.length,tabq=C.sinTable(Nmax,xq);

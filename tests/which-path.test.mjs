@@ -94,5 +94,7 @@ for(const d of [16,20,28]){
     line+=` ${th}:${e.ov.toFixed(3)}+-${e.sigma.toFixed(3)}(true ${ov.toFixed(3)})`}
   check("overlap estimated from 1e5 dots agrees within 4 sigma",okAll,line);
 }
+{const off=/id="sort"[^>]*\bdisabled\b/.test(html),sync=/function syncEraser\(\)\{[^}]*\$\("sort"\)\.disabled=!e/.test(html),lab=/\(sets θ = 180°\)/.test(html)&&!/needs θ = 180°/.test(html);
+ check("sort checkbox starts disabled and is enabled only with the eraser; eraser label says it sets θ = 180°",off&&sync&&lab,`disabled at start ${off}, syncEraser toggles it ${sync}, label ${lab}`)}
 console.log(fails?`\n${fails} check(s) FAILED`:"\nall checks passed");
 process.exit(fails?1:0);
