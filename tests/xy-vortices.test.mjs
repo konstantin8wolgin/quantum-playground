@@ -19,7 +19,7 @@ const check=(name,ok,detail)=>{console.log(`${ok?"PASS":"FAIL"}  ${name}  ${deta
 /* ---------- Part 1: ball on the Mexican hat ---------- */
 function hat(mu2,gam){
   const params={mu:mu2,gam};
-  return vm.runInNewContext(`${part1}\n${p1fns}\n;({get ball(){return ball},set ball(b){ball=b},step1,radialFreq,angSpeed,r0,get hist(){return hist},clear(){hist=[]}})`,
+  return vm.runInNewContext(`${part1}\n${p1fns}\n;({get ball(){return ball},set ball(b){ball=b},step1,radialFreq,angSpeed,r0,energy1,barrier1,rTurn,rInner,angMom,get hist(){return hist},clear(){hist=[]}})`,
     {Math,$:id=>({value:params[id]})});
 }
 for(const mu2 of [1,0.5]){
@@ -38,6 +38,22 @@ for(const mu2 of [1,0.5]){
 {const H=hat(1,0.5);H.ball={x:1.5,y:0.3,vx:0,vy:0};for(let i=0;i<2000;i++)H.step1(10);
  const r=Math.hypot(H.ball.x,H.ball.y);
  check("with friction the ball settles in the valley r0 = sqrt(mu2/(2 lam))",Math.abs(r-H.r0(1))<1e-3,`r ${r.toFixed(5)}, r0 ${H.r0(1).toFixed(5)}`)}
+
+
+/* ---------- Part 1: big pushes, over the hump ---------- */
+{const H=hat(1,0);check("hump height = mu^4/(4 lam) = 1 for mu2 = 1",Math.abs(H.barrier1(1)-1)<1e-12,`${H.barrier1(1)}`)}
+for(const [v,over] of [[1.3,false],[1.5,true],[2.5,true]]){
+  const H=hat(1,0),r=H.r0(1);H.ball={x:r,y:0,vx:-v,vy:0};const E0=H.energy1();let rmin=9,rmax=0,Emax=0;
+  for(let i=0;i<4000;i++){H.step1(1);const b=H.ball,rr=Math.hypot(b.x,b.y);rmin=Math.min(rmin,rr);rmax=Math.max(rmax,rr);Emax=Math.max(Emax,Math.abs(H.energy1()-E0))}
+  const crossed=rmin<0.05;
+  check(`push to the centre with speed ${v} (E = ${E0.toFixed(3)}, hump 1): ${over?"goes over the top":"turns back before the top"}`,crossed===over,`closest approach ${rmin.toFixed(4)}`);
+  check(`  energy conserved without friction (relative <= 5e-4)`,Emax/E0<5e-4,`drift ${(Emax/E0).toExponential(2)}`);
+  check(`  outer turning point = rTurn(E) (<= 1e-2)`,Math.abs(rmax-H.rTurn(E0,1))<1e-2,`${rmax.toFixed(4)} vs ${H.rTurn(E0,1).toFixed(4)}`);
+}
+
+{const H=hat(1,0),r=H.r0(1);H.ball={x:r,y:0,vx:-1.5,vy:0.25};const E=H.energy1(),L=H.angMom();let rmin=9;
+ for(let i=0;i<4000;i++){H.step1(1);rmin=Math.min(rmin,Math.hypot(H.ball.x,H.ball.y))}
+ check("with sideways motion the ball misses the centre; closest distance = rInner(E, L) (<= 2e-3)",rmin>0.05&&Math.abs(rmin-H.rInner(E,L,1))<2e-3,`E ${E.toFixed(3)} (> hump 1), L ${L.toFixed(3)}: closest ${rmin.toFixed(4)} vs ${H.rInner(E,L,1).toFixed(4)}`)}
 
 /* ---------- Part 2: XY model ---------- */
 function xy(seed){

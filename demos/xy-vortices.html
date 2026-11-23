@@ -84,16 +84,17 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <h2>1 · The Mexican hat <span class="chip c-exact">exact</span></h2>
 <p>The ball is the value of a complex field φ. The height is its energy <span class="eq">V = −μ²|φ|² + ¼|φ|⁴</span>. When μ² &gt; 0, the lowest energy is a whole circle (the valley). The ball must pick one point: the symmetry breaks.</p>
 <div class="row">
-  <div><canvas id="hat" height="340"></canvas><div class="cap">Drag to look around. The ball leaves a trail.</div></div>
+  <div><canvas id="hat" height="340"></canvas><div class="cap" id="hatCap">Drag to look around. The ball leaves a trail.</div></div>
   <div><canvas id="trace" height="340"></canvas><div class="cap">Orange: distance from the centre (up and down the wall). Blue: angle along the valley.</div></div>
 </div>
 <div class="controls">
-  <div class="btns"><button class="primary" id="kickR">Push up the wall</button><button id="kickT">Push along the valley</button><button id="reset1">Reset</button></div>
+  <div class="btns"><button class="primary" id="kickR">Push up the wall</button><button id="kickIn">Push to the centre</button><button id="kickT">Push along the valley</button><button id="reset1">Reset</button></div>
+  <label>push size <b id="pushV"></b><input id="push" type="range" min="0.05" max="2.5" step="0.05" value="0.25"></label>
   <label>shape μ² <b id="muV"></b><input id="mu" type="range" min="-1" max="1.5" step="0.01" value="1"></label>
   <label>friction <b id="gamV"></b><input id="gam" type="range" min="0" max="0.3" step="0.005" value="0"></label>
 </div>
 <div class="read" id="read1"></div>
-<div class="predict"><b>Predict, then test:</b> which push makes the ball swing back, and which one makes it roll on for ever? Then set μ² below 0. What changes?</div>
+<div class="predict"><b>Predict, then test:</b> which push makes the ball swing back, and which one makes it roll on for ever? How big must a push to the centre be to carry the ball over the hump? Then set μ² below 0. What changes?</div>
 </section>
 
 <section>
@@ -152,6 +153,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <h3>Things to try</h3>
 <ol class="try">
 <li>Part 1: press "Push up the wall", then "Push along the valley". <details><summary>What happens and why</summary>The first push makes the ball swing. The wall of the valley pushes it back, and the orange curve oscillates with frequency 2μ. The second push makes the ball go round the valley. The valley floor is flat: there is no force along it, so the angle grows in a straight line and the ball never swings back. The numbers show the measured frequency and the formula agree.</details></li>
+<li>Part 1: press Reset (the ball stops in the valley). Set the push size to 1.0 and press "Push to the centre". Then press Reset, set it to 1.5, and push again. Last, push along the valley first and then to the centre with 1.5. <details><summary>What happens and why</summary>With 1.0 the ball climbs the central hump, stops below the top and rolls back: the energy (0.5) is below the hump height (1 for μ² = 1). With 1.5 the energy is 1.125, more than the hump. The ball rolls over the top, through the centre and up the far wall. It then swings through the centre again and again. At this energy the motion does not pick a point of the valley any more: the broken symmetry is restored. The same happens to a real field when you heat it: above a critical temperature the field sits at the centre again. Large pushes up the outer wall also send the ball over the top when it comes back, because there is no friction to take the energy away. The outer wall grows like |φ|⁴, so the ball always turns back: it can never escape. If the ball also moves along the valley, its angular momentum keeps it away from the centre, even with enough energy: it circles round the top of the hump. The readout gives the closest distance.</details></li>
 <li>Part 1: set μ² below 0. <details><summary>What happens and why</summary>The hat turns into a bowl. The valley ring disappears. The ball now swings in every direction with the same frequency √(2|μ²|). Nothing is special about any direction: the symmetry is not broken. The Goldstone motion is gone. This is the answer to "what changes?": there is no free direction any more.</details></li>
 <li>Part 1: add friction and push again. <details><summary>What happens and why</summary>Friction slows all motion, so the swing dies out and the ball settles at a point of the valley. It also slows the roll along the valley. That is plain friction, not a force from the hat: the hat itself gives no push along the valley. Without friction (γ = 0), the roll never changes.</details></li>
 <li>Part 2: cool down fast (short time), then slow (long time). <details><summary>What happens and why</summary>The fast cool-down leaves many vortices. The slow one leaves few. When you cool fast, far-apart regions choose their angle without knowing about each other. Where the regions meet in a mismatched way, a vortex gets trapped. When you cool slowly, the regions have time to line up. This is the Kibble–Zurek idea. In one test run, 32 sweeps left about 180 vortices, and 3000 sweeps left about 6. Your numbers will differ, because the process is random.</details></li>
@@ -163,6 +165,8 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 <h3>The physics</h3>
 <p><b>Part 1.</b> A complex <a class="term" href="../glossary.html#field">field</a> φ has two parts, a size and an angle (a <a class="term" href="../glossary.html#phase">phase</a>). The energy depends on the size only. This gives the Mexican hat. The rotation of the angle is a symmetry (called <a class="term" href="../glossary.html#u1">U(1)</a>). When the field sits at a point of the valley, it picks one angle and the symmetry is broken. The motion along the valley has no restoring force. This is the Goldstone mode. In a field with many points, it becomes a massless wave. The rule is Goldstone's theorem: each broken continuous symmetry gives one massless mode.</p>
 <p>The motion up the wall is the radial mode. It has a mass: its frequency is ω = 2μ. People call this the "Higgs mode" of a field with a broken global symmetry. Be careful with the word. The real <a class="term" href="../glossary.html#higgs">Higgs mechanism</a> needs one more ingredient: a <a class="term" href="../glossary.html#gauge-field">gauge field</a>. With the gauge field, the massless Goldstone mode is "eaten" and the gauge field gets a mass. Nothing like this happens in this room, because there is no gauge field here. The room <a href="flux-vortices.html">Vortices That Trap Flux</a> adds it.</p>
+<p><b>Over the hump.</b> The central hump has the height μ⁴/(4λ). A ball with less energy is trapped in the valley and must choose an angle. A ball with more energy rolls through the centre, and its motion is symmetric again. For a field this is symmetry restoration at high energy or high temperature. In the early universe the Higgs field sat at the centre of its hat, and the symmetry was broken when the universe cooled.</p>
+<p><b>Is the theory renormalizable?</b> Yes. The Mexican hat V = −μ²|φ|² + λ|φ|⁴ in four space-time dimensions is renormalizable: the infinities of the quantum theory can be absorbed in μ², λ and the size of the field. That is why the Higgs sector of the Standard Model works. Big pushes do not change this. The real problems are other ones. Quantum corrections pull μ² towards very large values (the hierarchy problem). λ grows with energy, so the φ⁴ theory alone is probably only an effective theory (the "triviality" problem). In the Standard Model, the top quark makes λ smaller at high energy. With the measured masses it becomes slightly negative near 10¹⁰–10¹¹ GeV, so our vacuum is probably metastable, but very long-lived. A term like |φ|⁶ would be non-renormalizable in four dimensions. This classical ball does not show any of these quantum effects.</p>
 <p><b>Part 2.</b> Put the field on a <a class="term" href="../glossary.html#lattice">lattice</a>. Keep only the angle at each site. This is the XY model. The computer draws random configurations with the right chances for a given temperature, using the Metropolis rule. This is a <a class="term" href="../glossary.html#monte-carlo">Monte Carlo</a> method. A <a class="term" href="../glossary.html#vortex">vortex</a> has a <a class="term" href="../glossary.html#winding-number">winding number</a>: how many times the angle turns around it. In the middle of a vortex the field cannot choose an angle. On the real hat, it would have to climb to the top.</p>
 <p>In two dimensions, there is no true long-range order at any T &gt; 0 (the Mermin–Wagner theorem). Long waves destroy it. But there is a sharp change at T<sub>KT</sub>: below it, vortices and anti-vortices stay in bound pairs, and above it they move freely (<a class="term" href="../glossary.html#kt-transition">KT transition</a>). Kosterlitz and Thouless shared the 2016 Nobel Prize (with Haldane) for this kind of work.</p>
 <p>The same maths describes thin films of superfluid helium, and cold atoms. The cool-down test is the Kibble–Zurek mechanism. It was first proposed for the early universe and checked in many laboratory systems.</p>
@@ -196,7 +200,7 @@ New to this? Read the <a href="#guide">guide at the bottom of the page</a>. Unkn
 </details>
 
 <h3>Honest limits</h3>
-<p class="limits">Part 1 is one classical ball. It shows the shapes of the motions, but it is not a quantum field. Part 2 is the XY model: a classical model with random sampling, not a real material. The "time" of the cool-down is the number of Monte Carlo sweeps, and it is not real time. The exact law for the number of vortices against cool-down time is not drawn here: the plot only shows that slow cooling leaves fewer. The grid has 128 × 128 sites with wrap-around edges, so the transition looks rounded and the density at a given T needs a few seconds to settle. Close to T<sub>KT</sub> it settles very slowly. The clicked pair is a rough start, not an exact solution.</p>
+<p class="limits">Part 1 is one classical ball. It shows the shapes of the motions, but it is not a quantum field. It has no quantum corrections, so it cannot show renormalization, the running of λ or vacuum decay. When the view zooms out for a big push, the heights are squeezed to fit (the caption gives the factor); the positions and the numbers stay exact. Part 2 is the XY model: a classical model with random sampling, not a real material. The "time" of the cool-down is the number of Monte Carlo sweeps, and it is not real time. The exact law for the number of vortices against cool-down time is not drawn here: the plot only shows that slow cooling leaves fewer. The grid has 128 × 128 sites with wrap-around edges, so the transition looks rounded and the density at a given T needs a few seconds to settle. Close to T<sub>KT</sub> it settles very slowly. The clicked pair is a rough start, not an exact solution.</p>
 
 <h3>Go further</h3>
 <ul class="refs">
@@ -219,38 +223,55 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ================= Part 1: Mexican hat ================= */
 const LAM=0.25,DT1=0.01;
-let ball={x:0,y:0,vx:0,vy:0},hist=[],trail=[],tsim=0;
+let ball={x:0,y:0,vx:0,vy:0},hist=[],trail=[],tsim=0,viewR=2.4;
 const V=(r2,mu2)=>-mu2*r2+LAM*r2*r2;
 function r0(mu2){return mu2>0?Math.sqrt(mu2/(2*LAM)):0}
 function reset1(){const mu2=+$("mu").value,r=r0(mu2);ball={x:r,y:0,vx:0,vy:0};hist=[];trail=[];tsim=0}
 function step1(n){const mu2=+$("mu").value,g=+$("gam").value;
-  for(let i=0;i<n;i++){const r2=ball.x*ball.x+ball.y*ball.y,f=2*mu2-4*LAM*r2;   // -dV/dx = (2mu2 - 4 lam r2) x
-    ball.vx+=(f*ball.x-g*ball.vx)*DT1;ball.vy+=(f*ball.y-g*ball.vy)*DT1;ball.x+=ball.vx*DT1;ball.y+=ball.vy*DT1;tsim+=DT1;
+  /* velocity Verlet (energy error ~ DT1^2); -dV/dx = (2mu2 - 4 lam r2) x; friction -g v */
+  const acc=(x,y,vx,vy)=>{const f=2*mu2-4*LAM*(x*x+y*y);return [f*x-g*vx,f*y-g*vy]};
+  for(let i=0;i<n;i++){let a=acc(ball.x,ball.y,ball.vx,ball.vy);const hx=ball.vx+0.5*DT1*a[0],hy=ball.vy+0.5*DT1*a[1];
+    ball.x+=hx*DT1;ball.y+=hy*DT1;a=acc(ball.x,ball.y,hx,hy);ball.vx=hx+0.5*DT1*a[0];ball.vy=hy+0.5*DT1*a[1];tsim+=DT1;
     if(i%4===0){hist.push([tsim,Math.hypot(ball.x,ball.y),Math.atan2(ball.y,ball.x),ball.x]);if(hist.length>1500)hist.shift()}}
   trail.push([ball.x,ball.y]);if(trail.length>400)trail.shift();
 }
+/* energy of the ball measured from the valley floor, and the height of the central hump */
+function vMin(mu2){return mu2>0?-mu2*mu2/(4*LAM):0}
+function energy1(){const r2=ball.x*ball.x+ball.y*ball.y;return 0.5*(ball.vx*ball.vx+ball.vy*ball.vy)+V(r2,+$("mu").value)-vMin(+$("mu").value)}
+function barrier1(mu2){return mu2>0?mu2*mu2/(4*LAM):0}
+/* largest distance the ball can reach with total energy E (measured from the floor): solve LAM r^4 - mu2 r^2 = E + vMin */
+function rTurn(E,mu2){const e=E+vMin(mu2);return Math.sqrt((mu2+Math.sqrt(mu2*mu2+4*LAM*e))/(2*LAM))}
+/* closest distance to the centre for energy E (from the floor) and angular momentum L: smallest r with V(r^2) + L^2/(2 r^2) = E + vMin */
+function rInner(E,L,mu2){const e=E+vMin(mu2),f=r=>V(r*r,mu2)+L*L/(2*r*r)-e;if(Math.abs(L)<1e-12)return E>=barrier1(mu2)?0:NaN;
+  let a=1e-6,b=Math.max(r0(mu2),1e-3);if(f(b)>0)return NaN;for(let i=0;i<80;i++){const m=0.5*(a+b);f(m)>0?a=m:b=m}return b}
+function angMom(){return ball.x*ball.vy-ball.y*ball.vx}
 const cam={yaw:0.6,pitch:0.55};
 function proj(p,sc,cx,cy){const c=Math.cos(cam.yaw),s=Math.sin(cam.yaw),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch);
   const x1=p[0]*c-p[1]*s,y1=p[0]*s+p[1]*c,z1=p[2],y2=y1*cp-z1*sp,z2=y1*sp+z1*cp,k=7/(7+y2);
   return{x:cx+x1*sc*k,y:cy-z2*sc*k,d:y2}}
 function drawHat(){
-  const {x:g,w:W,h:H}=fit($("hat")),mu2=+$("mu").value,R=2.4,sc=Math.min(W,H)/5.4,cx=W/2,cy=H*0.55;
-  const zf=r2=>Math.max(-2.4,Math.min(1.8,V(r2,mu2)*0.9));
+  const {x:g,w:W,h:H}=fit($("hat")),mu2=+$("mu").value,cx=W/2,cy=H*0.55;
+  /* zoom out when the ball can climb above the drawn rim; heights are squeezed by the same factor as the default rim */
+  const want=Math.max(2.4,1.1*rTurn(Math.max(0,energy1()),mu2));viewR+=(want-viewR)*(want>viewR?0.25:0.03);
+  const R=viewR,kx=2.4/R,sc=Math.min(W,H)/5.4,hs=Math.min(1,V(2.4*2.4,mu2)/Math.max(1e-9,V(R*R,mu2)));
+  const zf=r2=>Math.max(-2.4,Math.min(1.8,V(r2,mu2)*0.9*(R>2.4+1e-6?hs:1)));
+  const P3=(x,y,z)=>proj([x*kx,y*kx,z],sc,cx,cy);
   g.fillStyle="#07080c";g.fillRect(0,0,W,H);
   const seg=(a,b,col)=>{g.strokeStyle=col;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()};
   g.lineWidth=1;
   for(let k=1;k<=12;k++){const r=R*k/12;let prev=null;
-    for(let i=0;i<=72;i++){const a=i/72*2*Math.PI,p=proj([r*Math.cos(a),r*Math.sin(a),zf(r*r)],sc,cx,cy);
+    for(let i=0;i<=72;i++){const a=i/72*2*Math.PI,p=P3(r*Math.cos(a),r*Math.sin(a),zf(r*r));
       if(prev)seg(prev,p,`rgba(140,160,200,${prev.d+p.d<0?0.5:0.22})`);prev=p}}
   for(let i=0;i<24;i++){const a=i/24*2*Math.PI;let prev=null;
-    for(let k=0;k<=24;k++){const r=R*k/24,p=proj([r*Math.cos(a),r*Math.sin(a),zf(r*r)],sc,cx,cy);if(prev)seg(prev,p,`rgba(140,160,200,${prev.d+p.d<0?0.35:0.15})`);prev=p}}
+    for(let k=0;k<=24;k++){const r=R*k/24,p=P3(r*Math.cos(a),r*Math.sin(a),zf(r*r));if(prev)seg(prev,p,`rgba(140,160,200,${prev.d+p.d<0?0.35:0.15})`);prev=p}}
   // valley
-  const rv=r0(mu2);if(rv>0){g.lineWidth=2;let prev=null;for(let i=0;i<=96;i++){const a=i/96*2*Math.PI,p=proj([rv*Math.cos(a),rv*Math.sin(a),zf(rv*rv)],sc,cx,cy);if(prev)seg(prev,p,"rgba(127,176,255,.85)");prev=p}}
+  const rv=r0(mu2);if(rv>0){g.lineWidth=2;let prev=null;for(let i=0;i<=96;i++){const a=i/96*2*Math.PI,p=P3(rv*Math.cos(a),rv*Math.sin(a),zf(rv*rv));if(prev)seg(prev,p,"rgba(127,176,255,.85)");prev=p}}
   g.lineWidth=1.5;g.strokeStyle="rgba(255,170,60,.7)";g.beginPath();
-  trail.forEach(([x,y],i)=>{const p=proj([x,y,zf(x*x+y*y)],sc,cx,cy);i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y)});g.stroke();
-  const b=proj([ball.x,ball.y,zf(ball.x*ball.x+ball.y*ball.y)],sc,cx,cy);
+  trail.forEach(([x,y],i)=>{const p=P3(x,y,zf(x*x+y*y));i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y)});g.stroke();
+  const b=P3(ball.x,ball.y,zf(ball.x*ball.x+ball.y*ball.y));
   g.fillStyle="#ffaa3c";g.beginPath();g.arc(b.x,b.y,7,0,7);g.fill();g.strokeStyle="#fff";g.lineWidth=1.5;g.stroke();
   g.fillStyle="rgba(255,255,255,.6)";g.font="12px system-ui";g.fillText(mu2>0?"valley = all equal minima":"one minimum: symmetric",10,18);
+  $("hatCap").textContent=R>2.45?`Drag to look around. View zoomed out ×${(R/2.4).toFixed(1)}; heights squeezed ×${hs.toFixed(2)} to fit.`:"Drag to look around. The ball leaves a trail.";
 }
 function drawTrace(){
   const {x:g,w:W,h:H}=fit($("trace"));g.fillStyle="#07080c";g.fillRect(0,0,W,H);
@@ -273,9 +294,14 @@ function radialFreq(){if(hist.length<50)return NaN;const mx=[],k=(+$("mu").value
 function angSpeed(){const r2=ball.x*ball.x+ball.y*ball.y;return r2>1e-9?(ball.x*ball.vy-ball.y*ball.vx)/r2:0}
 function read1(){const mu2=+$("mu").value,w=radialFreq(),pred=mu2>0?2*Math.sqrt(mu2):Math.sqrt(2*Math.abs(mu2));
   $("read1").innerHTML=`<div><span>swing frequency measured </span><b>${isNaN(w)?"…":w.toFixed(3)}</b> <span>· predicted ${mu2>0?"2μ":"√(2|μ²|)"} = </span><b>${pred.toFixed(3)}</b></div>
+  <div><span>energy above the valley floor </span><b>${energy1().toFixed(3)}</b> <span>· height of the central hump </span><b>${barrier1(mu2).toFixed(3)}</b> <span>· ${mu2<=0?"no hump: one minimum, nothing to break":energy1()>barrier1(mu2)?(Math.abs(angMom())<0.02*Math.max(1e-9,Math.sqrt(2*energy1()))*r0(mu2)?"<b>over the top:</b> the ball rolls through the centre. At this energy the motion no longer picks a point of the valley — the symmetry is back.":`<b>enough energy for the top</b>, but the sideways motion (angular momentum ${angMom().toFixed(3)}) keeps the ball ${rInner(energy1(),angMom(),mu2).toFixed(3)} away from the centre: it circles round the hump. Press Reset, then push straight to the centre.`):"trapped in the valley: the symmetry stays broken"}</span></div>
+  ${mu2>0&&energy1()>0.1*barrier1(mu2)?'<div><span>large swing: 2μ is the frequency of small swings only, so the measured value moves away from it</span></div>':""}
   <div><span>speed along the valley </span><b>${angSpeed().toFixed(3)}</b> <span>rad/s (no force along the valley changes it; only friction slows it)</span></div>`}
-$("kickR").onclick=()=>{const r=Math.hypot(ball.x,ball.y)||1,ux=r>1e-6?ball.x/r:1,uy=r>1e-6?ball.y/r:0;ball.vx+=0.25*ux;ball.vy+=0.25*uy;hist=[]};
-$("kickT").onclick=()=>{const r=Math.hypot(ball.x,ball.y),ux=r>1e-6?-ball.y/r:0,uy=r>1e-6?ball.x/r:1;ball.vx+=0.35*ux;ball.vy+=0.35*uy;hist=[]};
+function pushSize(){return +$("push").value}
+$("kickR").onclick=()=>{const r=Math.hypot(ball.x,ball.y)||1,ux=r>1e-6?ball.x/r:1,uy=r>1e-6?ball.y/r:0,k=pushSize();ball.vx+=k*ux;ball.vy+=k*uy;hist=[]};
+$("kickIn").onclick=()=>{const r=Math.hypot(ball.x,ball.y),ux=r>1e-6?ball.x/r:1,uy=r>1e-6?ball.y/r:0,k=pushSize();ball.vx-=k*ux;ball.vy-=k*uy;hist=[]};
+$("push").addEventListener("input",()=>$("pushV").textContent=(+$("push").value).toFixed(2));$("pushV").textContent=(+$("push").value).toFixed(2);
+$("kickT").onclick=()=>{const r=Math.hypot(ball.x,ball.y),ux=r>1e-6?-ball.y/r:0,uy=r>1e-6?ball.x/r:1;const k=1.4*pushSize();ball.vx+=k*ux;ball.vy+=k*uy;hist=[]};
 $("reset1").onclick=reset1;
 $("mu").addEventListener("input",()=>{$("muV").textContent=(+$("mu").value).toFixed(2);reset1();if(+$("mu").value<=0){ball.x=0.12}});
 $("gam").addEventListener("input",()=>$("gamV").textContent=(+$("gam").value).toFixed(3));
